@@ -1,0 +1,57 @@
+name: CI Rosen
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "packages/ergo-agent-rosen/**"
+      - "packages/ergo-agent-pay/**"
+      - "packages/ergo-agent-scripts/**"
+      - ".github/workflows/ci-rosen.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "packages/ergo-agent-rosen/**"
+      - "packages/ergo-agent-pay/**"
+      - "packages/ergo-agent-scripts/**"
+      - ".github/workflows/ci-rosen.yml"
+
+jobs:
+  build:
+    name: Build, typecheck & test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install + build ergo-agent-pay
+        working-directory: packages/ergo-agent-pay
+        run: |
+          npm install
+          npm run build
+
+      - name: Install + build ergo-agent-scripts
+        working-directory: packages/ergo-agent-scripts
+        run: |
+          npm install
+          npm run build
+
+      - name: Install ergo-agent-rosen
+        working-directory: packages/ergo-agent-rosen
+        run: npm install
+
+      - name: Typecheck
+        working-directory: packages/ergo-agent-rosen
+        run: npm run typecheck
+
+      - name: Test
+        working-directory: packages/ergo-agent-rosen
+        run: npm test
+
+      - name: Build
+        working-directory: packages/ergo-agent-rosen
+        run: npm run build
