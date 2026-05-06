@@ -70,6 +70,7 @@ Payment rails built for humans assume the opposite.
 | Package | Language | Install | Description |
 |---|---|---|---|
 | [`ergo-agent-pay`](./packages/ergo-agent-pay/) | TypeScript | `npm install ergo-agent-pay` | Full SDK: pay, issueNote, full lifecycle, policy engine, LangChain, OpenAI |
+| [`ergo-agent-scripts`](./packages/ergo-agent-scripts/) | TypeScript | `npm install ergo-agent-scripts` | Canonical ErgoScript sources for v0 predicates + typed registry for compiled ergoTrees |
 | [`ergo-agent-mcp`](./packages/ergo-agent-mcp/) | TypeScript | `npm install ergo-agent-mcp` | MCP server — plug Ergo payments into Claude, Cursor, any MCP client |
 | [`ergo-agent-pay`](./packages/ergo-agent-py/) | Python | `pip install ergo-agent-pay` | Balance, UTxOs, check_note, LangChain tool, OpenAI function |
 

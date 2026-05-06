@@ -1,0 +1,44 @@
+name: CI Scripts
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "packages/ergo-agent-scripts/**"
+      - ".github/workflows/ci-scripts.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "packages/ergo-agent-scripts/**"
+      - ".github/workflows/ci-scripts.yml"
+
+jobs:
+  build:
+    name: Build, typecheck, test, verify
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: packages/ergo-agent-scripts
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install
+        run: npm install
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+      - name: Verify registry hashes
+        run: npm run verify-predicates
+
+      - name: Build
+        run: npm run build

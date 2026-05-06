@@ -1,0 +1,40 @@
+{
+  "spec": "ergo-agent-economy/SPEC.md#5-acceptance-predicate-v0",
+  "version": "v0",
+  "description": "Canonical ErgoScript sources for v0 acceptance predicates. Run `npm run compile-predicates` (with `ergo-lib-wasm-nodejs` available) to populate ergoTreeHex and treeHashBlake2b256. Until the trees are populated, both fields are null and the SDK refuses mainnet writes that depend on them.",
+  "predicates": [
+    {
+      "name": "task_hash_v0",
+      "purpose": "Note acceptance predicate. Redemption requires HEIGHT < R5 and blake2b256(getVar[0]) == R6.",
+      "source": "{\n  val expiry       = R5[Int].get\n  val expectedHash = R6[Coll[Byte]].get\n  val taskOutput   = getVar[Coll[Byte]](0).get\n  val actualHash   = blake2b256(taskOutput)\n  sigmaProp(HEIGHT < expiry && actualHash == expectedHash)\n}",
+      "registers": {
+        "R5": "expiry block height (SInt)",
+        "R6": "expected task output hash, BLAKE2b-256 (SColl[SByte], 32 bytes)"
+      },
+      "context_variables": {
+        "0": "task output as Coll[Byte]"
+      },
+      "ergoTreeHex": null,
+      "treeHashBlake2b256": null,
+      "compiledAt": null,
+      "compiler": null
+    },
+    {
+      "name": "credential_v0",
+      "purpose": "Credential-gated Note acceptance predicate. Redemption requires HEIGHT < R5, blake2b256(getVar[0]) == R6, and proveDlog(R7).",
+      "source": "{\n  val expiry       = R5[Int].get\n  val expectedHash = R6[Coll[Byte]].get\n  val authorizedPK = R7[GroupElement].get\n  val taskOutput   = getVar[Coll[Byte]](0).get\n  sigmaProp(\n    HEIGHT < expiry &&\n    blake2b256(taskOutput) == expectedHash &&\n    proveDlog(authorizedPK)\n  )\n}",
+      "registers": {
+        "R5": "expiry block height (SInt)",
+        "R6": "expected task output hash, BLAKE2b-256 (SColl[SByte], 32 bytes)",
+        "R7": "authorised public key (GroupElement)"
+      },
+      "context_variables": {
+        "0": "task output as Coll[Byte]"
+      },
+      "ergoTreeHex": null,
+      "treeHashBlake2b256": null,
+      "compiledAt": null,
+      "compiler": null
+    }
+  ]
+}
