@@ -29,19 +29,27 @@ import { buildPayTx, buildNoteTx, parseAmount } from "./transactions.js";
 import { resolveDeadline } from "./predicates.js";
 import { assertProductionSafety } from "./safety.js";
 import {
-  buildCreateReserveTx,
-  buildRedeemNoteTx,
-  buildBatchSettleTx,
-  buildDeployTrackerTx,
+  dangerouslyBuildCreateReserveTx,
+  dangerouslyBuildRedeemNoteTx,
+  dangerouslyBuildBatchSettleTx,
+  dangerouslyBuildDeployTrackerTx,
   decodeRegisterInt,
   decodeRegisterBytes,
 } from "./lifecycle.js";
 
 export class ErgoAgentPay {
   private readonly config: Required<
-    Omit<ErgoAgentPayConfig, "signer" | "policy" | "allowInsecureDevMode">
+    Pick<ErgoAgentPayConfig, "address" | "network" | "nodeUrl">
   > &
-    Pick<ErgoAgentPayConfig, "signer" | "policy" | "allowInsecureDevMode">;
+    Pick<
+      ErgoAgentPayConfig,
+      | "signer"
+      | "policy"
+      | "allowInsecureDevMode"
+      | "dangerouslyAllowInsecureMainnetP2PK"
+      | "dangerouslyAllowUnauditedErgoTree"
+      | "auditPolicy"
+    >;
   private readonly network: NetworkClient;
   private readonly policy: PolicyEngine;
 
@@ -57,6 +65,9 @@ export class ErgoAgentPay {
       policy: config.policy,
       nodeUrl: config.nodeUrl ?? "",
       allowInsecureDevMode: config.allowInsecureDevMode,
+      dangerouslyAllowInsecureMainnetP2PK: config.dangerouslyAllowInsecureMainnetP2PK,
+      dangerouslyAllowUnauditedErgoTree: config.dangerouslyAllowUnauditedErgoTree,
+      auditPolicy: config.auditPolicy,
     };
 
     this.network = new NetworkClient(
@@ -132,11 +143,15 @@ export class ErgoAgentPay {
    * })
    */
   async issueNote(opts: NoteOptions): Promise<NoteResult> {
-    assertProductionSafety({
+    await assertProductionSafety({
       operation: "issueNote",
       network: this.config.network,
       scriptErgoTree: opts.scriptErgoTree,
+      scriptName: opts.scriptName,
       allowInsecureDevMode: this.config.allowInsecureDevMode,
+      dangerouslyAllowInsecureMainnetP2PK: this.config.dangerouslyAllowInsecureMainnetP2PK,
+      dangerouslyAllowUnauditedErgoTree: this.config.dangerouslyAllowUnauditedErgoTree,
+      auditPolicy: this.config.auditPolicy,
     });
 
     const valueNanoErg = parseAmount(opts.value);
@@ -289,7 +304,7 @@ export class ErgoAgentPay {
     ]);
 
     const receiver = opts.receiverAddress ?? this.config.address;
-    const unsignedTx = buildRedeemNoteTx(noteBox, feeInputs, height, this.config.address, opts);
+    const unsignedTx = dangerouslyBuildRedeemNoteTx(noteBox, feeInputs, height, this.config.address, opts);
     const baseResult = await this.signAndMaybeSubmit(unsignedTx);
 
     return {
@@ -315,11 +330,15 @@ export class ErgoAgentPay {
    * // Use the resulting boxId as `reserveBoxId` in issueNote()
    */
   async createReserve(config: ReserveConfig): Promise<ReserveResult> {
-    assertProductionSafety({
+    await assertProductionSafety({
       operation: "createReserve",
       network: this.config.network,
       scriptErgoTree: config.scriptErgoTree,
+      scriptName: config.scriptName,
       allowInsecureDevMode: this.config.allowInsecureDevMode,
+      dangerouslyAllowInsecureMainnetP2PK: this.config.dangerouslyAllowInsecureMainnetP2PK,
+      dangerouslyAllowUnauditedErgoTree: this.config.dangerouslyAllowUnauditedErgoTree,
+      auditPolicy: this.config.auditPolicy,
     });
 
     const [inputs, height] = await Promise.all([
@@ -334,7 +353,7 @@ export class ErgoAgentPay {
       );
     }
 
-    const unsignedTx = buildCreateReserveTx(inputs, height, this.config.address, config);
+    const unsignedTx = dangerouslyBuildCreateReserveTx(inputs, height, this.config.address, config);
     const baseResult = await this.signAndMaybeSubmit(unsignedTx);
     const collateral = parseAmount(config.collateral);
 
@@ -362,11 +381,15 @@ export class ErgoAgentPay {
    * })
    */
   async deployTracker(config: TrackerConfig): Promise<TrackerResult> {
-    assertProductionSafety({
+    await assertProductionSafety({
       operation: "deployTracker",
       network: this.config.network,
       scriptErgoTree: config.scriptErgoTree,
+      scriptName: config.scriptName,
       allowInsecureDevMode: this.config.allowInsecureDevMode,
+      dangerouslyAllowInsecureMainnetP2PK: this.config.dangerouslyAllowInsecureMainnetP2PK,
+      dangerouslyAllowUnauditedErgoTree: this.config.dangerouslyAllowUnauditedErgoTree,
+      auditPolicy: this.config.auditPolicy,
     });
 
     const [inputs, height] = await Promise.all([
@@ -381,7 +404,7 @@ export class ErgoAgentPay {
       );
     }
 
-    const unsignedTx = buildDeployTrackerTx(inputs, height, this.config.address, config);
+    const unsignedTx = dangerouslyBuildDeployTrackerTx(inputs, height, this.config.address, config);
     const baseResult = await this.signAndMaybeSubmit(unsignedTx);
 
     return {
@@ -431,7 +454,7 @@ export class ErgoAgentPay {
     ]);
 
     const receiver = opts.receiverAddress ?? this.config.address;
-    const unsignedTx = buildBatchSettleTx(noteBoxes, feeInputs, height, this.config.address, opts);
+    const unsignedTx = dangerouslyBuildBatchSettleTx(noteBoxes, feeInputs, height, this.config.address, opts);
     const baseResult = await this.signAndMaybeSubmit(unsignedTx);
 
     const totalValue = (noteBoxes as { value: string | number | bigint }[]).reduce<bigint>(

@@ -28,6 +28,7 @@ import { TransactionBuilder, OutputBuilder, SByte, SColl } from "@fleet-sdk/core
 import type { ReserveConfig, ReserveResult, RedeemOptions, RedeemResult, BatchSettleOptions, BatchSettleResult, TrackerConfig, TrackerResult, EIP12UnsignedTx } from "./types.js";
 import { ErgoAgentPayError } from "./types.js";
 import { parseAmount } from "./transactions.js";
+import { encodeSigmaCollByte } from "./encoding.js";
 
 // ── Reserve ──────────────────────────────────────────────────────────────────
 
@@ -39,7 +40,7 @@ import { parseAmount } from "./transactions.js";
  * @param deployerAddress - address that funds + controls the Reserve
  * @param config        - Reserve configuration
  */
-export function buildCreateReserveTx(
+export function dangerouslyBuildCreateReserveTx(
   inputs: unknown[],
   height: number,
   deployerAddress: string,
@@ -88,7 +89,7 @@ export function buildCreateReserveTx(
  * @param agentAddress  - change address
  * @param opts          - redeem options (receiver, taskOutput)
  */
-export function buildRedeemNoteTx(
+export function dangerouslyBuildRedeemNoteTx(
   noteBox: unknown,
   feeInputs: unknown[],
   height: number,
@@ -110,20 +111,16 @@ export function buildRedeemNoteTx(
     .build()
     .toEIP12Object() as EIP12UnsignedTx;
 
-  // Inject context variable 0 for acceptance predicate
+  // Inject context variable 0 for acceptance predicate.
+  // encodeSigmaCollByte enforces v0 length cap; throws INVALID_ENCODING above 255 bytes.
   if (opts.taskOutput) {
     const taskBytes =
       typeof opts.taskOutput === "string"
         ? Array.from(new TextEncoder().encode(opts.taskOutput))
         : Array.from(opts.taskOutput);
-    const hexTask = taskBytes.map((b) => b.toString(16).padStart(2, "0")).join("");
-
-    // EIP-12 extension: map from context variable index (string) to sigma-encoded value
     const inputs = (unsignedTx as { inputs: { boxId: string; extension?: Record<string, string> }[] }).inputs;
     if (inputs[0]) {
-      // Context var 0 = Coll[Byte] encoding: type prefix 0e + length varint + bytes
-      const lenHex = taskBytes.length.toString(16).padStart(2, "0");
-      inputs[0].extension = { "0": `0e${lenHex}${hexTask}` };
+      inputs[0].extension = { "0": encodeSigmaCollByte(taskBytes) };
     }
   }
 
@@ -144,7 +141,7 @@ export function buildRedeemNoteTx(
  * @param agentAddress  - change address
  * @param opts          - batch settle options
  */
-export function buildBatchSettleTx(
+export function dangerouslyBuildBatchSettleTx(
   noteBoxes: unknown[],
   feeInputs: unknown[],
   height: number,
@@ -166,7 +163,8 @@ export function buildBatchSettleTx(
     .build()
     .toEIP12Object() as EIP12UnsignedTx;
 
-  // Inject context variables for predicate-protected Notes
+  // Inject context variables for predicate-protected Notes.
+  // encodeSigmaCollByte enforces v0 length cap; throws INVALID_ENCODING above 255 bytes.
   if (opts.taskOutputs) {
     const inputs = (unsignedTx as { inputs: { boxId: string; extension?: Record<string, string> }[] }).inputs;
     noteBoxes.forEach((box, i) => {
@@ -177,9 +175,7 @@ export function buildBatchSettleTx(
           typeof taskOutput === "string"
             ? Array.from(new TextEncoder().encode(taskOutput))
             : Array.from(taskOutput);
-        const hexTask = taskBytes.map((b) => b.toString(16).padStart(2, "0")).join("");
-        const lenHex = taskBytes.length.toString(16).padStart(2, "0");
-        inputs[i].extension = { "0": `0e${lenHex}${hexTask}` };
+        inputs[i].extension = { "0": encodeSigmaCollByte(taskBytes) };
       }
     });
   }
@@ -201,7 +197,7 @@ export function buildBatchSettleTx(
  * @param deployerAddress - address that funds the Tracker deployment
  * @param config          - Tracker config (scriptErgoTree required for on-chain enforcement)
  */
-export function buildDeployTrackerTx(
+export function dangerouslyBuildDeployTrackerTx(
   inputs: unknown[],
   height: number,
   deployerAddress: string,
@@ -248,3 +244,22 @@ export function decodeRegisterBytes(hex: string): string {
   // SColl[SByte] type: 0e prefix, then length byte, then content
   return hex.slice(4); // skip type byte (0e) + length byte
 }
+
+// ── Deprecated aliases ───────────────────────────────────────────────────────
+//
+// The unprefixed names are kept for one minor-version cycle. New code MUST
+// use the `dangerouslyBuild*` names; they signal that the function bypasses
+// the SDK's audit/safety guardrails and the caller is on the hook for
+// running their own audit policy before signing on mainnet.
+
+/** @deprecated Use `dangerouslyBuildCreateReserveTx` — see module docs. */
+export const buildCreateReserveTx = dangerouslyBuildCreateReserveTx;
+
+/** @deprecated Use `dangerouslyBuildRedeemNoteTx` — see module docs. */
+export const buildRedeemNoteTx = dangerouslyBuildRedeemNoteTx;
+
+/** @deprecated Use `dangerouslyBuildBatchSettleTx` — see module docs. */
+export const buildBatchSettleTx = dangerouslyBuildBatchSettleTx;
+
+/** @deprecated Use `dangerouslyBuildDeployTrackerTx` — see module docs. */
+export const buildDeployTrackerTx = dangerouslyBuildDeployTrackerTx;

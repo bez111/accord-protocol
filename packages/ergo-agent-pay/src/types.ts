@@ -25,14 +25,46 @@ export interface ErgoAgentPayConfig {
 
   /**
    * Allow insecure dev-only flows on mainnet — specifically, creating a
-   * Reserve or issuing a Note without a compiled ErgoTree script. In that
-   * mode the box is a plain P2PK; the predicate stored in R6 is *not*
-   * enforced on-chain and Notes can be spent without revealing a valid
-   * task output. Safe for testnet/dev only. Defaults to ``false``.
+   * Reserve or issuing a Note without a compiled ErgoTree script. The box
+   * becomes a plain P2PK; the predicate stored in R6 is *not* enforced
+   * on-chain. Defaults to `false`. Testnet ignores this flag entirely.
    *
-   * On testnet this flag has no effect — dev mode is always permitted there.
+   * @deprecated Renamed to `dangerouslyAllowInsecureMainnetP2PK`. Both
+   * names work and mean the same thing for one minor-version cycle; the
+   * old name will be removed in a future release.
    */
   allowInsecureDevMode?: boolean;
+
+  /** Same as `allowInsecureDevMode` (preferred name). */
+  dangerouslyAllowInsecureMainnetP2PK?: boolean;
+
+  /**
+   * Audit policy gate. When set, mainnet writes that include a
+   * `scriptErgoTree` are routed through this callback before signing /
+   * submission. Without an audit policy, mainnet rejects any tree unless
+   * `dangerouslyAllowUnauditedErgoTree: true`.
+   *
+   * Typical wiring (with `ergo-agent-scripts`):
+   * ```ts
+   * import { verifyAuditedErgoTree } from "ergo-agent-scripts"
+   * new ErgoAgentPay({
+   *   ...,
+   *   auditPolicy: (tree, name) => {
+   *     if (!name) return { ok: false, reason: "scriptName required" }
+   *     const v = verifyAuditedErgoTree(name, tree, { requireMainnet: true })
+   *     return v.ok ? { ok: true } : { ok: false, reason: v.message ?? "unaudited" }
+   *   },
+   * })
+   * ```
+   */
+  auditPolicy?: import("./safety.js").AuditPolicy;
+
+  /**
+   * Bypass the audit gate — accept any non-empty `scriptErgoTree` on
+   * mainnet without consulting an audit policy. Strongly discouraged.
+   * Defaults to `false`.
+   */
+  dangerouslyAllowUnauditedErgoTree?: boolean;
 }
 
 export type SignerFn = (unsignedTx: EIP12UnsignedTx) => Promise<SignedTx>;
@@ -85,14 +117,20 @@ export interface NoteOptions {
   /**
    * Compiled ErgoTree for the Note's spending condition.
    *
-   * When set, the Note output enforces the predicate on-chain (typically
-   * ``TASK_HASH_PREDICATE_SCRIPT`` or ``CREDENTIAL_PREDICATE_SCRIPT``
-   * compiled with ergo-lib-wasm or AppKit). When omitted, the Note is a
-   * plain P2PK at ``recipient`` and the registers are advisory only —
-   * mainnet writes in this mode are blocked unless ``allowInsecureDevMode``
-   * is set on the agent config.
+   * When set, the Note output enforces the predicate on-chain. When
+   * omitted, the Note is a plain P2PK at `recipient` and the registers
+   * are advisory only — mainnet writes in this mode are blocked unless
+   * `dangerouslyAllowInsecureMainnetP2PK` is set on the agent config.
    */
   scriptErgoTree?: string;
+
+  /**
+   * Optional name of the audited predicate this tree corresponds to
+   * (e.g. `"credential_v0"`). Used by the agent's audit policy to look
+   * up the canonical tree and verify byte-for-byte equality. Mainnet
+   * audit policies require this to be set.
+   */
+  scriptName?: string;
 }
 
 export interface NoteResult extends PayResult {
@@ -232,11 +270,13 @@ export type ErgoAgentPayErrorCode =
   | "INVALID_ADDRESS"
   | "INVALID_AMOUNT"
   | "INVALID_HASH"
+  | "INVALID_ENCODING"
   | "SUBMISSION_FAILED"
   | "BOX_NOT_FOUND"
   | "NOTE_EXPIRED"
   | "NOTE_INVALID"
-  | "INSECURE_MAINNET_MODE";
+  | "INSECURE_MAINNET_MODE"
+  | "UNAUDITED_ERGOTREE";
 
 // ── Reserve ───────────────────────────────────────────────────────────────────
 
@@ -253,6 +293,9 @@ export interface ReserveConfig {
    * (useful for testing — use ChainCash scripts for production).
    */
   scriptErgoTree?: string;
+
+  /** Audited predicate name (e.g. `"chaincash_reserve_v0"`). See `NoteOptions.scriptName`. */
+  scriptName?: string;
 
   /** Metadata stored on-chain in R4 */
   memo?: string;
@@ -363,6 +406,9 @@ export interface TrackerConfig {
    * Use ChainCash's Tracker script for production.
    */
   scriptErgoTree: string;
+
+  /** Audited predicate name. See `NoteOptions.scriptName`. */
+  scriptName?: string;
 }
 
 export interface TrackerResult extends PayResult {

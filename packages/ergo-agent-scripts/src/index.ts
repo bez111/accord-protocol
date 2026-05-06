@@ -10,6 +10,18 @@ export {
   verifyErgoTree,
 } from "./registry.js";
 
+export {
+  loadAuditedManifest,
+  getAuditedEntry,
+  verifyAuditedErgoTree,
+} from "./audited.js";
+
+export type {
+  AuditedEntry,
+  AuditedManifest,
+  AuditVerdict,
+} from "./audited.js";
+
 export type {
   PredicateName,
   PredicateEntry,
