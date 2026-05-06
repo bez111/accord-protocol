@@ -13,6 +13,7 @@ Quick start:
 
 from .client import ErgoAgentPay
 from .network import NetworkClient
+from .bridge import BridgeClient
 from .types import (
     NoteInfo,
     PayResult,
@@ -22,6 +23,7 @@ from .types import (
 __version__ = "0.2.0"
 __all__ = [
     "ErgoAgentPay",
+    "BridgeClient",
     "NetworkClient",
     "NoteInfo",
     "PayResult",

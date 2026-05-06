@@ -70,8 +70,9 @@ Payment rails built for humans assume the opposite.
 | Package | Language | Install | Description |
 |---|---|---|---|
 | [`ergo-agent-pay`](./packages/ergo-agent-pay/) | TypeScript | `npm install ergo-agent-pay` | Full SDK: pay, issueNote, full lifecycle, policy engine, LangChain, OpenAI |
+| [`ergo-agent-server`](./packages/ergo-agent-server/) | TypeScript | `npm install -g ergo-agent-server` | Local HTTP bridge — exposes the SDK over REST so any language can drive it (Python, Go, Rust...) |
 | [`ergo-agent-mcp`](./packages/ergo-agent-mcp/) | TypeScript | `npm install ergo-agent-mcp` | MCP server — plug Ergo payments into Claude, Cursor, any MCP client |
-| [`ergo-agent-pay`](./packages/ergo-agent-py/) | Python | `pip install ergo-agent-pay` | Balance, UTxOs, check_note, LangChain tool, OpenAI function |
+| [`ergo-agent-pay`](./packages/ergo-agent-py/) | Python | `pip install ergo-agent-pay` | Balance, UTxOs, check_note, LangChain tool, OpenAI function, BridgeClient (talks to ergo-agent-server) |
 
 ### MCP Server — Claude Desktop / Cursor / Windsurf
 

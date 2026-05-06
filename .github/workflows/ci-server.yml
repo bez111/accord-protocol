@@ -1,0 +1,49 @@
+name: CI Server
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "packages/ergo-agent-server/**"
+      - "packages/ergo-agent-pay/**"
+      - ".github/workflows/ci-server.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "packages/ergo-agent-server/**"
+      - "packages/ergo-agent-pay/**"
+      - ".github/workflows/ci-server.yml"
+
+jobs:
+  build:
+    name: Build, typecheck & test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install ergo-agent-pay deps and build
+        working-directory: packages/ergo-agent-pay
+        run: |
+          npm install
+          npm run build
+
+      - name: Install ergo-agent-server deps
+        working-directory: packages/ergo-agent-server
+        run: npm install
+
+      - name: Typecheck
+        working-directory: packages/ergo-agent-server
+        run: npm run typecheck
+
+      - name: Test
+        working-directory: packages/ergo-agent-server
+        run: npm test
+
+      - name: Build
+        working-directory: packages/ergo-agent-server
+        run: npm run build
