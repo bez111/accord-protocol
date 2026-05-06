@@ -1,11 +1,16 @@
 {
   "name": "ergo-agent-cli",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "description": "Command-line companion to ergo-agent-pay — query balances, check Notes, build Reserve/Note/Tracker transactions on Ergo testnet/mainnet.",
   "type": "module",
-  "bin": { "ergo-agent": "./dist/index.js" },
+  "bin": {
+    "ergo-agent": "./dist/index.js"
+  },
   "main": "./dist/index.js",
-  "files": ["dist", "README.md"],
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsup src/index.ts --format esm --clean",
     "dev": "tsup src/index.ts --format esm --watch",
@@ -24,11 +29,16 @@
   ],
   "author": "bez111",
   "license": "MIT",
-  "repository": { "type": "git", "url": "https://github.com/bez111/ergo-agent-economy" },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bez111/ergo-agent-economy"
+  },
   "homepage": "https://github.com/bez111/ergo-agent-economy/tree/main/packages/ergo-agent-cli",
-  "bugs": { "url": "https://github.com/bez111/ergo-agent-economy/issues" },
+  "bugs": {
+    "url": "https://github.com/bez111/ergo-agent-economy/issues"
+  },
   "dependencies": {
-    "ergo-agent-pay": "file:../ergo-agent-pay"
+    "ergo-agent-pay": "^0.3.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
@@ -36,5 +46,10 @@
     "tsx": "^4.0.0",
     "typescript": "^5.0.0"
   },
-  "engines": { "node": ">=18" }
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
 }

@@ -1,6 +1,68 @@
 # Changelog
 
-All notable changes to `ergo-agent-pay` are documented here.
+All notable changes to `ergo-agent-economy` are documented here. This file
+covers all eight published packages (seven TypeScript + one Python). Versions
+are kept in sync across the workspace; a single tag publishes the lot.
+
+## [Unreleased]
+
+---
+
+## [0.3.0] — 2026-05-06
+
+This is the **monorepo release**: every package goes from individual,
+`file:`-linked dev versions to coordinated `^0.3.0` versions resolvable
+from npm and PyPI.
+
+### New packages
+
+| Package | What |
+|---|---|
+| `ergo-agent-cli` | Command-line companion to `ergo-agent-pay` (`balance`, `note check/issue/redeem`, `reserve create`, `tracker deploy`, `settle`, `task-hash`). |
+| `ergo-agent-api` | Express/Connect-compatible middleware that turns any endpoint into a paid API: 402 + Note verification + replay protection + inline redemption. |
+| `ergo-agent-server` | Local HTTP bridge — exposes the SDK over REST so any language can drive it. |
+| `ergo-agent-scripts` | Canonical ErgoScript sources for v0 predicates and ChainCash / Basis contracts; compiled ergoTree manifest with audit gate. |
+| `ergo-agent-rosen` | Cross-chain integration via Rosen Bridge — agents pay in rsUSDT/rsUSDC bridged from Ethereum / Bitcoin / Cardano. |
+
+### Protocol & safety
+
+- **AgentPay v0 spec** ([SPEC.md](./SPEC.md)) — formalised primitives, register layout, audit-manifest contract, conformance rules.
+- **Two-gate mainnet safety**:
+  1. *Box-shape gate* — refuse mainnet writes without a compiled `scriptErgoTree` unless `dangerouslyAllowInsecureMainnetP2PK: true`.
+  2. *Audit-identity gate* — refuse any tree whose hash is not in `AUDITED_ERGOTREES.json` with `mainnetAllowed: true`, unless `dangerouslyAllowUnauditedErgoTree: true`.
+- **BLAKE2b-256** — replaced the SHA-256 placeholder; cross-language golden vectors at `test-vectors/task-hash.json`.
+- **Audited tree manifest** — `AUDITED_ERGOTREES.json` carries source hashes, post-template hashes, tree hashes, and per-entry `mainnetAllowed` flags. Status defaults to `draft-pre-audit`.
+- **Deep-review fixes** — closed 10 of the 21 findings in `docs/audit/DEEP_REVIEW.md` (C-002, C-003, H-002, H-004, M-001, M-004, M-005, M-006, L-001, L-003).
+
+### Lifecycle & policy
+
+- **Policy v2** — `recipientAllowlist`, `recipientBlocklist`, `perRecipientCap`, `dailyBudget`, structured `auditLog` sink. Decision order documented in `docs/policy-engine.md`.
+- **Raw builders renamed** — `dangerouslyBuild*` for `createReserve`, `redeemNote`, `batchSettle`, `deployTracker`. Old names remain as deprecated aliases.
+- **`encodeSigmaCollByte`** — replaces hand-rolled length encoding; enforces `taskOutput.length <= 255` for the v0 single-byte length prefix.
+
+### Cross-language & ergonomics
+
+- **Python `BridgeClient`** — talks to `ergo-agent-server` over HTTP; preserves `ErgoAgentPayError.code` round-trip.
+- **MCP lifecycle tools** — Reserve / Note / Tracker tools usable directly from Claude / Cursor / Windsurf.
+- **End-to-end demo** — `examples/07-end-to-end-agent-economy/`: composes every package into one runnable agent-pays-agent flow.
+- **Cross-chain demo** — `examples/11-cross-chain-rosen/`: agent on Ethereum holds USDT, bridges to rsUSDT once, pays sellers via the audited `basis_token_reserve_v0`.
+
+### Audit pipeline
+
+- **`docs/audit/`** — auditor request, mainnet audit procedure, pre-audit findings, hardening checklist, deep review, resolution table.
+- **CI determinism gate** — `scripts/compile-predicates.mjs` recompiles every entry on every PR and fails if the bytes drift.
+
+### Infra
+
+- **Monorepo via npm workspaces** — local dev resolves cross-package deps automatically; published versions resolve via `^0.3.0` ranges.
+- **`publish-npm.yml`** — tag-triggered, publishes all seven TS packages in dependency order. Foundation (`ergo-agent-pay`, `ergo-agent-scripts`) goes first; dependents short-circuit on foundation failure.
+- **`publish-pypi.yml`** — Trusted Publishing (no static token).
+- **`RELEASING.md`** — release runbook.
+
+### Status
+
+`NOT CERTIFIED FOR MAINNET`. Every entry in `AUDITED_ERGOTREES.json` is
+`mainnetAllowed: false` until an external auditor signs the manifest.
 
 ---
 
