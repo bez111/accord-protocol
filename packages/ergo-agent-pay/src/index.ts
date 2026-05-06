@@ -15,8 +15,10 @@ export {
 
 export { parseAmount } from "./transactions.js";
 
+export { encodeSigmaCollByte, MAX_TASK_OUTPUT_BYTES } from "./encoding.js";
+
 export { assertProductionSafety } from "./safety.js";
-export type { ProductionSafetyArgs } from "./safety.js";
+export type { ProductionSafetyArgs, AuditPolicy, AuditPolicyVerdict } from "./safety.js";
 
 export type {
   ErgoAgentPayConfig,
@@ -57,8 +59,24 @@ export type {
   TrackerResult,
 } from "./types.js";
 
-// ── Lifecycle builders (for advanced / custom signing flows) ──────────────────
+// ── Raw lifecycle builders ────────────────────────────────────────────────────
+//
+// IMPORTANT: these builders bypass the high-level audit/safety guardrails
+// applied by `ErgoAgentPay`. The exports prefixed with `dangerously` are
+// the canonical names; the unprefixed aliases are kept for one minor
+// version cycle and will be removed.
+//
+// Use the high-level SDK methods (`agent.createReserve`, `agent.issueNote`
+// etc.) unless you have a specific reason to bypass the audit gate. If you
+// do bypass it, run your own audit policy before signing on mainnet.
+// ─────────────────────────────────────────────────────────────────────────────
+
 export {
+  dangerouslyBuildCreateReserveTx,
+  dangerouslyBuildRedeemNoteTx,
+  dangerouslyBuildBatchSettleTx,
+  dangerouslyBuildDeployTrackerTx,
+  // Deprecated aliases — same functions under their original names.
   buildCreateReserveTx,
   buildRedeemNoteTx,
   buildBatchSettleTx,

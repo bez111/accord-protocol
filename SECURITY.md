@@ -3,9 +3,17 @@
 ## Status
 
 **`ergo-agent-economy` is alpha software.** v0 of the protocol (see
-[SPEC.md](SPEC.md)) is intended for **testnet development**. The on-chain
-scripts that enforce Reserve, Note, and Tracker invariants have not been
-audited. Do not put more value at risk than you can afford to lose.
+[SPEC.md](SPEC.md)) is intended for **testnet development**.
+
+**`NOT CERTIFIED FOR MAINNET`.** The compiled ergoTrees in
+`packages/ergo-agent-scripts/data/AUDITED_ERGOTREES.json` are in
+`status: "draft-pre-audit"` and every entry is `mainnetAllowed: false`.
+Mainnet writes are blocked by the SDK until an external auditor signs the
+manifest and flips the flag. See
+[`packages/ergo-agent-scripts/data/AUDITED_ERGOTREES.json`](packages/ergo-agent-scripts/data/AUDITED_ERGOTREES.json)
+and [the auditor request](docs/AUDITOR_REQUEST.md).
+
+Do not put more value at risk than you can afford to lose.
 
 ## Reporting a vulnerability
 
@@ -34,11 +42,15 @@ on the roadmap.
 | Threat | Mitigation |
 |---|---|
 | Off-chain hash (SHA-256 etc.) silently disagreeing with on-chain `blake2b256` | Single normative hash function (BLAKE2b-256), enforced by golden vectors shared between SDKs |
-| Dev-mode P2PK boxes broadcast on mainnet, leaving the predicate unenforced | `assertProductionSafety()` in the SDK, requires explicit `allowInsecureDevMode: true` opt-in on mainnet, error code `INSECURE_MAINNET_MODE` |
+| Dev-mode P2PK boxes broadcast on mainnet, leaving the predicate unenforced | `assertProductionSafety()` in the SDK; requires explicit `dangerouslyAllowInsecureMainnetP2PK: true` opt-in on mainnet, error code `INSECURE_MAINNET_MODE`. The legacy alias `allowInsecureDevMode` is deprecated. |
+| Arbitrary unaudited ergoTree slipping past the guardrail | `assertProductionSafety()` requires `auditPolicy` on mainnet; error code `UNAUDITED_ERGOTREE`. The high-level SDK rejects any tree whose hash is not in the audited manifest unless `dangerouslyAllowUnauditedErgoTree: true`. |
 | Empty-string `scriptErgoTree` slipping past the guardrail | Treated as missing, also rejected on mainnet |
 | Malformed task hash (wrong length, non-hex characters) issued into R6 | `validateTaskHash` rejects anything that is not exactly 64 lowercase/uppercase hex chars |
+| Task output too large for the v0 single-byte length prefix | `encodeSigmaCollByte` enforces `taskOutput.length <= 255`; raises `INVALID_ENCODING`. Hand-rolled length encoding has been removed from `dangerouslyBuildRedeemNoteTx` and `dangerouslyBuildBatchSettleTx`. |
 | Cross-language SDK drift (TS ≠ Python ≠ MCP) | Single shared `test-vectors/task-hash.json`, loaded by both test suites |
 | Replay or double-spend within a single SDK session | Per-Reserve Tracker box (see SPEC §4); sessionSpend bound is enforced by the policy engine |
+| Mempool front-running of `task_hash_v0`-bound Notes | `task_hash_v0` is `mainnetAllowed: false` in the audit manifest. Mainnet integrations must use `credential_v0` (or a future `bound_receiver_v0`) which require `proveDlog(receiver)` so a copied taskOutput cannot redeem to a different address. |
+| Raw lifecycle builders accidentally bypassing the audit gate | Renamed to `dangerouslyBuildCreateReserveTx` etc. The unprefixed names remain as deprecated aliases for one minor-version cycle. The high-level `ErgoAgentPay` class is the only path that always applies the audit gate. |
 
 ### Out of scope (tracked, not yet mitigated)
 
