@@ -71,7 +71,17 @@ describe("task-hash command — golden vectors via the CLI handler", () => {
 describe("task-hash command — end-to-end via the bin entrypoint", () => {
   it("computes the right digest for stdin input", async () => {
     const cliEntry = resolve(here, "../index.ts");
-    const tsx = resolve(here, "../../node_modules/.bin/tsx");
+    // Resolve tsx from the local package node_modules or — when run under
+    // npm workspaces, where dev deps are hoisted to the repo root — from
+    // the root node_modules.
+    const fs = await import("node:fs");
+    const candidates = [
+      resolve(here, "../../node_modules/.bin/tsx"),
+      resolve(here, "../../../../node_modules/.bin/tsx"),
+    ];
+    const tsx = candidates.find((p) => fs.existsSync(p));
+    if (!tsx) throw new Error(`tsx not found in any of: ${candidates.join(", ")}`);
+
     const child = spawn(tsx, [cliEntry, "task-hash", "--stdin"], {
       stdio: ["pipe", "pipe", "pipe"],
     });

@@ -1,6 +1,6 @@
 {
   "name": "ergo-agent-rosen",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "description": "Cross-chain glue between ergo-agent-pay and Rosen Bridge. Lets agents accept and settle stablecoin payments on Ergo (rsUSDT, rsUSDC, rsBTC, rsETH, …) bridged from Ethereum, Bitcoin, Cardano, Binance, and any chain Rosen watchers cover.",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -13,7 +13,10 @@
       "types": "./dist/index.d.ts"
     }
   },
-  "files": ["dist", "README.md"],
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsup src/index.ts --format esm,cjs --dts --clean",
     "dev": "tsup src/index.ts --format esm,cjs --dts --watch",
@@ -34,12 +37,17 @@
   ],
   "author": "bez111",
   "license": "MIT",
-  "repository": { "type": "git", "url": "https://github.com/bez111/ergo-agent-economy" },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bez111/ergo-agent-economy"
+  },
   "homepage": "https://github.com/bez111/ergo-agent-economy/tree/main/packages/ergo-agent-rosen",
-  "bugs": { "url": "https://github.com/bez111/ergo-agent-economy/issues" },
+  "bugs": {
+    "url": "https://github.com/bez111/ergo-agent-economy/issues"
+  },
   "dependencies": {
-    "ergo-agent-pay": "file:../ergo-agent-pay",
-    "ergo-agent-scripts": "file:../ergo-agent-scripts"
+    "ergo-agent-pay": "^0.3.0",
+    "ergo-agent-scripts": "^0.3.0"
   },
   "devDependencies": {
     "@rosen-bridge/tokens": "^6.0.1",
@@ -52,7 +60,14 @@
     "@rosen-bridge/tokens": "^6.0.1"
   },
   "peerDependenciesMeta": {
-    "@rosen-bridge/tokens": { "optional": true }
+    "@rosen-bridge/tokens": {
+      "optional": true
+    }
   },
-  "engines": { "node": ">=18" }
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
 }

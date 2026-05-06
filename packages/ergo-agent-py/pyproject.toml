@@ -4,7 +4,7 @@ build-backend = "setuptools.backends.legacy:build"
 
 [project]
 name = "ergo-agent-pay"
-version = "0.2.0"
+version = "0.3.0"
 description = "SDK for autonomous AI agents to hold, move, and pay on the Ergo blockchain"
 readme = "README.md"
 license = { text = "MIT" }

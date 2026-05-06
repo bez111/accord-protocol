@@ -3,68 +3,156 @@ name: Publish to npm
 on:
   push:
     tags:
-      - "v*"          # triggers on: git tag v0.2.0 && git push --tags
+      - "v*"          # triggers on: git tag v0.3.0 && git push --tags
+
+# Publishing has two layers of order:
+#   1. Foundation packages (no internal deps): ergo-agent-pay, ergo-agent-scripts
+#   2. Dependents (need foundation already published): cli, api, mcp, server, rosen
+# `needs:` enforces this so a foundation failure aborts the dependents.
+
+env:
+  NODE_VERSION: "20"
 
 jobs:
-  publish-ergo-agent-pay:
-    name: Publish ergo-agent-pay to npm
+  ergo-agent-pay:
+    name: ergo-agent-pay
     runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        working-directory: packages/ergo-agent-pay
-
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: ${{ env.NODE_VERSION }}
           registry-url: "https://registry.npmjs.org"
-          cache: npm
-          cache-dependency-path: packages/ergo-agent-pay/package-lock.json
-
-      - name: Install dependencies
+      - name: Install (workspace root)
         run: npm install
-
-      - name: Typecheck
-        run: npm run typecheck
-
       - name: Build
-        run: npm run build
-
+        run: npm run build -w ergo-agent-pay
       - name: Test
-        run: npm test
-
+        run: npm test -w ergo-agent-pay
       - name: Publish
-        run: npm publish --access public
+        run: npm publish --workspace ergo-agent-pay --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-  publish-ergo-agent-mcp:
-    name: Publish ergo-agent-mcp to npm
+  ergo-agent-scripts:
+    name: ergo-agent-scripts
     runs-on: ubuntu-latest
-    needs: publish-ergo-agent-pay
-
-    defaults:
-      run:
-        working-directory: packages/ergo-agent-mcp
-
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: ${{ env.NODE_VERSION }}
           registry-url: "https://registry.npmjs.org"
-
-      - name: Install dependencies
+      - name: Install
         run: npm install
-
       - name: Build
-        run: npm run build
-
+        run: npm run build -w ergo-agent-scripts
+      - name: Test
+        run: npm test -w ergo-agent-scripts
+      - name: Verify registry hashes
+        run: npm run verify-predicates -w ergo-agent-scripts
       - name: Publish
-        run: npm publish --access public
+        run: npm publish --workspace ergo-agent-scripts --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  ergo-agent-cli:
+    name: ergo-agent-cli
+    needs: [ergo-agent-pay]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: "https://registry.npmjs.org"
+      - name: Install
+        run: npm install
+      - name: Build
+        run: npm run build -w ergo-agent-cli
+      - name: Publish
+        run: npm publish --workspace ergo-agent-cli --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  ergo-agent-api:
+    name: ergo-agent-api
+    needs: [ergo-agent-pay]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: "https://registry.npmjs.org"
+      - name: Install
+        run: npm install
+      - name: Build
+        run: npm run build -w ergo-agent-api
+      - name: Test
+        run: npm test -w ergo-agent-api
+      - name: Publish
+        run: npm publish --workspace ergo-agent-api --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  ergo-agent-mcp:
+    name: ergo-agent-mcp
+    needs: [ergo-agent-pay]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: "https://registry.npmjs.org"
+      - name: Install
+        run: npm install
+      - name: Build
+        run: npm run build -w ergo-agent-mcp
+      - name: Publish
+        run: npm publish --workspace ergo-agent-mcp --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  ergo-agent-server:
+    name: ergo-agent-server
+    needs: [ergo-agent-pay]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: "https://registry.npmjs.org"
+      - name: Install
+        run: npm install
+      - name: Build
+        run: npm run build -w ergo-agent-server
+      - name: Test
+        run: npm test -w ergo-agent-server
+      - name: Publish
+        run: npm publish --workspace ergo-agent-server --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  ergo-agent-rosen:
+    name: ergo-agent-rosen
+    needs: [ergo-agent-pay, ergo-agent-scripts]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: "https://registry.npmjs.org"
+      - name: Install
+        run: npm install
+      - name: Build
+        run: npm run build -w ergo-agent-rosen
+      - name: Test
+        run: npm test -w ergo-agent-rosen
+      - name: Publish
+        run: npm publish --workspace ergo-agent-rosen --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
