@@ -51,6 +51,7 @@ on the roadmap.
 | Replay or double-spend within a single SDK session | Per-Reserve Tracker box (see SPEC §4); sessionSpend bound is enforced by the policy engine |
 | Mempool front-running of `task_hash_v0`-bound Notes | `task_hash_v0` is `mainnetAllowed: false` in the audit manifest. Mainnet integrations must use `credential_v0` (or a future `bound_receiver_v0`) which require `proveDlog(receiver)` so a copied taskOutput cannot redeem to a different address. |
 | Raw lifecycle builders accidentally bypassing the audit gate | Renamed to `dangerouslyBuildCreateReserveTx` etc. The unprefixed names remain as deprecated aliases for one minor-version cycle. The high-level `ErgoAgentPay` class is the only path that always applies the audit gate. |
+| Schnorr `(a, z)` byte split being malleable (I-003) | The Basis sources split a 64-byte signature positionally with `slice(0, 33)` / `slice(33, size)`. This is safe under Fiat-Shamir: `decodePoint` rejects a malformed compressed `aBytes`; `byteArrayToBigInt(empty)` would zero `z`, but the challenge `e = blake2b256(aBytes ‖ message ‖ pubkey)` is committed-to in `aBytes`, so an attacker who picks `a` cannot also pick a matching `e`. Documented for the auditor so the analysis does not need to be redone. |
 
 ### Out of scope (tracked, not yet mitigated)
 
