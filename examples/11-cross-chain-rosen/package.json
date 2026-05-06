@@ -1,0 +1,25 @@
+{
+  "name": "example-11-cross-chain-rosen",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Cross-chain agent payment via Rosen Bridge: buyer pays in rsUSDT, settles on Ergo with audited basis_token_reserve_v0.",
+  "scripts": {
+    "server": "tsx server.ts",
+    "agent": "tsx agent.ts"
+  },
+  "dependencies": {
+    "@rosen-bridge/tokens": "^6.0.1",
+    "ergo-agent-api": "*",
+    "ergo-agent-pay": "*",
+    "ergo-agent-rosen": "*",
+    "ergo-agent-scripts": "*",
+    "express": "^4.19.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.0",
+    "@types/node": "^20.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0"
+  }
+}
