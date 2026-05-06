@@ -3,17 +3,22 @@
 // compile.mjs — populate ergoTreeHex / treeHashBlake2b256 in predicates.json
 //
 // Usage:
-//   npm install --no-save ergo-lib-wasm-nodejs
+//   npm install --no-save @fleet-sdk/compiler
 //   npm run compile-predicates
 //
-// The script is intentionally separate from the SDK so consumers do not
-// inherit the WASM dependency. The output is committed back into the repo
-// (predicates.json) and shipped as static JSON in the npm package.
+// Why @fleet-sdk/compiler and not ergo-lib-wasm-nodejs:
+//   ergo-lib-wasm-nodejs ships only the runtime (parse / serialize ergoTrees).
+//   The ErgoScript compiler is a separate Sigma.JS-backed package — much
+//   smaller than the full Scala / sigmastate-jvm reference compiler, and the
+//   only one available as plain npm without a JVM. We treat it as a peer
+//   dependency so SDK consumers do not pay for it on install.
 //
-// Why we do not embed pre-compiled trees in the source: without running the
-// compiler ourselves we cannot guarantee the bytes; PR #2's safety guardrail
-// refuses mainnet writes with unverified ergoTrees, so we would rather ship
-// `null` than a wrong value.
+// What this writes:
+//   For every entry in predicates.json:
+//     - ergoTreeHex          (compiler output)
+//     - treeHashBlake2b256   (BLAKE2b-256 of the raw ergoTree bytes)
+//     - compiledAt           (ISO-8601)
+//     - compiler             ("@fleet-sdk/compiler <version>")
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { readFile, writeFile } from "node:fs/promises";
@@ -26,15 +31,25 @@ const REGISTRY = resolve(here, "../data/predicates.json");
 
 async function loadCompiler() {
   try {
-    return await import("ergo-lib-wasm-nodejs");
-  } catch (err) {
+    return await import("@fleet-sdk/compiler");
+  } catch {
     process.stderr.write(
-      "error: ergo-lib-wasm-nodejs is not installed.\n\n" +
-        "Run:\n  npm install --no-save ergo-lib-wasm-nodejs\n\n" +
-        "Then re-run this script. ergo-lib-wasm-nodejs is a peer dependency,\n" +
+      "error: @fleet-sdk/compiler is not installed.\n\n" +
+        "Run:\n  npm install --no-save @fleet-sdk/compiler\n\n" +
+        "Then re-run this script. @fleet-sdk/compiler is a peer dependency,\n" +
         "intentionally not bundled with this package.\n"
     );
     process.exit(2);
+  }
+}
+
+async function loadCompilerVersion() {
+  try {
+    const pkgPath = resolve(here, "../node_modules/@fleet-sdk/compiler/package.json");
+    const pkg = JSON.parse(await readFile(pkgPath, "utf-8"));
+    return pkg.version ?? "unknown";
+  } catch {
+    return "unknown";
   }
 }
 
@@ -49,60 +64,35 @@ function blake2b256Hex(hex) {
 }
 
 async function main() {
-  const wasm = await loadCompiler();
-  // ergo-lib-wasm-nodejs API surface: ErgoTree, Address, etc. Compilation
-  // happens via the dedicated compiler. Adjust the call below to whatever
-  // version of the lib you have — major versions move the API around.
-  if (!wasm.ErgoTree || typeof wasm.ErgoTree.from_base16_bytes !== "function") {
-    process.stderr.write(
-      "error: ergo-lib-wasm-nodejs is installed but does not expose ErgoTree.from_base16_bytes().\n" +
-        "       Check the lib version and update this script.\n"
-    );
-    process.exit(2);
-  }
-
-  // Sigma compiler entrypoint — the API name varies; we try the common ones.
-  const compile =
-    typeof wasm.compile === "function"
-      ? wasm.compile
-      : typeof wasm.compileScript === "function"
-      ? wasm.compileScript
-      : null;
-  if (!compile) {
-    process.stderr.write(
-      "error: ergo-lib-wasm-nodejs does not expose a compile()/compileScript() entrypoint.\n" +
-        "       This script supports the upstream compiler released in 0.24+.\n" +
-        "       Compile manually and paste the result into predicates.json instead.\n"
-    );
+  const compiler = await loadCompiler();
+  const version = await loadCompilerVersion();
+  if (typeof compiler.compile !== "function") {
+    process.stderr.write("error: @fleet-sdk/compiler has no compile() export — incompatible version.\n");
     process.exit(2);
   }
 
   const text = await readFile(REGISTRY, "utf-8");
   const registry = JSON.parse(text);
   const compiledAt = new Date().toISOString();
-  const compilerLabel = `ergo-lib-wasm-nodejs ${wasm.version ?? "unknown"}`;
+  const compilerLabel = `@fleet-sdk/compiler ${version}`;
 
   for (const entry of registry.predicates) {
     process.stderr.write(`compiling ${entry.name}...\n`);
     let tree;
     try {
-      tree = compile(entry.source);
+      tree = compiler.compile(entry.source);
     } catch (err) {
       process.stderr.write(`  failed: ${err && err.message ? err.message : err}\n`);
       process.exit(1);
     }
-    // Some compiler versions return an object with .to_base16_bytes(); others
-    // return the hex string directly.
     const hex =
-      typeof tree === "string"
-        ? tree
-        : typeof tree.to_base16_bytes === "function"
-        ? tree.to_base16_bytes()
+      typeof tree?.toHex === "function"
+        ? tree.toHex()
+        : tree?.bytes
+        ? toHex(tree.bytes)
         : null;
     if (!hex) {
-      process.stderr.write(
-        "  failed: compiler returned an unrecognised shape; update this script.\n"
-      );
+      process.stderr.write("  failed: compiler returned an unrecognised shape.\n");
       process.exit(1);
     }
     entry.ergoTreeHex = hex;

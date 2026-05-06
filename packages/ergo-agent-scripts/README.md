@@ -11,14 +11,17 @@ This is the package that turns the SDK from "verify-only on testnet" into
 auditor has signed off on the trees, the SDK can pass them as
 `scriptErgoTree` to `createReserve`, `issueNote`, and `deployTracker`.
 
-## Why are the trees `null` on first install?
+## What ships in the package
 
-Because shipping unverified ergoTree bytes is exactly the foot-gun PR #2
-removed. We do not ship a tree we cannot independently verify, and we
-cannot bundle the compiler (it is a megabyte-class WASM module). The
-trade-off: consumers who want compiled trees install
-`ergo-lib-wasm-nodejs` once, run `npm run compile-predicates`, and commit
-the result.
+- The ErgoScript **sources** for both v0 predicates, committed verbatim.
+- The compiled **ergoTreeHex** for each predicate, produced by
+  `@fleet-sdk/compiler`.
+- A BLAKE2b-256 **hash** of every tree's raw bytes, stored alongside —
+  re-runnable without the compiler via `npm run verify-predicates`,
+  which catches a hand-edited registry.
+
+The compiler is a peer dependency, optional. Inspecting sources, looking
+up trees, hashing, and verifying does not require it.
 
 ## Install
 
@@ -26,16 +29,17 @@ the result.
 npm install ergo-agent-scripts
 ```
 
-If you only want to inspect the sources, hash a tree, or verify trees
-that someone else compiled, that is enough — no WASM dep required.
-
-## Compiling the trees
+## Re-compiling the trees
 
 ```bash
-npm install --no-save ergo-lib-wasm-nodejs   # one-time dev-only
+npm install --no-save @fleet-sdk/compiler
 npm run compile-predicates                   # writes data/predicates.json
 npm run verify-predicates                    # sanity-check the registry
 ```
+
+Compilation is deterministic — running the script against the same source
+with the same compiler version produces byte-identical output. CI runs
+this check on every push.
 
 The compile script:
 
@@ -58,13 +62,10 @@ const p = getPredicate("task_hash_v0");
 console.log(p.source);
 console.log(p.registers);     // { R5: "...", R6: "..." }
 
-// 2. Get the compiled tree, if available.
+// 2. Get the compiled tree.
 const tree = tryGetErgoTree("task_hash_v0");
-if (tree) {
-  await agent.issueNote({ ..., scriptErgoTree: tree });
-} else {
-  // dev mode (testnet) or compile yourself
-}
+// tree is "191500d1ed8fa3e4c6a7050493cbe4e3000ee4c6a7060e" — pass to the SDK:
+await agent.issueNote({ ..., scriptErgoTree: tree });
 
 // 3. Verify a tree someone else handed you.
 const result = verifyErgoTree("task_hash_v0", suspiciousTree);

@@ -1,12 +1,12 @@
 {
   "spec": "ergo-agent-economy/SPEC.md#5-acceptance-predicate-v0",
   "version": "v0",
-  "description": "Canonical ErgoScript sources for v0 acceptance predicates. Run `npm run compile-predicates` (with `ergo-lib-wasm-nodejs` available) to populate ergoTreeHex and treeHashBlake2b256. Until the trees are populated, both fields are null and the SDK refuses mainnet writes that depend on them.",
+  "description": "Canonical ErgoScript sources and compiled ergoTrees for the v0 acceptance predicates. Sources are committed verbatim; trees are produced by `npm run compile-predicates` (via @fleet-sdk/compiler). The treeHashBlake2b256 field is BLAKE2b-256 of the raw ergoTree bytes — re-runnable via `npm run verify-predicates` without the compiler.",
   "predicates": [
     {
       "name": "task_hash_v0",
-      "purpose": "Note acceptance predicate. Redemption requires HEIGHT < R5 and blake2b256(getVar[0]) == R6.",
-      "source": "{\n  val expiry       = R5[Int].get\n  val expectedHash = R6[Coll[Byte]].get\n  val taskOutput   = getVar[Coll[Byte]](0).get\n  val actualHash   = blake2b256(taskOutput)\n  sigmaProp(HEIGHT < expiry && actualHash == expectedHash)\n}",
+      "purpose": "Note acceptance predicate. Redemption requires HEIGHT < SELF.R5 and blake2b256(getVar[0]) == SELF.R6.",
+      "source": "{\n  val expiry       = SELF.R5[Int].get\n  val expectedHash = SELF.R6[Coll[Byte]].get\n  val taskOutput   = getVar[Coll[Byte]](0).get\n  val actualHash   = blake2b256(taskOutput)\n  sigmaProp(HEIGHT < expiry && actualHash == expectedHash)\n}",
       "registers": {
         "R5": "expiry block height (SInt)",
         "R6": "expected task output hash, BLAKE2b-256 (SColl[SByte], 32 bytes)"
@@ -14,15 +14,15 @@
       "context_variables": {
         "0": "task output as Coll[Byte]"
       },
-      "ergoTreeHex": null,
-      "treeHashBlake2b256": null,
-      "compiledAt": null,
-      "compiler": null
+      "ergoTreeHex": "191500d1ed8fa3e4c6a7050493cbe4e3000ee4c6a7060e",
+      "treeHashBlake2b256": "30f45206206410d993fe9c25232c56e9f1eb7080291e00dcfbc5ec73b7c7d9e4",
+      "compiledAt": "2026-05-06T16:45:52.250Z",
+      "compiler": "@fleet-sdk/compiler 0.12.0"
     },
     {
       "name": "credential_v0",
-      "purpose": "Credential-gated Note acceptance predicate. Redemption requires HEIGHT < R5, blake2b256(getVar[0]) == R6, and proveDlog(R7).",
-      "source": "{\n  val expiry       = R5[Int].get\n  val expectedHash = R6[Coll[Byte]].get\n  val authorizedPK = R7[GroupElement].get\n  val taskOutput   = getVar[Coll[Byte]](0).get\n  sigmaProp(\n    HEIGHT < expiry &&\n    blake2b256(taskOutput) == expectedHash &&\n    proveDlog(authorizedPK)\n  )\n}",
+      "purpose": "Credential-gated Note acceptance predicate. Redemption requires HEIGHT < SELF.R5, blake2b256(getVar[0]) == SELF.R6, and proveDlog(SELF.R7).",
+      "source": "{\n  val expiry       = SELF.R5[Int].get\n  val expectedHash = SELF.R6[Coll[Byte]].get\n  val authorizedPK = SELF.R7[GroupElement].get\n  val taskOutput   = getVar[Coll[Byte]](0).get\n  sigmaProp(\n    HEIGHT < expiry &&\n    blake2b256(taskOutput) == expectedHash &&\n    proveDlog(authorizedPK)\n  )\n}",
       "registers": {
         "R5": "expiry block height (SInt)",
         "R6": "expected task output hash, BLAKE2b-256 (SColl[SByte], 32 bytes)",
@@ -31,10 +31,10 @@
       "context_variables": {
         "0": "task output as Coll[Byte]"
       },
-      "ergoTreeHex": null,
-      "treeHashBlake2b256": null,
-      "compiledAt": null,
-      "compiler": null
+      "ergoTreeHex": "191d00ea02d1ed8fa3e4c6a7050493cbe4e3000ee4c6a7060ecde4c6a70707",
+      "treeHashBlake2b256": "f22105b4dd9709e97fd1b0f455bdc79de791f89fa4f77ce8abfadefa4948d516",
+      "compiledAt": "2026-05-06T16:45:52.250Z",
+      "compiler": "@fleet-sdk/compiler 0.12.0"
     }
   ]
 }

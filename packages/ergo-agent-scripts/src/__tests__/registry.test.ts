@@ -56,15 +56,35 @@ describe("getPredicate", () => {
 });
 
 describe("tryGetErgoTree", () => {
-  it("returns null when the registry has not been compiled", () => {
+  it("returns the compiled task_hash_v0 tree", () => {
     const tree = tryGetErgoTree("task_hash_v0");
-    if (tree !== null) {
-      // If the registry has been compiled (either locally or by CI), at least
-      // verify it looks like hex.
-      assert.match(tree, /^[0-9a-fA-F]+$/);
-    } else {
-      assert.equal(tree, null);
-    }
+    assert.ok(tree, "task_hash_v0 ergoTreeHex must be populated");
+    assert.match(tree!, /^[0-9a-fA-F]+$/);
+    assert.equal(tree!.length % 2, 0);
+  });
+
+  it("returns the compiled credential_v0 tree", () => {
+    const tree = tryGetErgoTree("credential_v0");
+    assert.ok(tree, "credential_v0 ergoTreeHex must be populated");
+    assert.match(tree!, /^[0-9a-fA-F]+$/);
+  });
+
+  it("the two trees differ", () => {
+    assert.notEqual(tryGetErgoTree("task_hash_v0"), tryGetErgoTree("credential_v0"));
+  });
+});
+
+describe("tree bytes match recorded BLAKE2b-256 hashes", () => {
+  it("task_hash_v0 hash matches", () => {
+    const tree = tryGetErgoTree("task_hash_v0")!;
+    const recorded = getPredicate("task_hash_v0").treeHashBlake2b256!;
+    assert.equal(hashErgoTree(tree), recorded);
+  });
+
+  it("credential_v0 hash matches", () => {
+    const tree = tryGetErgoTree("credential_v0")!;
+    const recorded = getPredicate("credential_v0").treeHashBlake2b256!;
+    assert.equal(hashErgoTree(tree), recorded);
   });
 });
 
@@ -90,25 +110,27 @@ describe("hashErgoTree", () => {
 });
 
 describe("verifyErgoTree", () => {
-  it("returns 'no recorded hash' when the registry entry is unfilled", () => {
-    const entry = getPredicate("task_hash_v0");
-    if (entry.treeHashBlake2b256 !== null) {
-      // Skip — registry has been populated.
-      return;
-    }
-    const result = verifyErgoTree("task_hash_v0", "deadbeef");
-    assert.equal(result.ok, false);
-    if (result.ok === false) {
-      assert.match(result.reason, /no recorded hash/);
-    }
+  it("accepts the canonical task_hash_v0 tree", () => {
+    const tree = tryGetErgoTree("task_hash_v0")!;
+    assert.deepEqual(verifyErgoTree("task_hash_v0", tree), { ok: true });
+  });
+
+  it("accepts the canonical credential_v0 tree", () => {
+    const tree = tryGetErgoTree("credential_v0")!;
+    assert.deepEqual(verifyErgoTree("credential_v0", tree), { ok: true });
   });
 
   it("rejects a tree that does not match the recorded hash", () => {
-    // Forge a registry-like check by computing a hash and comparing to a
-    // different one — this exercises the equality path independently of
-    // whether the registry has been populated.
-    const realHash = hashErgoTree("deadbeef");
-    const wrongHash = hashErgoTree("ffffffff");
-    assert.notEqual(realHash, wrongHash);
+    const result = verifyErgoTree("task_hash_v0", "deadbeef");
+    assert.equal(result.ok, false);
+    if (result.ok === false) {
+      assert.match(result.reason, /tree hash mismatch/);
+    }
+  });
+
+  it("rejects a tree from one predicate when verified as another", () => {
+    const taskTree = tryGetErgoTree("task_hash_v0")!;
+    const result = verifyErgoTree("credential_v0", taskTree);
+    assert.equal(result.ok, false);
   });
 });
