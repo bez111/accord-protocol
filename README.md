@@ -164,7 +164,8 @@ What that means in practice:
   without a `scriptErgoTree` — the predicate would not be enforced
   on-chain, which silently breaks the security model. To override, set
   `allowInsecureDevMode: true` on the agent config (and read
-  [SECURITY.md](./SECURITY.md) first).
+  [SECURITY.md](./SECURITY.md) and
+  [`docs/dev-vs-production.md`](./docs/dev-vs-production.md) first).
 * All hashing is **BLAKE2b-256**, identical to ErgoScript's `blake2b256`
   builtin. TypeScript and Python SDKs share the same golden vectors at
   [`test-vectors/task-hash.json`](./test-vectors/task-hash.json).
@@ -199,8 +200,27 @@ for agents.
 | Package | Language | Install | Description |
 |---|---|---|---|
 | [`ergo-agent-pay`](./packages/ergo-agent-pay/) | TypeScript | `npm install ergo-agent-pay` | Full SDK: pay, issueNote, full lifecycle, policy engine, LangChain, OpenAI |
+| [`ergo-agent-cli`](./packages/ergo-agent-cli/) | TypeScript | `npm install -g ergo-agent-cli` | Command-line companion: `balance`, `note check/issue/redeem`, `reserve create`, `tracker deploy`, `settle`, `task-hash` |
 | [`ergo-agent-mcp`](./packages/ergo-agent-mcp/) | TypeScript | `npm install ergo-agent-mcp` | MCP server — plug Ergo payments into Claude, Cursor, any MCP client |
 | [`ergo-agent-pay`](./packages/ergo-agent-py/) | Python | `pip install ergo-agent-pay` | Balance, UTxOs, check_note, LangChain tool, OpenAI function |
+
+### CLI — `ergo-agent`
+
+```bash
+npm install -g ergo-agent-cli
+
+ergo-agent task-hash "the answer is 42"
+# 549ead194a83140a8b12bc38bb74ba7e5b094a5749ea73a7e04156f91cc5260a
+
+export ERGO_ADDRESS=9...
+ergo-agent balance
+ergo-agent note check abc123...
+ergo-agent reserve create --collateral "1 ERG"   # testnet, dev mode
+```
+
+CLI defaults to **testnet** for safety. Full reference and exit codes:
+[`packages/ergo-agent-cli/README.md`](./packages/ergo-agent-cli/README.md).
+Conceptual companion: [`docs/dev-vs-production.md`](./docs/dev-vs-production.md).
 
 ### MCP Server — Claude Desktop / Cursor / Windsurf
 
