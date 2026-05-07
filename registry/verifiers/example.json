@@ -1,0 +1,19 @@
+{
+  "type": "accord.verifier_profile.v0",
+  "version": "v0",
+  "verifier_id": "verifier://example-security-v0",
+  "display_name": "Example Security Verifier",
+  "checks": ["schema", "github_pr", "test_suite", "static_analysis"],
+  "fee": { "mode": "percentage", "value": "5" },
+  "trust": {
+    "completed_verifications": 0,
+    "overturned": 0
+  },
+  "public_keys": [
+    {
+      "scheme": "ed25519",
+      "public_key": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "rotated_at": null
+    }
+  ]
+}

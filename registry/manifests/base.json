@@ -1,0 +1,9 @@
+{
+  "type": "accord.audited_manifest_ref.v0",
+  "version": "v0",
+  "rail": "base",
+  "manifest_path": "packages/agentpay-base/data/AUDITED_CONTRACTS.json",
+  "status": "draft-pre-audit",
+  "auditor_signature": null,
+  "notes": "All entries are mainnetAllowed=false until external auditor signs. assertProductionSafety in agentpay-base blocks mainnet writes."
+}

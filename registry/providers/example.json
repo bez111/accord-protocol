@@ -1,0 +1,26 @@
+{
+  "type": "accord.provider_profile.v0",
+  "version": "v0",
+  "provider_id": "provider://example-repo-audit",
+  "display_name": "Example Repo Audit Agent",
+  "capabilities": ["repo_audit", "code_review"],
+  "accepted_transports": ["accord/mcp", "accord/402"],
+  "accepted_rails": ["ergo", "rosen", "base", "x402"],
+  "pricing": [
+    { "kind": "repo_audit", "amount": "25", "currency": "ERG", "decimals": 9 },
+    { "kind": "code_review", "amount": "0.05", "currency": "USDC", "decimals": 6 }
+  ],
+  "verification": {
+    "required": true,
+    "supported_verifiers": ["verifier://example-security-v0"]
+  },
+  "endpoints": {
+    "well_known": "https://provider.example/.well-known/accord",
+    "agreement_template": "https://provider.example/.well-known/accord/agreement-template"
+  },
+  "conformance": {
+    "level": "L0",
+    "last_run_at": null,
+    "result_uri": null
+  }
+}

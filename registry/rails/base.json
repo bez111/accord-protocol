@@ -1,0 +1,11 @@
+{
+  "type": "accord.rail_adapter.v0",
+  "version": "v0",
+  "rail": "base",
+  "package": "@accord-protocol/rails-base",
+  "settlement_modes": ["redeemed", "refund_expired"],
+  "supported_currencies": ["USDC", "USDT"],
+  "payment_id_format": "EVM tx hash (0x + 64 hex) or Note id (0x + 64 hex)",
+  "task_hash_algorithm": "keccak256",
+  "manifest": "manifests/base.json"
+}
