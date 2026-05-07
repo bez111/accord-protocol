@@ -7,6 +7,7 @@
 
 import path from "node:path";
 import { runL0 } from "./l0-schema.js";
+import { runL1 } from "./l1-transport.js";
 import type {
   ConformanceLevel,
   ConformanceLevelResult,
@@ -36,7 +37,9 @@ export async function runConformance(
   for (const level of levels) {
     if (level === "L0") {
       results.push(await runL0({ repoRoot: opts.repoRoot }));
-    } else if (level === "L1" || level === "L2") {
+    } else if (level === "L1") {
+      results.push(await runL1());
+    } else if (level === "L2") {
       results.push({
         level,
         passed: false,
