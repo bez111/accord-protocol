@@ -20,7 +20,23 @@ L3  Security-compatible     — production-safety gates fire on mainnet writes
 L4  Registry-certified      — listed in the public registry with passing conformance
 ```
 
-This package ships **L0 today** (PR-017). L1 / L2 land in PR-018 / PR-019. L3 lives in the per-rail packages' tests; L4 is a registry-side claim.
+This package ships **L0 + L1 today** (PR-017 / PR-018). L2 lands in PR-019. L3 lives in the per-rail packages' tests; L4 is a registry-side claim.
+
+## L1 — what it checks
+
+L1 exercises the **Accord/MCP** and **Accord/402** transports against the reference `@accord-protocol/{mcp,gateway}` implementations with a Mock rail + a synthetic verifier:
+
+- **MCP** — `wrapAccordMcp` rejects calls without `accord_agreement_id`; happy path runs the handler; `_meta.accord_agreement_hash` is the canonical-bytes blake2b256; embedded Verification + Settlement Receipts pass core's validators.
+- **Accord/402** — no Accord-* request headers → 402 with the right response headers (`Accord-Version`, `Accord-Agreement-Required`, `WWW-Authenticate: Accord402`); valid request → 200 with `{ output, _meta }` body and `x-accord-agreement-hash` response header; embedded receipts validate; second use of the same `payment_id` is rejected with `REPLAY_DETECTED`.
+
+```text
+$ npx accord-conformance --levels L0,L1
+
+  L0 PASS  (20/20 pass, 0 fail, 0 inconclusive)
+  L1 PASS  (13/13 pass, 0 fail, 0 inconclusive)
+
+Achieved: L1
+```
 
 ## CLI
 
