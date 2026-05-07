@@ -20,7 +20,64 @@ L3  Security-compatible     — production-safety gates fire on mainnet writes
 L4  Registry-certified      — listed in the public registry with passing conformance
 ```
 
-This package ships **L0 + L1 + L2 today** (PR-017 / PR-018 / PR-019). L3 lives in the per-rail packages' tests; L4 is a registry-side claim.
+This package ships **all five levels** (L0 + L1 + L2 + L3 + L4). The CLI runs them in-process by default, or against a live HTTP endpoint via `--target <url>`.
+
+```text
+$ npx accord-conformance --levels L0,L1,L2,L3,L4
+
+  L0 PASS  (20/20 pass, 0 fail, 0 inconclusive)
+  L1 PASS  (13/13 pass, 0 fail, 0 inconclusive)
+  L2 PASS  (24/24 pass, 0 fail, 0 inconclusive)
+  L3 PASS  (12/12 pass, 0 fail, 0 inconclusive)
+  L4 PASS  (13/13 pass, 0 fail, 0 inconclusive)
+
+Achieved: L4
+```
+
+## L3 — what it checks (security gates)
+
+Probes `assertProductionSafety()` and the audit-manifest verifiers in both rail SDKs:
+
+- Mainnet writes without `scriptErgoTree` → `INSECURE_MAINNET_MODE`
+- Mainnet writes with arbitrary tree but no `auditPolicy` → `UNAUDITED_ERGOTREE`
+- The documented `dangerouslyAllowInsecureMainnetP2PK` / `dangerouslyAllowUnauditedContract` escape hatches still work
+- Testnet always allowed
+- `verifyAuditedErgoTree({ requireMainnet: true })` rejects on a draft-pre-audit manifest
+- Both audit manifests are in `draft-pre-audit` status with all entries `mainnetAllowed: false`
+- Same probes run for the Base/EVM rail's `assertProductionSafety` + `verifyAuditedContract`
+
+## L4 — what it checks (registry validation)
+
+Static-validates the `registry/` folder:
+
+- `registry/{providers,verifiers,rails,manifests}/*.json` parse + carry the right `type` literal + `version: "v0"`
+- `registry/revocations.json` is a well-formed array
+- Each rail record's `manifest` field points at a manifest file that exists
+- Provider records' `accepted_rails[]` only name rails registered in `registry/rails/`
+- `conformance.level` (when claimed) is one of L0–L4
+
+## Network mode (HTTP probing)
+
+`--target <url>` makes the L1 transport probe a real HTTP endpoint instead of running in-process. Three probes:
+
+```text
+$ npx accord-conformance --levels L1 --target https://provider.example/api/run
+
+  1. POST without Accord-* headers → expects 402 + Accord-Version, Accord-Agreement-Required, WWW-Authenticate: Accord402
+  2. POST with X-Accord-Agreement-Id but no payment → expects 402 + body.error in {MISSING_PAYMENT, UNKNOWN_AGREEMENT}
+  3. POST with both headers (only when --agreement-id + --payment supplied) → expects 200 + x-accord-agreement-hash + body { output, _meta }
+```
+
+Optional flags for the happy-path probe:
+
+```bash
+npx accord-conformance --levels L1 \
+  --target https://provider.example/api/run \
+  --agreement-id acc_01HX… \
+  --payment '{"value":"0.001"}'
+```
+
+MCP-stdio probing is a v1 follow-up.
 
 ## L1 — what it checks
 

@@ -161,11 +161,14 @@ describe("conformance L0 — schema-compatibility", () => {
 });
 
 describe("conformance — multi-level coordination", () => {
-  it("L3 / L4 are explicitly out of scope at v0", async () => {
-    const result = await runConformance({ repoRoot: REPO_ROOT, levels: ["L0", "L3", "L4"] });
-    const l3 = result.levels.find((l) => l.level === "L3");
-    const l4 = result.levels.find((l) => l.level === "L4");
-    assert.match(l3?.checks[0]?.detail ?? "", /per-rail/);
-    assert.match(l4?.checks[0]?.detail ?? "", /registry-side/i);
+  it("all five levels run end-to-end", async () => {
+    const result = await runConformance({
+      repoRoot: REPO_ROOT,
+      levels: ["L0", "L1", "L2", "L3", "L4"],
+    });
+    assert.equal(result.levels.length, 5);
+    for (const lvl of result.levels) {
+      assert.equal(lvl.passed, true, `${lvl.level} did not pass`);
+    }
   });
 });
