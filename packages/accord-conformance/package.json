@@ -1,7 +1,7 @@
 {
   "name": "@accord-protocol/conformance",
   "version": "0.4.0",
-  "description": "Accord Protocol conformance suite. Library + CLI that exercises every level (L0 schema, L1 transport, L2 rail) against an Accord implementation. The output is the source of truth for 'Accord-compatible (L*)' badge claims.",
+  "description": "Accord Protocol conformance suite and CLI. Exercises L0 schema, L1 transport, L2 rail, L3 security and L4 registry compatibility against an Accord implementation. Supports HTTP and MCP-stdio probing, plus ed25519 signing of conformance results. The output is the source of truth for 'Accord-compatible (L*)' badge claims.",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",

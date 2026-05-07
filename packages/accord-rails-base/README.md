@@ -1,6 +1,8 @@
 # `@accord-protocol/rails-base`
 
-Accord rail adapter for the **Base / EVM Note** primitive (`AgentPayReserveV0` Solidity contract). Implements [`AccordRailAdapter`](../accord-rails) by reading a Note from the Solidity contract, checking expiry / receiver binding / task-hash / value, then redeeming or refunding.
+Accord rail adapter for the **Base / EVM Note** primitive, backed by the legacy `AgentPayReserveV0` Solidity contract. Implements [`AccordRailAdapter`](../accord-rails) by reading a Note from the Solidity contract, checking expiry / receiver binding / task-hash / value, then redeeming or refunding.
+
+This is the canonical Accord-facing package for the Base rail. The underlying reference SDK is [`agentpay-base`](../agentpay-base/), which keeps its legacy npm name for bytecode/audit continuity; new integrations should import this package, not `agentpay-base` directly.
 
 ## Install
 
