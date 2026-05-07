@@ -32,7 +32,7 @@ Accord     → how the work agreement is recorded, verified and settled.
 ```text
 Open-source reference implementation
 Testnet beta · Mainnet blocked until signed audit manifests
-Rails: Ergo · Rosen · Base/EVM · x402 compatibility (planned)
+Rails: Ergo · Rosen · Base/EVM · x402-compatible
 Commercial layer (AgentAccord) lives elsewhere — this repo is the open standard
 ```
 
@@ -50,8 +50,9 @@ See [`docs/status.md`](./docs/status.md) for the full status table and
 | **Settlement Receipt** | Did the economic part settle, on which rail, with what tx? | `specs/ACCORD-003` |
 
 The protocol is rail-agnostic. Settlement plugs in via [rail adapters](./packages/);
-this repo ships an Ergo reference adapter (Note / Reserve / Tracker / Acceptance
-Predicate), with Rosen, Base/EVM, and x402-compatibility adapters in flight.
+this repo ships reference adapters for Ergo (Note / Reserve / Tracker / Acceptance
+Predicate), Rosen (rsUSDT / rsUSDC / rsBTC on Ergo), Base / EVM, and x402-compatible
+HTTP gateways.
 
 ---
 
@@ -59,8 +60,8 @@ Predicate), with Rosen, Base/EVM, and x402-compatibility adapters in flight.
 
 This repo contains working code examples, technical documentation, and resources for building
 autonomous agent **work-agreement** systems. The first reference rail is the
-[Ergo blockchain](https://ergoplatform.org); rail adapters for other chains and
-for x402-compatible HTTP gateways are part of the roadmap.
+[Ergo blockchain](https://ergoplatform.org); reference rail adapters for Rosen,
+Base / EVM, and x402-compatible HTTP gateways ship alongside it.
 
 Agents need to move money without asking permission. They spin up, do a job,
 get paid, and disappear. Traditional payment rails assume you're a human with a bank account,
@@ -408,25 +409,46 @@ const { definition, handler } = agent.asOpenAIFunction()
 
 ---
 
-## Quick start — 5 minutes to first agent payment
+## Quick start — see the full Accord lifecycle in one command
 
-You don't need much to get running. Clone the repo, grab some testnet ERG, and you're off.
+The fastest way to understand what Accord Protocol does is to run the canonical
+end-to-end demo. It composes every package in this repo into one runnable flow:
+
+```text
+Agreement → Payment → MCP wrapper → Verifier → Verification Receipt → Settlement Receipt
+```
 
 ```bash
 git clone https://github.com/bez111/accord-protocol
+cd accord-protocol/examples/15-paid-mcp-repo-audit
+npm install        # installs @accord-protocol/* from this monorepo's workspaces
+npm run dev        # runs the demo
+```
+
+The rail is mocked in-process so you can watch the full lifecycle without
+standing up an Ergo node, an x402 facilitator, or a Base RPC. You'll see both
+receipts emitted at the end.
+
+→ [`examples/15-paid-mcp-repo-audit/`](./examples/15-paid-mcp-repo-audit/) for what each line does.
+
+### Ergo rail quickstart
+
+If you want to start on the Ergo rail specifically (testnet ERG, signed tx, no
+Accord wrapper yet), this is the smaller hello-world:
+
+```bash
 cd accord-protocol/examples/01-basic-payment
 npm install
 # edit index.js: paste your testnet address
 node index.js
 ```
 
-You'll see an unsigned transaction JSON. Sign with Nautilus (testnet mode) or a server-side key,
-then POST to `https://api-testnet.ergoplatform.com/api/v1/transactions`.
+You'll see an unsigned transaction JSON. Sign with Nautilus (testnet mode) or a
+server-side key, then POST to `https://api-testnet.ergoplatform.com/api/v1/transactions`.
 
 Get testnet ERG free at [testnet.ergofaucet.org](https://testnet.ergofaucet.org).
-
-If you're building something more serious, jump to the [SDK docs](./packages/ergo-agent-pay/README.md)
-or check out [ChainCash](https://github.com/ChainCashLabs/chaincash) for a production reference.
+For a production reference of the Ergo Note / Reserve stack, see
+[ChainCash](https://github.com/ChainCashLabs/chaincash).
 
 ---
 
