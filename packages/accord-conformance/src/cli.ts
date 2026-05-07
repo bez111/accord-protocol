@@ -3,10 +3,13 @@
 // accord-conformance CLI
 //
 // Usage:
-//   npx accord-conformance                                   # run L0 against the local repo
-//   npx accord-conformance --levels L0                        # explicit
-//   npx accord-conformance --levels L0,L1,L2                  # request more levels (some may be inconclusive)
+//   npx accord-conformance                                       # run L0 against the local repo
+//   npx accord-conformance --levels L0,L1,L2,L3,L4               # all levels
 //   npx accord-conformance --repo-root /path/to/accord-protocol --json
+//
+//   # Network mode — probe a third-party Accord/402 endpoint over HTTP:
+//   npx accord-conformance --levels L1 --target https://provider.example/api/run
+//   npx accord-conformance --levels L1 --target … --agreement-id acc_… --payment '{...}'
 //
 // Exit codes:
 //   0  every requested level passed
@@ -18,15 +21,23 @@ import path from "node:path";
 import { runConformance } from "./runner.js";
 import type { ConformanceLevel, ConformanceResult } from "./types.js";
 
-function parseArgs(argv: string[]): {
+interface CliArgs {
   repoRoot: string;
   levels: ConformanceLevel[];
   json: boolean;
-} {
-  const out = {
+  targetUrl: string | undefined;
+  agreementId: string | undefined;
+  paymentJson: string | undefined;
+}
+
+function parseArgs(argv: string[]): CliArgs {
+  const out: CliArgs = {
     repoRoot: process.cwd(),
-    levels: ["L0"] as ConformanceLevel[],
+    levels: ["L0"],
     json: false,
+    targetUrl: undefined,
+    agreementId: undefined,
+    paymentJson: undefined,
   };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
@@ -40,12 +51,27 @@ function parseArgs(argv: string[]): {
       out.levels = v.split(",").map((s) => s.trim()).filter(Boolean) as ConformanceLevel[];
     } else if (a === "--json") {
       out.json = true;
+    } else if (a === "--target") {
+      const v = argv[++i];
+      if (!v) usageExit(`--target requires a URL`);
+      out.targetUrl = v;
+    } else if (a === "--agreement-id") {
+      const v = argv[++i];
+      if (!v) usageExit(`--agreement-id requires a value`);
+      out.agreementId = v;
+    } else if (a === "--payment") {
+      const v = argv[++i];
+      if (!v) usageExit(`--payment requires a JSON string`);
+      out.paymentJson = v;
     } else if (a === "--help" || a === "-h") {
       printUsage();
       process.exit(0);
     } else {
       usageExit(`unknown flag: ${a}`);
     }
+  }
+  if (out.targetUrl && !out.levels.includes("L1")) {
+    usageExit(`--target only applies to L1; include L1 in --levels`);
   }
   return out;
 }
@@ -59,15 +85,27 @@ function usageExit(reason: string): never {
 function printUsage(): void {
   process.stderr.write(
     [
-      `Usage: accord-conformance [--repo-root <dir>] [--levels L0,L1,L2] [--json]`,
+      `Usage:`,
+      `  accord-conformance [--repo-root <dir>] [--levels L0,L1,L2,L3,L4] [--json]`,
+      `  accord-conformance --levels L1 --target <url> [--agreement-id <id>] [--payment <json>]`,
       ``,
       `Run the Accord Protocol conformance suite. Defaults to L0 against the`,
       `current working directory.`,
       ``,
-      `  --repo-root <dir>   Repo containing schemas/ + test-vectors/ (default: cwd)`,
-      `  --levels  L0,L1,L2  Levels to run (default: L0)`,
-      `  --json              Emit JSON; useful for CI / submitting to the registry`,
-      `  --help, -h          Print this and exit`,
+      `  --repo-root <dir>          Repo containing schemas/ + test-vectors/ + registry/ (default: cwd)`,
+      `  --levels  L0,L1,L2,L3,L4   Levels to run (default: L0)`,
+      `  --json                     Emit JSON; useful for CI / submitting to the registry`,
+      `  --target <url>             L1 only — probe a live HTTP endpoint instead of in-process`,
+      `  --agreement-id <id>        Optional — for the --target happy-path probe`,
+      `  --payment <json>           Optional — rail-specific payment payload, JSON-encoded`,
+      `  --help, -h                 Print this and exit`,
+      ``,
+      `Levels:`,
+      `  L0  Schema-compatible      — fixtures validate against schemas/v0`,
+      `  L1  Transport-compatible   — Accord/402 + Accord/MCP roundtrip works`,
+      `  L2  Rail-compatible        — at least one rail adapter passes verifyPayment + settle`,
+      `  L3  Security-compatible    — production-safety gates fire on mainnet writes`,
+      `  L4  Registry-certified     — registry/ records validate + cross-resolve`,
       ``,
       `Exit codes: 0 (all requested levels pass), 1 (any fail/inconclusive), 2 (usage error).`,
       ``,
@@ -106,10 +144,14 @@ function emitText(result: ConformanceResult): void {
 
 (async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
+  const target = args.targetUrl
+    ? `network:${args.targetUrl}`
+    : `local:${path.basename(args.repoRoot)}`;
   const result = await runConformance({
     repoRoot: args.repoRoot,
     levels: args.levels,
-    target: `local:${path.basename(args.repoRoot)}`,
+    target,
+    targetUrl: args.targetUrl,
   });
   if (args.json) {
     console.log(JSON.stringify(result, null, 2));
