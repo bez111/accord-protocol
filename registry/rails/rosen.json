@@ -1,0 +1,12 @@
+{
+  "type": "accord.rail_adapter.v0",
+  "version": "v0",
+  "rail": "rosen",
+  "package": "@accord-protocol/rails-rosen",
+  "settlement_modes": ["note_redeemed", "reserve_refunded", "batch_settled"],
+  "supported_currencies": ["rsUSDT", "rsUSDC", "rsBTC"],
+  "payment_id_format": "Ergo Note box id (64 hex)",
+  "task_hash_algorithm": "blake2b256",
+  "manifest": "manifests/ergo.json",
+  "notes": "Wraps the Ergo Note primitive with token-aware value lookups. Token-ids per network are caller-supplied via RosenTokenRegistry."
+}
