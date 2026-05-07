@@ -1,0 +1,9 @@
+{
+  "type": "accord.audited_manifest_ref.v0",
+  "version": "v0",
+  "rail": "ergo",
+  "manifest_path": "packages/ergo-agent-scripts/data/AUDITED_ERGOTREES.json",
+  "status": "draft-pre-audit",
+  "auditor_signature": null,
+  "notes": "All entries are mainnetAllowed=false until external auditor signs. Two-gate guard (box-shape + audit-identity) in @accord-protocol/rails-ergo blocks mainnet writes."
+}
