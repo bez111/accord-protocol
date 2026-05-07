@@ -1,0 +1,52 @@
+name: CI Paid-MCP Demo
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "examples/15-paid-mcp-repo-audit/**"
+      - "packages/accord-core/**"
+      - "packages/accord-mcp/**"
+      - "packages/accord-rails/**"
+      - ".github/workflows/ci-paid-mcp-demo.yml"
+      - "package.json"
+      - "package-lock.json"
+  pull_request:
+    branches: [main]
+    paths:
+      - "examples/15-paid-mcp-repo-audit/**"
+      - "packages/accord-core/**"
+      - "packages/accord-mcp/**"
+      - "packages/accord-rails/**"
+      - ".github/workflows/ci-paid-mcp-demo.yml"
+      - "package.json"
+      - "package-lock.json"
+
+jobs:
+  build:
+    name: Run end-to-end demo
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install workspace
+        run: npm install --include=optional
+
+      - name: Build accord-core / accord-mcp / accord-rails (demo depends on dists)
+        run: |
+          npm run build -w @accord-protocol/core
+          npm run build -w @accord-protocol/mcp
+          npm run build -w @accord-protocol/rails
+
+      - name: Test demo
+        run: npm test -w accord-paid-mcp-repo-audit-demo
+
+      # Run the actual end-to-end driver. Fails CI if the lifecycle breaks.
+      - name: Run demo CLI
+        run: npm run dev -w accord-paid-mcp-repo-audit-demo
