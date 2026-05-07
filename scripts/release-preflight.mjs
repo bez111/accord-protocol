@@ -7,20 +7,21 @@
 // the workflow after `git tag && push`.
 //
 // Sequence:
-//   1. Working tree state (clean, on main, fast-forward against origin)
-//   2. Version distribution (9 × 0.4.0 + 8 × 0.3.0 expected)
-//   3. `npm install --include=optional` clean
-//   4. `npm run typecheck --workspaces` clean
-//   5. `npm run build --workspaces` clean
-//   6. `npm test --workspaces` (expect 569+ TS tests pass)
-//   7. Conformance L0+L1+L2+L3+L4 PASS (Achieved: L4)
-//   8. Fixture-hash drift check
-//   9. End-to-end demo (paid-MCP repo-audit)
-//  10. accord-conformance keygen + sign + verify round-trip
-//  11. keygen + sign + verify round-trip
+//   1. Working tree clean
+//   2. On main, in sync with origin
+//   3. Version distribution (9 × 0.4.0 + 8 × 0.3.0 expected)
+//   4. `npm install --include=optional` clean
+//   5. `npm run typecheck --workspaces` clean
+//   6. `npm run build --workspaces` clean
+//   7. `npm test --workspaces` (expect 582+ TS tests pass)
+//   8. Conformance L0+L1+L2+L3+L4 PASS (Achieved: L4)
+//   9. Fixture-hash drift check
+//  10. End-to-end demo (paid-MCP repo-audit)
+//  11. accord-conformance keygen + sign + verify round-trip
 //  12. MCP-stdio probe against the bundled stub
 //  13. `npm pack` for every @accord-protocol/* package (opt-in via --pack)
-//  14. install-in-tempdir smoke against the freshly-packed core tarball
+//  14. install-in-tempdir smoke for all 9 @accord-protocol/* tarballs —
+//      installs them into one fresh project and imports each one
 //      (opt-in via --pack — depends on gate 13's output)
 //
 // Usage:
@@ -53,6 +54,21 @@ const ACCORD_PACKAGES = [
   "@accord-protocol/rails-base",
   "@accord-protocol/rails-x402",
   "@accord-protocol/conformance",
+];
+
+// Reference rail packages at 0.3.0. The @accord-protocol/* tarballs declare
+// runtime deps on these (e.g. rails-base depends on agentpay-base@^0.3.0), so
+// the install-in-tempdir gate has to ship them as local tarballs too — the
+// 0.3.0 line is not yet on the public npm registry.
+const LEGACY_PACKAGES = [
+  "ergo-agent-pay",
+  "ergo-agent-cli",
+  "ergo-agent-api",
+  "ergo-agent-server",
+  "ergo-agent-rosen",
+  "ergo-agent-scripts",
+  "ergo-agent-mcp",
+  "agentpay-base",
 ];
 
 const GATES = [];
@@ -231,10 +247,11 @@ gate("12 MCP-stdio probe against bundled stub", () => {
 let PACK_TARBALL_DIR = null;
 
 if (RUN_PACK) {
-  gate("13 npm pack each @accord-protocol/* package", () => {
+  gate("13 npm pack every workspace package (9 Accord + 8 legacy)", () => {
     const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "accord-pack-"));
     PACK_TARBALL_DIR = tmp;
-    for (const pkg of ACCORD_PACKAGES) {
+    const allPackages = [...ACCORD_PACKAGES, ...LEGACY_PACKAGES];
+    for (const pkg of allPackages) {
       const r = run(
         "npm",
         ["pack", "-w", pkg, "--pack-destination", tmp],
@@ -245,45 +262,87 @@ if (RUN_PACK) {
       }
     }
     const tarballs = fs.readdirSync(tmp).filter((f) => f.endsWith(".tgz"));
-    return tarballs.length === ACCORD_PACKAGES.length
+    return tarballs.length === allPackages.length
       ? pass(`${tarballs.length} tarballs in ${tmp}`)
-      : fail(`got ${tarballs.length}, expected ${ACCORD_PACKAGES.length}`);
+      : fail(`got ${tarballs.length}, expected ${allPackages.length}`);
   });
 
-  gate("14 install-in-tempdir smoke for @accord-protocol/core", () => {
+  gate("14 install-in-tempdir smoke for all 17 workspace packages", () => {
     if (!PACK_TARBALL_DIR) return fail("gate 13 did not produce tarballs");
-    const tarballs = fs
+    const allTarballs = fs
       .readdirSync(PACK_TARBALL_DIR)
-      .filter((f) => f.startsWith("accord-protocol-core-") && f.endsWith(".tgz"));
-    if (tarballs.length !== 1) {
-      return fail(`expected 1 core tarball, got ${tarballs.length}`);
+      .filter((f) => f.endsWith(".tgz"));
+    const expected = ACCORD_PACKAGES.length + LEGACY_PACKAGES.length;
+    if (allTarballs.length !== expected) {
+      return fail(`expected ${expected} tarballs, got ${allTarballs.length}`);
     }
-    const tarball = path.join(PACK_TARBALL_DIR, tarballs[0]);
+
+    // Build name → tarball-path map so we can resolve transitive 0.3.0 deps
+    // (e.g. rails-base depends on agentpay-base@^0.3.0) against the local
+    // tarballs via npm `overrides`, since the 0.3.0 packages are not on the
+    // public registry yet.
+    const nameToTarball = new Map();
+    for (const file of allTarballs) {
+      const full = path.join(PACK_TARBALL_DIR, file);
+      // Parse name out of the tarball filename: scoped accord-protocol-core-0.4.0.tgz
+      // becomes @accord-protocol/core; legacy ergo-agent-pay-0.3.0.tgz stays as-is.
+      let name;
+      if (file.startsWith("accord-protocol-")) {
+        const stem = file.replace(/-[\d.]+\.tgz$/, "").replace(/^accord-protocol-/, "");
+        name = `@accord-protocol/${stem}`;
+      } else {
+        name = file.replace(/-[\d.]+\.tgz$/, "");
+      }
+      nameToTarball.set(name, full);
+    }
 
     const proj = fs.mkdtempSync(path.join(os.tmpdir(), "accord-install-"));
     try {
+      // Declare every workspace tarball as a file: dependency. This forces
+      // npm to resolve transitive 0.3.0 constraints (e.g. rails-base →
+      // agentpay-base@^0.3.0) against the local tarballs rather than the
+      // public registry.
+      const dependencies = {};
+      for (const [name, tarball] of nameToTarball) {
+        dependencies[name] = `file:${tarball}`;
+      }
       fs.writeFileSync(
         path.join(proj, "package.json"),
-        JSON.stringify({ name: "accord-install-smoke", private: true, type: "module" }, null, 2),
+        JSON.stringify(
+          {
+            name: "accord-install-smoke",
+            private: true,
+            type: "module",
+            dependencies,
+          },
+          null,
+          2,
+        ),
       );
-      const inst = run("npm", ["install", "--no-audit", "--no-fund", tarball], { cwd: proj });
+      const inst = run("npm", ["install", "--no-audit", "--no-fund"], { cwd: proj });
       if (inst.status !== 0) {
-        return fail(`npm install exit ${inst.status}: ${inst.stderr.slice(0, 300)}`);
+        return fail(`npm install exit ${inst.status}: ${inst.stderr.slice(0, 400)}`);
       }
+      const importLines = ACCORD_PACKAGES.map(
+        (p, i) => `import * as m${i} from ${JSON.stringify(p)};`,
+      ).join("\n");
+      const exportCount = ACCORD_PACKAGES.map(
+        (_, i) => `Object.keys(m${i}).length`,
+      ).join(" + ");
       const probePath = path.join(proj, "probe.mjs");
       fs.writeFileSync(
         probePath,
-        `import * as core from "@accord-protocol/core";\nconst keys = Object.keys(core);\nif (keys.length === 0) { console.error("EMPTY"); process.exit(1); }\nconsole.log("EXPORTS=" + keys.length);\n`,
+        `${importLines}\nconst total = ${exportCount};\nif (total === 0) { console.error("EMPTY"); process.exit(1); }\nconsole.log("EXPORTS=" + total);\n`,
       );
       const probe = run("node", [probePath], { cwd: proj });
       if (probe.status !== 0) {
-        return fail(`probe import failed exit ${probe.status}: ${probe.stderr.slice(0, 300)}`);
+        return fail(`probe import failed exit ${probe.status}: ${probe.stderr.slice(0, 400)}`);
       }
       const m = probe.stdout.match(/EXPORTS=(\d+)/);
       if (!m || parseInt(m[1], 10) === 0) {
         return fail(`probe reported no exports:\n${probe.stdout}`);
       }
-      return pass(`installed + imported (${m[1]} exports)`);
+      return pass(`installed all 17 + imported 9 Accord (${m[1]} total exports)`);
     } finally {
       fs.rmSync(proj, { recursive: true, force: true });
       if (PACK_TARBALL_DIR) {

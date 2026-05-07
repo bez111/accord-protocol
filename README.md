@@ -262,7 +262,7 @@ for agents.
 
 ## Packages
 
-The canonical public API lives in the **Accord Protocol layer** (`@accord-protocol/*`, version 0.4.0). New integrations should target these packages directly. The `ergo-agent-*` and `agentpay-base` packages remain published as **reference / legacy rail packages** — the Accord rail adapters delegate transaction-building to them.
+The canonical public API lives in the **Accord Protocol layer** (`@accord-protocol/*`, version 0.4.0). New integrations should target these packages directly. The `ergo-agent-*` and `agentpay-base` packages are the underlying **reference rail SDKs** — the Accord rail adapters delegate transaction-building to them, and they keep their original npm names for downstream compatibility.
 
 ### Accord Protocol packages (canonical)
 
@@ -278,10 +278,13 @@ The canonical public API lives in the **Accord Protocol layer** (`@accord-protoc
 | [`@accord-protocol/rails-x402`](./packages/accord-rails-x402/) | `npm install @accord-protocol/rails-x402` | x402-compatible rail. Wraps any facilitator (Coinbase / self-hosted / custom). |
 | [`@accord-protocol/conformance`](./packages/accord-conformance/) | `npm install @accord-protocol/conformance` | Conformance suite + CLI. Levels L0–L4. Network mode (HTTP + MCP-stdio). ed25519 signing. |
 
-### Reference / legacy rail packages (testnet / Ergo-focused)
+### Reference rail packages
 
 These power the Ergo, Rosen, and Base rail adapters above. They keep their own
-release line at `0.3.0` and remain maintained.
+release line at `0.3.0`, retain their original npm names for downstream
+compatibility, and remain maintained. New integrations should usually use the
+`@accord-protocol/*` packages above; reach for these directly only when you
+need rail-level primitives outside an Accord engagement.
 
 | Package | Install | Description |
 |---|---|---|
@@ -289,9 +292,9 @@ release line at `0.3.0` and remain maintained.
 | [`ergo-agent-cli`](./packages/ergo-agent-cli/) | `npm install -g ergo-agent-cli` | Command-line companion: balance, note lifecycle, settle, task-hash |
 | [`ergo-agent-api`](./packages/ergo-agent-api/) | `npm install ergo-agent-api` | Legacy 402 middleware (predates Accord/402; new code should use `@accord-protocol/gateway`) |
 | [`ergo-agent-server`](./packages/ergo-agent-server/) | `npm install -g ergo-agent-server` | Local HTTP bridge — exposes the SDK over REST so any language can drive it |
-| [`ergo-agent-rosen`](./packages/ergo-agent-rosen/) | `npm install ergo-agent-rosen` | Rosen Bridge cross-chain glue. Reuses the audited `basis_token_reserve_v0` ergoTree |
-| [`agentpay-base`](./packages/agentpay-base/) | `npm install agentpay-base` | Native Base / EVM SDK: ERC-20 reserves (USDC, USDT), keccak256 acceptance predicates |
-| [`ergo-agent-scripts`](./packages/ergo-agent-scripts/) | `npm install ergo-agent-scripts` | Canonical ErgoScript sources + audited tree registry + manifest verifier |
+| [`ergo-agent-rosen`](./packages/ergo-agent-rosen/) | `npm install ergo-agent-rosen` | Rosen Bridge helper for rsUSDT / rsUSDC / rsBTC on the Ergo rail. Uses `basis_token_reserve_v0` from the draft audit manifest; mainnet remains audit-gated |
+| [`agentpay-base`](./packages/agentpay-base/) | `npm install agentpay-base` | Base / EVM reference SDK used by `@accord-protocol/rails-base`: ERC-20 reserves, Note-style settlement, keccak256 task predicates and audit-gated contract manifests |
+| [`ergo-agent-scripts`](./packages/ergo-agent-scripts/) | `npm install ergo-agent-scripts` | Canonical ErgoScript sources, compiled ErgoTree registry, draft audit manifests and manifest-verification helpers |
 | [`ergo-agent-mcp`](./packages/ergo-agent-mcp/) | `npm install ergo-agent-mcp` | Legacy MCP server (predates Accord/MCP; new code should use `@accord-protocol/mcp`) |
 | [`ergo-agent-pay` (Python)](./packages/ergo-agent-py/) | `pip install ergo-agent-pay` | Balance, UTxOs, check_note, LangChain tool, OpenAI function, BridgeClient |
 
@@ -521,8 +524,9 @@ budget caps — all the safety properties from the open PRs in one place.
 ### [11-cross-chain-rosen](./examples/11-cross-chain-rosen/)
 USD-stable agent payments via [Rosen Bridge](https://rosen.tech).
 Buyer holds USDT on Ethereum, bridges once to rsUSDT on Ergo, pays the
-seller's API in rsUSDT-denominated Notes (audited
-`basis_token_reserve_v0`). Seller batches outbound bridges out of band.
+seller's API in rsUSDT-denominated Notes against the
+`basis_token_reserve_v0` tree (manifest-tracked, mainnet audit-gated).
+Seller batches outbound bridges out of band.
 See [`docs/cross-chain.md`](./docs/cross-chain.md) for the architecture
 and trust assumptions.
 

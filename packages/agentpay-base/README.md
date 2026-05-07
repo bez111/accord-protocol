@@ -1,17 +1,22 @@
 # agentpay-base
 
-**Base / Ethereum-L2 implementation of the AgentPay v0 protocol.**
+**Base / EVM reference rail SDK for Accord Protocol.**
+
+This package keeps its legacy npm name for downstream compatibility. It
+implements Note-style settlement on Base / EVM and is used internally
+by [`@accord-protocol/rails-base`](../accord-rails-base/). New Accord
+integrations should usually import `@accord-protocol/rails-base`, not
+this package directly.
 
 Reserve / Note / Acceptance Predicate semantics on EVM, denominated in
 any ERC-20 (USDC, USDT, …). Mirrors the
-[`ergo-agent-pay`](../ergo-agent-pay) API shape so apps pick the chain
-by config, not by rewriting.
+[`ergo-agent-pay`](../ergo-agent-pay/) API shape so rail adapters can
+share behavior across chains.
 
-This package is a sibling of the Ergo SDK. Same SPEC, same protocol,
-different settlement chain. Existing audit gate, manifest, and safety
-guardrails are mirrored 1:1 with EVM-flavoured names
-(`AUDITED_CONTRACTS.json` instead of `AUDITED_ERGOTREES.json`,
-keccak256 instead of BLAKE2b-256).
+Same Accord settlement semantics as the Ergo reference SDK, different
+rail. The audit gate, manifest format, and safety guardrails are
+mirrored 1:1 with EVM-flavoured names (`AUDITED_CONTRACTS.json` instead
+of `AUDITED_ERGOTREES.json`, keccak256 instead of BLAKE2b-256).
 
 ## Why this exists
 
@@ -36,6 +41,8 @@ bridge.
 
 * Deploy the contract for you. Use Foundry / Hardhat / a wallet UI;
   the contract source is in [`contracts/AgentPayReserveV0.sol`](./contracts/AgentPayReserveV0.sol).
+  The contract keeps the legacy `AgentPayReserveV0` name for bytecode
+  and audit-trail continuity.
 * Wrap your private key. Use a viem `WalletClient` you own.
 * Sign or submit cross-chain bridge transactions. For that, use
   [`ergo-agent-rosen`](../ergo-agent-rosen).
