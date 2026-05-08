@@ -1,0 +1,59 @@
+{
+  "name": "@accord-protocol/buyer-policy",
+  "version": "0.4.0",
+  "description": "Accord Protocol buyer-side policy enforcer. Wraps a buyer agent's signer with hard-coded spend limits, recipient and rail allow-lists, approval-required thresholds and atomic per-session budget tracking. Zero runtime deps. Designed for agentic wallets that need to bound LLM-driven spending.",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts --clean",
+    "typecheck": "tsc --noEmit",
+    "test": "npx tsx --test src/__tests__/*.test.ts"
+  },
+  "keywords": [
+    "accord-protocol",
+    "agent-payments",
+    "policy-engine",
+    "spend-limits",
+    "agentic-wallet",
+    "buyer-policy"
+  ],
+  "author": "bez111",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bez111/accord-protocol",
+    "directory": "packages/accord-buyer-policy"
+  },
+  "homepage": "https://github.com/bez111/accord-protocol/tree/main/packages/accord-buyer-policy",
+  "bugs": {
+    "url": "https://github.com/bez111/accord-protocol/issues"
+  },
+  "dependencies": {
+    "@accord-protocol/core": "^0.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsup": "^8.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

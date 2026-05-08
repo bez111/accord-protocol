@@ -9,7 +9,7 @@
 // Sequence:
 //   1. Working tree clean
 //   2. On main, in sync with origin
-//   3. Version distribution (9 × 0.4.0 + 8 × 0.3.0 expected)
+//   3. Version distribution (10 × 0.4.0 + 8 × 0.3.0 expected)
 //   4. `npm install --include=optional` clean
 //   5. `npm run typecheck --workspaces` clean
 //   6. `npm run build --workspaces` clean
@@ -54,6 +54,7 @@ const ACCORD_PACKAGES = [
   "@accord-protocol/rails-base",
   "@accord-protocol/rails-x402",
   "@accord-protocol/conformance",
+  "@accord-protocol/buyer-policy",
 ];
 
 // Reference rail packages at 0.3.0. The @accord-protocol/* tarballs declare
@@ -115,7 +116,7 @@ gate("02 on main, up-to-date with origin", () => {
   return pass("on main, in sync with origin");
 });
 
-gate("03 version distribution (9×0.4.0 + 8×0.3.0)", () => {
+gate("03 version distribution (10×0.4.0 + 8×0.3.0)", () => {
   const counts = new Map();
   for (const pkg of fs.readdirSync(path.join(REPO_ROOT, "packages"))) {
     const p = path.join(REPO_ROOT, "packages", pkg, "package.json");
@@ -125,12 +126,12 @@ gate("03 version distribution (9×0.4.0 + 8×0.3.0)", () => {
   }
   const expect040 = counts.get("0.4.0") ?? 0;
   const expect030 = counts.get("0.3.0") ?? 0;
-  if (expect040 !== 9 || expect030 !== 8) {
+  if (expect040 !== 10 || expect030 !== 8) {
     return fail(
-      `expected 9×0.4.0 + 8×0.3.0; got ${[...counts].map(([v, c]) => `${c}×${v}`).join(" + ")}`,
+      `expected 10×0.4.0 + 8×0.3.0; got ${[...counts].map(([v, c]) => `${c}×${v}`).join(" + ")}`,
     );
   }
-  return pass(`9×0.4.0 (Accord) + 8×0.3.0 (legacy)`);
+  return pass(`10×0.4.0 (Accord) + 8×0.3.0 (legacy)`);
 });
 
 gate("04 npm install --include=optional", () => {
@@ -147,10 +148,10 @@ gate("05 typecheck --workspaces", () => {
 
 gate("06 build --workspaces", () => {
   const r = run("npm", ["run", "build", "--workspaces", "--if-present"]);
-  return r.status === 0 ? pass("17 packages built") : fail(`exit ${r.status}`);
+  return r.status === 0 ? pass("18 packages built") : fail(`exit ${r.status}`);
 });
 
-gate("07 test --workspaces (expect ≥582 pass, 0 fail)", () => {
+gate("07 test --workspaces (expect ≥653 pass, 0 fail)", () => {
   const r = run("npm", ["test", "--workspaces", "--if-present"]);
   if (r.status !== 0) return fail(`exit ${r.status}: ${r.stderr.slice(0, 200)}`);
   const lines = r.stdout.split("\n");
@@ -162,7 +163,7 @@ gate("07 test --workspaces (expect ≥582 pass, 0 fail)", () => {
     if (f) fails += parseInt(f[1], 10);
   }
   if (fails > 0) return fail(`${fails} test failures`);
-  if (total < 582) return fail(`only ${total} tests ran (expected ≥582)`);
+  if (total < 653) return fail(`only ${total} tests ran (expected ≥653)`);
   return pass(`${total} tests, 0 fails`);
 });
 
@@ -247,7 +248,7 @@ gate("12 MCP-stdio probe against bundled stub", () => {
 let PACK_TARBALL_DIR = null;
 
 if (RUN_PACK) {
-  gate("13 npm pack every workspace package (9 Accord + 8 legacy)", () => {
+  gate("13 npm pack every workspace package (10 Accord + 8 legacy)", () => {
     const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "accord-pack-"));
     PACK_TARBALL_DIR = tmp;
     const allPackages = [...ACCORD_PACKAGES, ...LEGACY_PACKAGES];
@@ -267,7 +268,7 @@ if (RUN_PACK) {
       : fail(`got ${tarballs.length}, expected ${allPackages.length}`);
   });
 
-  gate("14 install-in-tempdir smoke for all 17 workspace packages", () => {
+  gate("14 install-in-tempdir smoke for all 18 workspace packages", () => {
     if (!PACK_TARBALL_DIR) return fail("gate 13 did not produce tarballs");
     const allTarballs = fs
       .readdirSync(PACK_TARBALL_DIR)
@@ -342,7 +343,7 @@ if (RUN_PACK) {
       if (!m || parseInt(m[1], 10) === 0) {
         return fail(`probe reported no exports:\n${probe.stdout}`);
       }
-      return pass(`installed all 17 + imported 9 Accord (${m[1]} total exports)`);
+      return pass(`installed all 18 + imported 10 Accord (${m[1]} total exports)`);
     } finally {
       fs.rmSync(proj, { recursive: true, force: true });
       if (PACK_TARBALL_DIR) {

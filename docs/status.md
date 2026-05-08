@@ -116,7 +116,7 @@ and [`docs/audit/SIGNING_PLAYBOOK.md`](./audit/SIGNING_PLAYBOOK.md).
 
 | Item | State |
 |---|---|
-| `publish-npm.yml` covers all 17 packages (9 Accord layer + 8 legacy) | **DONE** |
+| `publish-npm.yml` covers all 18 packages (10 Accord layer + 8 legacy) | **DONE** |
 | Skip-if-already-published guard on every job | **DONE** |
 | Self-conformance gate (L0+L1+L2+L3+L4) before publishing `@accord-protocol/conformance` | **DONE** |
 | `NPM_TOKEN` GitHub secret | NOT SET — see [`docs/RELEASE-CHECKLIST.md`](./RELEASE-CHECKLIST.md) |
