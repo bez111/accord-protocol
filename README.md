@@ -277,6 +277,7 @@ The canonical public API lives in the **Accord Protocol layer** (`@accord-protoc
 | [`@accord-protocol/rails-base`](./packages/accord-rails-base/) | `npm install @accord-protocol/rails-base` | Base/EVM Note rail: keccak256 acceptance predicate, AgentPayReserveV0. Wraps `agentpay-base`. |
 | [`@accord-protocol/rails-x402`](./packages/accord-rails-x402/) | `npm install @accord-protocol/rails-x402` | x402-compatible rail. Wraps any facilitator (Coinbase / self-hosted / custom). |
 | [`@accord-protocol/conformance`](./packages/accord-conformance/) | `npm install @accord-protocol/conformance` | Conformance suite + CLI. Levels L0–L4. Network mode (HTTP + MCP-stdio). ed25519 signing. |
+| [`@accord-protocol/buyer-policy`](./packages/accord-buyer-policy/) | `npm install @accord-protocol/buyer-policy` | Buyer-side policy enforcer for agentic wallets. Single / session / daily spend caps, recipient + rail allow-lists, approval threshold with timeout, atomic per-session budget. Zero runtime deps. |
 
 ### Reference rail packages
 

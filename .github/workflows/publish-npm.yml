@@ -537,3 +537,37 @@ jobs:
           fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  # ── Accord Protocol layer: buyer-side policy enforcer ─────────────────────
+
+  accord-buyer-policy:
+    name: "@accord-protocol/buyer-policy"
+    needs:
+      - accord-core
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: "https://registry.npmjs.org"
+      - name: Install
+        run: npm install --include=optional
+      - name: Build deps
+        run: npm run build -w @accord-protocol/core
+      - name: Build
+        run: npm run build -w @accord-protocol/buyer-policy
+      - name: Typecheck
+        run: npm run typecheck -w @accord-protocol/buyer-policy
+      - name: Test
+        run: npm test -w @accord-protocol/buyer-policy
+      - name: Publish if new
+        run: |
+          LOCAL=$(node -p "require('./packages/accord-buyer-policy/package.json').version")
+          if npm view "@accord-protocol/buyer-policy@$LOCAL" version >/dev/null 2>&1; then
+            echo "@accord-protocol/buyer-policy@$LOCAL already on npm; skipping."
+          else
+            npm publish --workspace @accord-protocol/buyer-policy --access public
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

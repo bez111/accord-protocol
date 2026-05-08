@@ -22,6 +22,7 @@
     "packages/accord-rails-rosen",
     "packages/accord-rails-x402",
     "packages/accord-conformance",
+    "packages/accord-buyer-policy",
     "examples/15-paid-mcp-repo-audit",
     "packages/ergo-agent-pay",
     "packages/ergo-agent-cli",
