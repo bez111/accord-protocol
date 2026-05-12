@@ -6,7 +6,7 @@ SDK uses that signature to flip `mainnetAllowed` flags safely.
 | Role | Who | What they do |
 |---|---|---|
 | **Auditor** | Independent firm or person who reviewed the source + compiled artifacts | Generates an ed25519 keypair, publishes the public key, signs the manifest |
-| **Maintainer** | bez111 (this repo) | Stages a manifest update, sends it to the auditor, lands the signed manifest |
+| **Maintainer** | Accord Protocol maintainers | Stage a manifest update, send it to the auditor, land the signed manifest |
 | **SDK consumer** | Anyone calling `ErgoAgentPay` / `BaseAgentPay` on mainnet | Configures `auditPolicy` to verify against the signed manifest |
 
 Until an auditor signs, every entry in

@@ -172,4 +172,4 @@ Release notes must include:
 - Does not imply ChainCash/Basis scripts are audited.
 - Does not certify production use.
 - Does not publish a canonical Python Accord layer.
-- Does not migrate the repo into `github.com/accord-protocol`.
+- Does not modify repository ownership or organization settings.
