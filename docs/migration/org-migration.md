@@ -42,8 +42,8 @@ A neutral organization makes Accord look like an open protocol rather than a per
 
 ## Remaining post-migration steps
 
-1. Reconfigure GitHub Actions secrets under `accord-protocol/accord-protocol`.
-2. Reconfigure PyPI Trusted Publishing for owner `accord-protocol`.
-3. Update website links.
-4. Confirm GitHub redirects from the old `bez111/accord-protocol` URL.
-5. Publish a short migration note when release setup is complete.
+- [ ] Reconfigure GitHub Actions secrets under `accord-protocol/accord-protocol`.
+- [ ] Reconfigure PyPI Trusted Publishing for owner `accord-protocol`.
+- [x] Update website links.
+- [x] Confirm GitHub redirects from the old `bez111/accord-protocol` URL.
+- [ ] Publish a short migration note when release setup is complete.

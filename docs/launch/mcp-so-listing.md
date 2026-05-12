@@ -42,7 +42,7 @@ scraping for sale to anyone holding the right Note.
 **Homepage:** https://github.com/accord-protocol/accord-protocol
 **Documentation:** https://github.com/accord-protocol/accord-protocol/blob/main/packages/ergo-agent-mcp/README.md
 **License:** MIT
-**Maintainer:** [bez111](https://github.com/bez111)
+**Maintainer:** [Accord Protocol](https://github.com/accord-protocol)
 
 **Configuration block (claude_desktop_config.json):**
 

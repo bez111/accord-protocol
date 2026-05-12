@@ -20,7 +20,7 @@
 //  11. accord-conformance keygen + sign + verify round-trip
 //  12. MCP-stdio probe against the bundled stub
 //  13. `npm pack` for every @accord-protocol/* package (opt-in via --pack)
-//  14. install-in-tempdir smoke for all 9 @accord-protocol/* tarballs —
+//  14. install-in-tempdir smoke for all 10 @accord-protocol/* tarballs —
 //      installs them into one fresh project and imports each one
 //      (opt-in via --pack — depends on gate 13's output)
 //
