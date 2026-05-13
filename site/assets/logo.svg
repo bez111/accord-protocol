@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-labelledby="title desc">
+  <title id="title">Accord Protocol mark</title>
+  <desc id="desc">Interlocking agreement nodes forming a compact protocol symbol.</desc>
+  <rect width="96" height="96" rx="18" fill="#121512"/>
+  <circle cx="28" cy="32" r="10" fill="#8BD7B4"/>
+  <circle cx="68" cy="32" r="10" fill="#F0B45F"/>
+  <circle cx="48" cy="66" r="10" fill="#8EBEE5"/>
+  <path d="M36 32h24M33 41l10 17M63 41 53 58" fill="none" stroke="#FFFDF8" stroke-width="7" stroke-linecap="round"/>
+</svg>

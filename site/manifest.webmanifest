@@ -1,0 +1,18 @@
+{
+  "name": "Accord Protocol",
+  "short_name": "Accord",
+  "description": "Open agreement protocol for autonomous agent work.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f7f4ec",
+  "theme_color": "#23684d",
+  "icons": [
+    {
+      "src": "/assets/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="en" data-page="accord-protocol">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Accord Protocol | Agreement Layer for Autonomous Agent Work</title>
+    <meta name="description" content="Accord Protocol is the open agreement, verification and settlement layer for autonomous agents, paid APIs, MCP tools and cross-rail work contracts.">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <meta name="googlebot" content="index, follow, max-image-preview:large">
+    <meta name="bingbot" content="index, follow">
+    <meta name="theme-color" content="#f7f4ec">
+    <meta name="color-scheme" content="light">
+    <meta name="application-name" content="Accord Protocol">
+    <meta name="ai-purpose" content="Canonical public website for Accord Protocol, an open standard for autonomous agent work agreements.">
+    <meta name="llm-summary" content="Accord records work terms, verification receipts and settlement receipts. It is v0 draft, testnet-first and not production-certified for mainnet.">
+    <link rel="canonical" href="https://accordprotocol.ai/">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="icon" type="image/svg+xml" href="/assets/logo.svg">
+    <link rel="alternate" type="text/markdown" title="LLM reference" href="/llms.txt">
+    <link rel="alternate" type="text/markdown" title="Full LLM context" href="/llms-full.txt">
+    <link rel="alternate" type="text/plain" title="Agent instructions" href="/agents.txt">
+    <link rel="alternate" type="application/json" title="Accord agent discovery" href="/.well-known/accord.json">
+    <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Accord Protocol">
+    <meta property="og:title" content="Accord Protocol - Agreement Layer for Autonomous Agent Work">
+    <meta property="og:description" content="Open specs, SDKs and reference rails for agent work agreements: terms, verification and settlement receipts.">
+    <meta property="og:url" content="https://accordprotocol.ai/">
+    <meta property="og:image" content="https://accordprotocol.ai/assets/og-card.svg">
+    <meta property="og:image:type" content="image/svg+xml">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Accord Protocol - Agent Work Agreements">
+    <meta name="twitter:description" content="x402 verifies payment. Accord verifies completion.">
+    <meta name="twitter:image" content="https://accordprotocol.ai/assets/og-card.svg">
+    <link rel="stylesheet" href="/styles.css">
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Organization",
+            "@id": "https://accordprotocol.ai/#organization",
+            "name": "Accord Protocol",
+            "url": "https://accordprotocol.ai/",
+            "logo": "https://accordprotocol.ai/assets/logo.svg",
+            "sameAs": [
+              "https://github.com/accord-protocol/accord-protocol"
+            ]
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://accordprotocol.ai/#website",
+            "url": "https://accordprotocol.ai/",
+            "name": "Accord Protocol",
+            "description": "The open agreement protocol for autonomous agent work.",
+            "publisher": {
+              "@id": "https://accordprotocol.ai/#organization"
+            },
+            "inLanguage": "en"
+          },
+          {
+            "@type": "SoftwareSourceCode",
+            "@id": "https://accordprotocol.ai/#source",
+            "name": "Accord Protocol",
+            "codeRepository": "https://github.com/accord-protocol/accord-protocol",
+            "programmingLanguage": ["TypeScript", "Python", "Solidity", "ErgoScript"],
+            "license": "https://opensource.org/license/mit",
+            "runtimePlatform": ["Node.js", "Python", "MCP-compatible hosts"],
+            "isAccessibleForFree": true,
+            "about": "Open specs, schemas, conformance tests, SDKs and reference rail adapters for autonomous agent work agreements."
+          },
+          {
+            "@type": "SoftwareApplication",
+            "@id": "https://accordprotocol.ai/#software",
+            "name": "Accord Protocol",
+            "applicationCategory": "DeveloperApplication",
+            "applicationSubCategory": "Agent payments and work verification protocol",
+            "operatingSystem": "Cross-platform",
+            "softwareVersion": "0.4.0 release candidate",
+            "featureList": [
+              "Accord Agreement object",
+              "Verification Receipt",
+              "Settlement Receipt",
+              "Accord/402 HTTP transport",
+              "Accord/MCP transport",
+              "Rail adapters for Ergo, Rosen, Base/EVM and x402-compatible flows",
+              "L0-L4 conformance suite"
+            ],
+            "downloadUrl": "https://github.com/accord-protocol/accord-protocol",
+            "softwareHelp": "https://github.com/accord-protocol/accord-protocol/tree/main/docs",
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "USD"
+            },
+            "publisher": {
+              "@id": "https://accordprotocol.ai/#organization"
+            }
+          },
+          {
+            "@type": "FAQPage",
+            "@id": "https://accordprotocol.ai/#faq",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "What is Accord Protocol?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Accord Protocol is an open standard for autonomous agent work agreements. It records what was promised, how work is verified and how settlement is recorded."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Is Accord Protocol production-ready?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "No. Accord Protocol v0 is alpha, testnet-first software and is not certified for mainnet until signed audit manifests explicitly allow the relevant scripts or contracts."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "How is Accord different from x402?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "x402 verifies payment for paid HTTP resources. Accord verifies completion by adding agreement terms, verifier receipts and settlement receipts around the paid work."
+                }
+              }
+            ]
+          },
+          {
+            "@type": "BreadcrumbList",
+            "@id": "https://accordprotocol.ai/#breadcrumbs",
+            "itemListElement": [
+              {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": "https://accordprotocol.ai/"
+              }
+            ]
+          }
+        ]
+      }
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="site-header" data-header>
+      <a class="brand" href="/" aria-label="Accord Protocol home">
+        <img src="/assets/logo.svg" width="40" height="40" alt="">
+        <span>Accord Protocol</span>
+      </a>
+      <nav class="site-nav" aria-label="Primary navigation">
+        <a href="#why">Why Accord</a>
+        <a href="#lifecycle">Lifecycle</a>
+        <a href="#developers">Developers</a>
+        <a href="#status">Status</a>
+        <a href="#agents">Agents</a>
+      </nav>
+      <a class="header-cta" href="https://github.com/accord-protocol/accord-protocol" rel="noopener" target="_blank">GitHub</a>
+    </header>
+
+    <main id="main">
+      <section class="hero" aria-labelledby="hero-title">
+        <canvas id="protocol-map" class="hero-canvas" aria-hidden="true"></canvas>
+        <div class="hero-content">
+          <p class="eyebrow">Open standard - v0 draft - testnet-first</p>
+          <h1 id="hero-title">Accord Protocol</h1>
+          <p class="hero-lede">
+            The agreement layer for autonomous agent work. Accord turns paid requests into explicit,
+            verifiable contracts: terms, execution, completion, and settlement across rails.
+          </p>
+          <p class="hero-line">x402 verifies payment. Accord verifies completion.</p>
+          <div class="hero-actions" aria-label="Primary actions">
+            <a class="button button-primary" href="https://github.com/accord-protocol/accord-protocol" rel="noopener" target="_blank">View repository</a>
+            <a class="button button-secondary" href="https://github.com/accord-protocol/accord-protocol/blob/main/specs/ACCORD-000-overview.md" rel="noopener" target="_blank">Read the spec</a>
+          </div>
+          <dl class="hero-facts" aria-label="Protocol facts">
+            <div>
+              <dt>Objects</dt>
+              <dd>Agreement, verification, settlement</dd>
+            </div>
+            <div>
+              <dt>Transports</dt>
+              <dd>Accord/402 and Accord/MCP</dd>
+            </div>
+            <div>
+              <dt>Rails</dt>
+              <dd>Ergo, Rosen, Base/EVM, x402</dd>
+            </div>
+          </dl>
+        </div>
+      </section>
+
+      <section class="trust-band" aria-label="Current protocol status">
+        <p><strong>Mainnet status:</strong> NOT CERTIFIED FOR MAINNET. Accord v0 is for local demos, conformance testing and testnet development until signed audit manifests explicitly allow production use.</p>
+      </section>
+
+      <section id="why" class="section">
+        <div class="section-heading">
+          <p class="eyebrow">The missing layer</p>
+          <h2>Payments prove value moved. Accord proves what value was for.</h2>
+        </div>
+        <div class="reason-grid">
+          <article class="reason-card">
+            <span class="reason-index">01</span>
+            <h3>Terms before money</h3>
+            <p>Agents can bind price, deadline, verifier, output requirements and rail assumptions into one canonical Agreement Object.</p>
+          </article>
+          <article class="reason-card">
+            <span class="reason-index">02</span>
+            <h3>Receipts after work</h3>
+            <p>Verification Receipts record whether work was accepted, rejected or partially accepted before settlement is treated as complete.</p>
+          </article>
+          <article class="reason-card">
+            <span class="reason-index">03</span>
+            <h3>Rails without lock-in</h3>
+            <p>Accord is rail-agnostic, with reference adapters for Ergo, Rosen, Base/EVM and x402-compatible HTTP flows.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="lifecycle" class="section section-ruled" aria-labelledby="lifecycle-title">
+        <div class="section-heading">
+          <p class="eyebrow">Agreement lifecycle</p>
+          <h2 id="lifecycle-title">A complete engagement from request to record.</h2>
+        </div>
+        <ol class="timeline">
+          <li>
+            <span>Terms</span>
+            <p>Buyer and seller form a canonical Accord Agreement and hash it deterministically.</p>
+          </li>
+          <li>
+            <span>Lock or issue</span>
+            <p>Payment authority, Note, escrow transaction or x402 proof references the agreement.</p>
+          </li>
+          <li>
+            <span>Execute</span>
+            <p>The seller, tool, API or agent performs the promised work under the agreed constraints.</p>
+          </li>
+          <li>
+            <span>Verify</span>
+            <p>A verifier evaluates the output and emits a signed Verification Receipt.</p>
+          </li>
+          <li>
+            <span>Settle</span>
+            <p>The rail closes the economic side and produces a Settlement Receipt.</p>
+          </li>
+          <li>
+            <span>Record</span>
+            <p>Receipts can be stored, indexed and checked by conformance or registry tooling.</p>
+          </li>
+        </ol>
+      </section>
+
+      <section id="developers" class="section">
+        <div class="section-heading">
+          <p class="eyebrow">For builders</p>
+          <h2>One protocol surface for APIs, MCP tools and agent wallets.</h2>
+        </div>
+        <div class="developer-layout">
+          <div class="package-list" aria-label="Core packages">
+            <article>
+              <h3>@accord-protocol/core</h3>
+              <p>Canonicalize, hash and validate Agreement, Verification Receipt and Settlement Receipt objects.</p>
+            </article>
+            <article>
+              <h3>@accord-protocol/gateway</h3>
+              <p>Accord/402 middleware for paid HTTP flows with replay-aware verification.</p>
+            </article>
+            <article>
+              <h3>@accord-protocol/mcp</h3>
+              <p>Wrap MCP tools with payment and verification semantics that agent hosts can reason about.</p>
+            </article>
+            <article>
+              <h3>@accord-protocol/conformance</h3>
+              <p>L0-L4 checks covering schemas, transports, rails, security gates and registry shape.</p>
+            </article>
+          </div>
+          <aside class="quickstart" aria-labelledby="quickstart-title">
+            <h3 id="quickstart-title">Safest first run</h3>
+            <p>Start with the mock rail demo. It exercises the lifecycle without real funds, chain state or facilitator trust.</p>
+            <pre><code>git clone https://github.com/accord-protocol/accord-protocol
+cd accord-protocol/examples/15-paid-mcp-repo-audit
+npm install
+npm run dev</code></pre>
+          </aside>
+        </div>
+      </section>
+
+      <section class="section rail-section" aria-labelledby="rails-title">
+        <div class="section-heading">
+          <p class="eyebrow">Rail matrix</p>
+          <h2 id="rails-title">Accord separates work semantics from settlement rails.</h2>
+        </div>
+        <div class="rail-table" role="table" aria-label="Accord rail matrix">
+          <div role="row" class="rail-header">
+            <span role="columnheader">Rail</span>
+            <span role="columnheader">Role</span>
+            <span role="columnheader">Status</span>
+          </div>
+          <div role="row">
+            <span role="cell">Ergo</span>
+            <span role="cell">Reference programmable settlement rail using Notes, Reserves, Trackers and predicates.</span>
+            <span role="cell" class="badge badge-warning">Testnet only</span>
+          </div>
+          <div role="row">
+            <span role="cell">Rosen</span>
+            <span role="cell">Bridged asset path on top of the Ergo reference rail.</span>
+            <span role="cell" class="badge badge-warning">Testnet-first</span>
+          </div>
+          <div role="row">
+            <span role="cell">Base/EVM</span>
+            <span role="cell">EVM Note rail reference for USDC-style settlement patterns.</span>
+            <span role="cell" class="badge badge-warning">Audit-gated</span>
+          </div>
+          <div role="row">
+            <span role="cell">x402</span>
+            <span role="cell">Payment proof adapter for HTTP 402-style paid resources.</span>
+            <span role="cell" class="badge badge-neutral">Integration rail</span>
+          </div>
+        </div>
+      </section>
+
+      <section id="status" class="section status-section">
+        <div class="section-heading">
+          <p class="eyebrow">Trust language</p>
+          <h2>Clear enough for humans, strict enough for agents.</h2>
+        </div>
+        <div class="status-grid">
+          <article class="status-panel status-good">
+            <h3>Say this</h3>
+            <ul>
+              <li>testnet-first</li>
+              <li>audit-gated</li>
+              <li>reference implementation</li>
+              <li>not production-certified</li>
+              <li>mainnet blocked until signed audit manifests</li>
+            </ul>
+          </article>
+          <article class="status-panel status-risk">
+            <h3>Do not say this yet</h3>
+            <ul>
+              <li>production-ready</li>
+              <li>audited</li>
+              <li>mainnet safe</li>
+              <li>no trust assumptions</li>
+              <li>real funds are supported by default</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section id="agents" class="section agent-section" aria-labelledby="agents-title">
+        <div class="section-heading">
+          <p class="eyebrow">Agent-ready web surface</p>
+          <h2 id="agents-title">Every important claim is mirrored in machine-readable form.</h2>
+        </div>
+        <div class="agent-grid">
+          <a href="/llms.txt">
+            <span>LLM map</span>
+            <strong>/llms.txt</strong>
+            <p>Curated project summary and high-signal links for retrieval-mode assistants.</p>
+          </a>
+          <a href="/llms-full.txt">
+            <span>Full context</span>
+            <strong>/llms-full.txt</strong>
+            <p>Expanded reference with status, packages, rails, safety language and FAQs.</p>
+          </a>
+          <a href="/agents.txt">
+            <span>Agent policy</span>
+            <strong>/agents.txt</strong>
+            <p>Advisory instructions for AI agents, crawlers and integration builders.</p>
+          </a>
+          <a href="/.well-known/accord.json">
+            <span>Discovery</span>
+            <strong>/.well-known/accord.json</strong>
+            <p>Structured protocol identity, status, rails, objects and recommended entry points.</p>
+          </a>
+        </div>
+      </section>
+
+      <section class="section faq-section" aria-labelledby="faq-title">
+        <div class="section-heading">
+          <p class="eyebrow">FAQ</p>
+          <h2 id="faq-title">The short answers agents should preserve.</h2>
+        </div>
+        <div class="faq-list">
+          <details>
+            <summary>What does Accord add to MCP?</summary>
+            <p>MCP explains how agents call tools. Accord adds paid-tool terms, completion verification and settlement receipts around those calls.</p>
+          </details>
+          <details>
+            <summary>What does Accord add to x402?</summary>
+            <p>x402 is strong for HTTP payment challenges. Accord adds the work agreement and verifier receipt so a paid request can prove what was completed.</p>
+          </details>
+          <details>
+            <summary>Why is Ergo the first reference rail?</summary>
+            <p>Ergo's eUTXO model, ErgoScript, Notes, Reserves, Trackers and acceptance predicates make it a strong fit for programmable testnet settlement.</p>
+          </details>
+          <details>
+            <summary>Can builders use Accord with real funds today?</summary>
+            <p>No. Current Accord v0 rail implementations are testnet-first and not production-certified. Real-fund use is blocked until signed audit manifests allow it.</p>
+          </details>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div>
+        <strong>Accord Protocol</strong>
+        <p>Open standard for autonomous agent work agreements.</p>
+      </div>
+      <nav aria-label="Footer navigation">
+        <a href="https://github.com/accord-protocol/accord-protocol" rel="noopener" target="_blank">GitHub</a>
+        <a href="https://github.com/accord-protocol/accord-protocol/tree/main/specs" rel="noopener" target="_blank">Specs</a>
+        <a href="https://github.com/accord-protocol/accord-protocol/blob/main/SECURITY.md" rel="noopener" target="_blank">Security</a>
+        <a href="/sitemap.xml">Sitemap</a>
+      </nav>
+    </footer>
+
+    <script src="/script.js" defer></script>
+  </body>
+</html>

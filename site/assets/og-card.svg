@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">Accord Protocol social preview</title>
+  <desc id="desc">Accord Protocol positioning card with agreement, verification and settlement flow.</desc>
+  <rect width="1200" height="630" fill="#F7F4EC"/>
+  <rect x="44" y="44" width="1112" height="542" rx="24" fill="#FFFDF8" stroke="#D8D3C4" stroke-width="2"/>
+  <g transform="translate(84 82)">
+    <rect width="74" height="74" rx="16" fill="#121512"/>
+    <circle cx="23" cy="25" r="8" fill="#8BD7B4"/>
+    <circle cx="51" cy="25" r="8" fill="#F0B45F"/>
+    <circle cx="37" cy="52" r="8" fill="#8EBEE5"/>
+    <path d="M31 25h13M28 32l7 13M46 32l-7 13" fill="none" stroke="#FFFDF8" stroke-width="5" stroke-linecap="round"/>
+  </g>
+  <text x="84" y="220" fill="#121512" font-family="Inter, Arial, sans-serif" font-size="104" font-weight="800" letter-spacing="0">Accord Protocol</text>
+  <text x="90" y="292" fill="#23684D" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="800" letter-spacing="0">Agreement layer for autonomous agent work</text>
+  <text x="90" y="372" fill="#2C312D" font-family="Inter, Arial, sans-serif" font-size="40" font-weight="700" letter-spacing="0">x402 verifies payment. Accord verifies completion.</text>
+  <g transform="translate(90 444)">
+    <rect width="226" height="70" rx="12" fill="#DFF1E7"/>
+    <text x="24" y="44" fill="#23684D" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="800">Agreement</text>
+    <path d="M250 35h70" stroke="#121512" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="328" cy="35" r="7" fill="#121512"/>
+    <rect x="354" width="226" height="70" rx="12" fill="#F5E4C4"/>
+    <text x="378" y="44" fill="#9B5F08" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="800">Verification</text>
+    <path d="M604 35h70" stroke="#121512" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="682" cy="35" r="7" fill="#121512"/>
+    <rect x="708" width="226" height="70" rx="12" fill="#DBE9F4"/>
+    <text x="732" y="44" fill="#275F92" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="800">Settlement</text>
+  </g>
+  <text x="90" y="560" fill="#5F665F" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="700">v0 draft - testnet-first - audit-gated - github.com/accord-protocol/accord-protocol</text>
+</svg>
