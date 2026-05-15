@@ -171,7 +171,7 @@ const result = await agent.createReserve({
 | Field | Type | Required | Description |
 |---|---|---|---|
 | `collateral` | `bigint \| string \| number` | ✅ | ERG locked as backing |
-| `scriptErgoTree` | `string` | — | Compiled reserve script (production). Omit for P2PK dev mode |
+| `scriptErgoTree` | `string` | — | Compiled reserve script for audited-script candidates. Omit only for P2PK dev mode; omission is never production-safe |
 | `memo` | `string` | — | Stored in R4 |
 
 **Returns: `Promise<ReserveResult>`** — includes `reserve.value`, `reserve.hasScript`.

@@ -103,6 +103,19 @@ for (const entry of fs.readdirSync(path.join(root, 'examples'), { withFileTypes:
 }
 assert(exampleModes.includes('No example in this repository is mainnet-certified'), 'docs/EXAMPLE_MODES.md must preserve the mainnet warning');
 
+for (const [docPath, banned] of [
+  ['docs/api-reference.md', 'Compiled reserve script (production)'],
+  ['packages/ergo-agent-rosen/README.md', 'network: "mainnet"'],
+  ['packages/ergo-agent-rosen/README.md', 'published mainnet config JSON'],
+  ['packages/ergo-agent-rosen/README.md', 'audited `basis_token_reserve_v0` tree'],
+  ['packages/accord-rails-rosen/README.md', 'ROSEN_MAINNET'],
+  ['packages/accord-rails-rosen/README.md', 'peer deps for production use'],
+  ['packages/accord-rails-rosen/src/types.ts', 'ROSEN_MAINNET'],
+  ['packages/accord-rails-rosen/src/types.ts', 'Example mainnet'],
+]) {
+  assert(!read(docPath).includes(banned), `${docPath} must not include legacy mainnet-ready wording: ${banned}`);
+}
+
 const security = read('SECURITY.md');
 assert(security.includes('NOT CERTIFIED FOR MAINNET'), 'SECURITY.md must include NOT CERTIFIED FOR MAINNET');
 

@@ -17,7 +17,7 @@ const USDT_TOKEN: TokenLookupResult = {
 };
 
 describe("buildRosenReserveConfig", () => {
-  it("uses the audited basis_token_reserve_v0 ergoTree", () => {
+  it("uses the manifest-gated basis_token_reserve_v0 ergoTree", () => {
     const cfg = buildRosenReserveConfig({ token: USDT_TOKEN, collateral: "1 ERG" });
     assert.equal(cfg.scriptName, RS_RESERVE_SCRIPT_NAME);
     assert.equal(cfg.scriptErgoTree, tryGetErgoTree(RS_RESERVE_SCRIPT_NAME));
@@ -40,7 +40,7 @@ describe("buildRosenReserveConfig", () => {
 });
 
 describe("buildRosenNoteOptions", () => {
-  it("attaches the audited tree + scriptName + tokenId", () => {
+  it("attaches the manifest-gated tree + scriptName + tokenId", () => {
     const opts = buildRosenNoteOptions({
       token: USDT_TOKEN,
       recipient: "9XAlpha",

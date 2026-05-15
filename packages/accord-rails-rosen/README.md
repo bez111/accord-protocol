@@ -6,24 +6,24 @@ Accord rail adapter for **Rosen-bridged stablecoins on Ergo** — `rsUSDT`, `rsU
 
 ```bash
 npm install @accord-protocol/rails-rosen @accord-protocol/rails @accord-protocol/core
-# peer deps for production use:
+# peer deps for non-mock use:
 npm install ergo-agent-pay ergo-agent-rosen
 ```
 
 ## Token registry — caller-supplied
 
-Token-ids differ between testnet and mainnet, so the rail adapter does NOT bake constants in. Pass a `RosenTokenRegistry` per network:
+Token ids differ by Rosen network, so the rail adapter does NOT bake constants in. Pass a `RosenTokenRegistry` for the network you are testing:
 
 ```ts
 import { createRosenRailAdapter } from "@accord-protocol/rails-rosen";
 
-const ROSEN_MAINNET = {
+const ROSEN_TOKENS = {
   rsUSDT: { tokenId: "<64 hex>", decimals: 6 },
   rsUSDC: { tokenId: "<64 hex>", decimals: 6 },
   rsBTC:  { tokenId: "<64 hex>", decimals: 8 },
 };
 
-const rail = createRosenRailAdapter({ ops: rosenAgent, tokens: ROSEN_MAINNET });
+const rail = createRosenRailAdapter({ ops: rosenAgent, tokens: ROSEN_TOKENS });
 ```
 
 The agreement's `price.currency` must be one of `{ rsUSDT, rsUSDC, rsBTC }`, AND the registry must have that currency, AND the registry's `decimals` must match `agreement.price.decimals`. All three rails-rosen-specific rejections — `CURRENCY_NOT_SUPPORTED`, `CURRENCY_NOT_REGISTERED`, `INVALID_PAYMENT_SHAPE` (decimals mismatch) — fire here.

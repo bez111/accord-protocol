@@ -5,6 +5,10 @@
 [![npm](https://img.shields.io/npm/v/ergo-agent-pay)](https://www.npmjs.com/package/ergo-agent-pay)
 [![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
+`ergo-agent-pay` is the legacy Ergo reference SDK. Use testnet by default.
+It is not mainnet-certified; mainnet writes remain blocked by the project
+audit-manifest rules in [`SECURITY.md`](../../SECURITY.md).
+
 ---
 
 ## Why
@@ -211,7 +215,7 @@ import { ErgoAgentPay } from "ergo-agent-pay"
 
 const payAgent = new ErgoAgentPay({
   address: process.env.AGENT_ADDRESS!,
-  network: "mainnet",
+  network: "testnet",
   signer: mySignerFn,
   policy: { maxSinglePayment: 10_000_000n },
 })

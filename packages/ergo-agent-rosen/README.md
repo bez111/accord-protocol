@@ -11,10 +11,11 @@ Rosen watchers cover.
 Agentic payments need **USD-stable pricing** — agents reasoning about
 "$0.05 per inference" don't want to deal with ERG volatility. Rosen
 Bridge wraps stablecoins (USDT, USDC) and BTC / ETH onto Ergo as
-`rs*`-prefixed tokens. The audited
-[`basis_token_reserve_v0`](../ergo-agent-scripts) script already
-supports token-collateralised Reserves; this package wires the two
-together with three helpers:
+`rs*`-prefixed tokens. The manifest-gated
+[`basis_token_reserve_v0`](../ergo-agent-scripts) script supports
+token-collateralised Reserves; this package wires the two together
+with three helpers. This is still testnet-first / draft-pre-audit
+software, not a mainnet certification.
 
 * `resolveErgoSideToken(tokenMap, asset)` — look up the canonical
   Ergo-side tokenId for any cross-chain asset.
@@ -22,7 +23,7 @@ together with three helpers:
   deep link to the Rosen UI prefilled with the bridge form.
 * `buildRosenReserveConfig` / `buildRosenNoteOptions` — produce
   `ReserveConfig` / `NoteOptions` ready to pass to
-  `agent.createReserve` / `agent.issueNote`, with the audited tree
+  `agent.createReserve` / `agent.issueNote`, with the manifest-gated tree
   and scriptName already set.
 
 ## What this package does NOT do
@@ -58,9 +59,9 @@ import {
   bridgeUrl,
 } from "ergo-agent-rosen"
 
-// 1. Load Rosen's TokenMap (e.g. from a published mainnet config JSON).
+// 1. Load Rosen's TokenMap for the network you are testing.
 const tokenMap = new TokenMap()
-await tokenMap.updateConfigByJson(rosenMainnetTokensJson)
+await tokenMap.updateConfigByJson(rosenTokensJson)
 
 // 2. Find the Ergo-side rsUSDT tokenId.
 const usdt = resolveErgoSideToken(tokenMap, { chain: "ethereum", name: "USDT" })
@@ -77,7 +78,7 @@ const url = bridgeUrl({
 // → https://app.rosen.tech/?from=ethereum&to=ergo&token=USDT&amount=5&address=...
 
 // 4. After the user bridges, build a Reserve and issue a Note in rsUSDT.
-const agent = new ErgoAgentPay({ address, network: "mainnet", signer, auditPolicy })
+const agent = new ErgoAgentPay({ address, network: "testnet", signer, auditPolicy })
 
 const reserve = await agent.createReserve(buildRosenReserveConfig({
   token: usdt,
@@ -94,7 +95,7 @@ const note = await agent.issueNote(buildRosenNoteOptions({
 }))
 ```
 
-The Note is locked under the audited `basis_token_reserve_v0` tree.
+The Note is locked under the manifest-gated `basis_token_reserve_v0` tree.
 The `auditPolicy` consults `verifyAuditedErgoTree("basis_token_reserve_v0", ...)`
 exactly as for any other Reserve — the rs-token binding is in
 metadata only, not in the tree.
@@ -138,14 +139,14 @@ testnet or self-hosted UIs.
 ### `buildRosenReserveConfig(args)`
 
 Returns a `ReserveConfig` for `agent.createReserve`. Sets
-`scriptErgoTree` to the audited `basis_token_reserve_v0` tree,
+`scriptErgoTree` to the manifest-gated `basis_token_reserve_v0` tree,
 `scriptName: "basis_token_reserve_v0"`, and a memo with a Rosen
 prefix for traceability.
 
 ### `buildRosenNoteOptions(args)`
 
 Returns a `NoteOptions` (with an extra `rosenTokenId` field for
-introspection). Same audited tree binding.
+introspection). Same manifest-gated tree binding.
 
 ## Supported chains
 
@@ -162,7 +163,7 @@ package looks them up without code changes.
 ## Audit story
 
 * The on-chain bytes are `basis_token_reserve_v0` from
-  [`ergo-agent-scripts`](../ergo-agent-scripts) — same audited tree,
+  [`ergo-agent-scripts`](../ergo-agent-scripts) — same manifest-gated tree,
   same manifest entry, same `mainnetAllowed` rule.
 * This package adds **only metadata** (which tokenId the Reserve is
   for, which Rosen network, which memo). It does not introduce new

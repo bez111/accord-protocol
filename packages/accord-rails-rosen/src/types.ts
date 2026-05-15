@@ -18,13 +18,13 @@ export interface RosenTokenEntry {
 
 /**
  * Caller-supplied registry mapping Accord currency names to their on-chain
- * token-ids and decimals. Token-ids differ between testnet and mainnet so
- * we keep this configurable rather than baking constants into the package.
+ * token ids and decimals. Token ids differ by Rosen network, so we keep this
+ * configurable rather than baking constants into the package.
  *
- * Example mainnet (verify before use):
+ * Example registry for the network you are testing:
  *
  * ```ts
- * const ROSEN_MAINNET = {
+ * const ROSEN_TOKENS = {
  *   rsUSDT: { tokenId: "...", decimals: 6 },
  *   rsUSDC: { tokenId: "...", decimals: 6 },
  *   rsBTC:  { tokenId: "...", decimals: 8 },
