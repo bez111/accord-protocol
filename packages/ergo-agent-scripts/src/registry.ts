@@ -8,12 +8,12 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 import { blake2b } from "@noble/hashes/blake2b";
+import { moduleDir } from "./paths.js";
 import type { PredicateEntry, PredicateName, PredicateRegistry } from "./types.js";
 
-const here = dirname(fileURLToPath(import.meta.url));
+const here = moduleDir(import.meta.url);
 // dist sits next to data/ once tsup runs; src tests run with tsx and resolve relative to src.
 const REGISTRY_PATH = resolve(here, "../data/predicates.json");
 

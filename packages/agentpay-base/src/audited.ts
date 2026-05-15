@@ -14,13 +14,13 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
-import { dirname, resolve } from "node:path";
+import { resolve } from "node:path";
 import type { Address, Hex, PublicClient } from "viem";
 import type { BaseNetwork } from "./types.js";
 import { fetchBytecodeHash } from "./safety.js";
+import { moduleDir } from "./paths.js";
 
-const here = dirname(fileURLToPath(import.meta.url));
+const here = moduleDir(import.meta.url);
 const MANIFEST_PATH = resolve(here, "../data/AUDITED_CONTRACTS.json");
 
 export interface AuditedContractEntry {

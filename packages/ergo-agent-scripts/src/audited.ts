@@ -13,12 +13,12 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
-import { dirname, resolve } from "node:path";
+import { resolve } from "node:path";
 import { hashErgoTree, loadRegistry } from "./registry.js";
+import { moduleDir } from "./paths.js";
 import type { PredicateName } from "./types.js";
 
-const here = dirname(fileURLToPath(import.meta.url));
+const here = moduleDir(import.meta.url);
 const MANIFEST_PATH = resolve(here, "../data/AUDITED_ERGOTREES.json");
 
 export interface AuditedEntry {

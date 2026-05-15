@@ -26,6 +26,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { runConformance } from "./runner.js";
+import { resolveDefaultRepoRoot } from "./paths.js";
 import {
   generateEd25519Keypair,
   signObject,
@@ -71,7 +72,7 @@ interface RunArgs {
 
 function parseRunArgs(argv: string[]): RunArgs {
   const out: RunArgs = {
-    repoRoot: process.cwd(),
+    repoRoot: resolveDefaultRepoRoot(),
     levels: ["L0"],
     json: false,
     targetUrl: undefined,
@@ -253,7 +254,7 @@ function printUsage(): void {
       `  keygen                       Generate a fresh ed25519 keypair`,
       ``,
       `run flags:`,
-      `  --repo-root <dir>            Repo containing schemas/ + test-vectors/ + registry/ (default: cwd)`,
+      `  --repo-root <dir>            Repo containing schemas/ + test-vectors/ + registry/ (default: cwd when present, else packaged fixtures)`,
       `  --levels L0,L1,L2,L3,L4      Levels to run (default: L0)`,
       `  --json                       Emit JSON ConformanceResult`,
       `  --target <url>               L1 — probe a live HTTP endpoint`,

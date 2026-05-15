@@ -41,9 +41,10 @@ together with three helpers:
 npm install ergo-agent-rosen ergo-agent-pay ergo-agent-scripts @rosen-bridge/tokens
 ```
 
-`@rosen-bridge/tokens` is a peer dependency. Install it only if you
-use `resolveErgoSideToken`; the bridge-URL builder and Reserve helpers
-work without it.
+`@rosen-bridge/tokens` is an optional companion package. Install it only
+if you use Rosen's official `TokenMap` with `resolveErgoSideToken`; the
+bridge-URL builder and Reserve helpers work without it, and tests can pass
+any object matching the `TokenMapLike` shape.
 
 ## Quick start
 

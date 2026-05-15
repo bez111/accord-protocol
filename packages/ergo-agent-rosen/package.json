@@ -8,9 +8,9 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.cjs"
     }
   },
   "files": [
@@ -51,19 +51,10 @@
     "ergo-agent-scripts": "^0.3.0"
   },
   "devDependencies": {
-    "@rosen-bridge/tokens": "^6.0.1",
     "@types/node": "^20.0.0",
     "tsup": "^8.0.0",
     "tsx": "^4.0.0",
     "typescript": "^5.0.0"
-  },
-  "peerDependencies": {
-    "@rosen-bridge/tokens": "^6.0.1"
-  },
-  "peerDependenciesMeta": {
-    "@rosen-bridge/tokens": {
-      "optional": true
-    }
   },
   "engines": {
     "node": ">=18"

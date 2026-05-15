@@ -11,12 +11,12 @@
   "types": "./dist/lib.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/lib.js",
-      "types": "./dist/lib.d.ts"
+      "types": "./dist/lib.d.ts",
+      "import": "./dist/lib.js"
     },
     "./paywall": {
-      "import": "./dist/lib.js",
-      "types": "./dist/lib.d.ts"
+      "types": "./dist/lib.d.ts",
+      "import": "./dist/lib.js"
     }
   },
   "scripts": {
