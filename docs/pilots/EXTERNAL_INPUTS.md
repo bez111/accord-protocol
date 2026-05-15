@@ -48,6 +48,9 @@ access is available. It must not introduce baked mainnet token constants.
 
 ## Base Sepolia Contract Rail
 
+Local readiness is available with `npm run pilots:base:stub`. That runner uses
+mock viem clients and therefore does not replace the external inputs below.
+
 Needed before running:
 
 - Base Sepolia RPC endpoint;

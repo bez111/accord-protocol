@@ -19,7 +19,14 @@ npm run build -w agentpay-base
 npm test -w agentpay-base
 npm run build -w @accord-protocol/rails-base
 npm test -w @accord-protocol/rails-base
+npm run pilots:base:stub
 ```
+
+`npm run pilots:base:stub` is a local readiness check. It exercises
+`agentpay-base`, `@accord-protocol/rails-base`, receipt validation, amount
+normalization, task-hash rejection, and the Base mainnet audit gate against
+mock viem clients. It does not satisfy the live Base Sepolia pass criteria by
+itself because it emits no explorer transaction.
 
 ## Expected Receipts
 
@@ -39,6 +46,8 @@ npm test -w @accord-protocol/rails-base
   hash.
 - Live testnet transaction link proving reserve, Note, redemption, or refund
   behaviour for the selected path.
+- Output from `npm run pilots:base:stub` showing the local contract-stub path
+  remains ready before running against a funded Base Sepolia signer.
 - Audit-gate output proving the contract remains testnet-only and mainnet
   default-deny.
 - Conformance output showing the current achieved level or documented failure.

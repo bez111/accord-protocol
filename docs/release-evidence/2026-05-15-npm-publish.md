@@ -59,7 +59,10 @@ See also:
 
 ## Remaining 1.0.0 blockers
 
-- Run the remaining Base Sepolia external P4 testnet pilot.
+- Run the remaining Base Sepolia external P4 testnet pilot. Local Base readiness
+  can now be checked with `npm run pilots:base:stub`, but the result record
+  still needs a live Base Sepolia tx link before this pilot moves out of
+  pending.
 - Upgrade the Sage Ergo testnet result from `inconclusive` to `pass` after the
   public Sage receipt/activity surfaces expose signed Accord receipt JSON.
 - Rerun the Rosen result with live bridge/watcher/liquidity evidence if project

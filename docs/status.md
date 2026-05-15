@@ -2,7 +2,7 @@
 
 This page is the single source of truth for what works, what does not work, and what can reach mainnet. Other docs MUST defer to this page when they conflict.
 
-Last updated: 2026-05-15 — `v0.4.1` npm publication verified, Python reference package verified on PyPI, Sage Ergo testnet settlement evidence archived, Rosen/x402 stub pilot evidence archived, and mainnet gates still default-deny.
+Last updated: 2026-05-15 — `v0.4.1` npm publication verified, Python reference package verified on PyPI, Sage Ergo testnet settlement evidence archived, Rosen/x402 stub pilot evidence archived, Base contract-stub pilot runner added, and mainnet gates still default-deny.
 
 ## Executive summary
 
@@ -56,6 +56,7 @@ Use Accord today for:
 - Sage Ergo testnet settlement evidence in [`docs/pilots/results/2026-05-15-sage-ergo-testnet-note-settlement.md`](./pilots/results/2026-05-15-sage-ergo-testnet-note-settlement.md);
 - Rosen wrapped-token architecture evidence in [`docs/pilots/results/2026-05-15-rosen-stub-wrapped-token-architecture.md`](./pilots/results/2026-05-15-rosen-stub-wrapped-token-architecture.md);
 - x402 local stub facilitator evidence in [`docs/pilots/results/2026-05-15-x402-stub-facilitator-integration.md`](./pilots/results/2026-05-15-x402-stub-facilitator-integration.md);
+- Base/EVM local contract-stub readiness checks with `npm run pilots:base:stub`;
 - conformance testing;
 - protocol/schema review;
 - audit preparation.

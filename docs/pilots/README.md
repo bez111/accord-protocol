@@ -44,7 +44,7 @@ dated result record in [`results/`](./results/).
 
 | Pilot | Blocking evidence |
 |---|---|
-| Base Sepolia contract rail | Base Sepolia contract address, live testnet transaction evidence, audit-gate result, and conformance output |
+| Base Sepolia contract rail | Local stub runner exists (`npm run pilots:base:stub`), but pass still needs Base Sepolia contract address, live testnet transaction evidence, audit-gate result, and conformance output |
 
 ## Shared Rules
 
