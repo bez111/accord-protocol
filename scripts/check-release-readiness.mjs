@@ -321,6 +321,7 @@ const releaseReadinessWorkflow = read('.github/workflows/ci-release-readiness.ym
 assert(releaseReadinessWorkflow.includes('npm run cjs:check'), 'ci-release-readiness.yml must run CommonJS export smoke after build');
 assert(releaseReadinessWorkflow.includes('npm run pilots:check'), 'ci-release-readiness.yml must run pilot result checks');
 assert(releaseReadinessWorkflow.includes('CONTRIBUTING.md'), 'ci-release-readiness.yml must run when CONTRIBUTING.md changes');
+assert(releaseReadinessWorkflow.includes('registry/**'), 'ci-release-readiness.yml must run when registry files change');
 assert(releaseReadinessWorkflow.includes('.github/pull_request_template.md'), 'ci-release-readiness.yml must run when the PR template changes');
 assert(releaseReadinessWorkflow.includes('.github/ISSUE_TEMPLATE/**'), 'ci-release-readiness.yml must run when issue templates change');
 assert(releaseReadinessWorkflow.includes('.github/workflows/**'), 'ci-release-readiness.yml must run when any workflow changes');
