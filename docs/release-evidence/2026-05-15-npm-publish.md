@@ -59,7 +59,9 @@ See also:
 
 ## Remaining 1.0.0 blockers
 
-- Run the four pending external P4 testnet pilots.
+- Run the three pending external P4 testnet pilots.
+- Upgrade the Sage Ergo testnet result from `inconclusive` to `pass` after the
+  public Sage receipt/activity surfaces expose signed Accord receipt JSON.
 - Archive pilot evidence with dated result records.
 - Obtain external audit reports.
 - Sign and publish manifests for any artifact that will ever be allowed on

@@ -2,7 +2,7 @@
 
 This page is the single source of truth for what works, what does not work, and what can reach mainnet. Other docs MUST defer to this page when they conflict.
 
-Last updated: 2026-05-15 — `v0.4.1` npm publication verified, Python reference package verified on PyPI, P4 pilot status preserved, and mainnet gates still default-deny.
+Last updated: 2026-05-15 — `v0.4.1` npm publication verified, Python reference package verified on PyPI, Sage Ergo testnet settlement evidence archived, and mainnet gates still default-deny.
 
 ## Executive summary
 
@@ -53,6 +53,7 @@ Use Accord today for:
 - MCP tool gating prototypes;
 - P4 pilot dry-runs using [`docs/pilots/`](./pilots/);
 - completed local mock pilot evidence in [`docs/pilots/results/2026-05-15-mock-mcp-paid-tool.md`](./pilots/results/2026-05-15-mock-mcp-paid-tool.md);
+- Sage Ergo testnet settlement evidence in [`docs/pilots/results/2026-05-15-sage-ergo-testnet-note-settlement.md`](./pilots/results/2026-05-15-sage-ergo-testnet-note-settlement.md);
 - conformance testing;
 - protocol/schema review;
 - audit preparation.
