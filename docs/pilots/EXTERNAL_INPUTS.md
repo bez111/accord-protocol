@@ -50,6 +50,9 @@ access is available. It must not introduce baked mainnet token constants.
 
 Local readiness is available with `npm run pilots:base:stub`. That runner uses
 mock viem clients and therefore does not replace the external inputs below.
+Live execution is prepared with `npm run pilots:base:live`; it prints missing
+inputs by default and only sends write transactions when both
+`BASE_SEPOLIA_LIVE=1` and `--live` are present.
 
 Needed before running:
 

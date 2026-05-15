@@ -44,6 +44,7 @@
     "audit:handoff": "node scripts/audit-handoff.mjs",
     "pilots:check": "node scripts/check-pilot-results.mjs",
     "pilots:todo": "node scripts/list-pilot-blockers.mjs",
+    "pilots:base:live": "node scripts/run-base-sepolia-live-pilot.mjs",
     "pilots:base:stub": "node scripts/run-base-contract-stub-pilot.mjs",
     "pilots:rosen:stub": "node scripts/run-rosen-stub-pilot.mjs",
     "pilots:x402:stub": "node scripts/run-x402-stub-pilot.mjs",
