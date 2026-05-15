@@ -123,6 +123,17 @@ export function buildNoteTx(
     .toEIP12Object() as EIP12UnsignedTx;
 }
 
+/** Extract a signed transaction output box id when the signer included one. */
+export function extractOutputBoxId(tx: unknown, outputIndex: number): string | undefined {
+  if (!tx || typeof tx !== "object") return undefined;
+  const outputs = (tx as { outputs?: unknown }).outputs;
+  if (!Array.isArray(outputs)) return undefined;
+  const output = outputs[outputIndex];
+  if (!output || typeof output !== "object") return undefined;
+  const boxId = (output as { boxId?: unknown }).boxId;
+  return typeof boxId === "string" && /^[0-9a-f]{64}$/i.test(boxId) ? boxId : undefined;
+}
+
 // ── Internal helpers ──────────────────────────────────────────────────────────
 
 function hexToBytes(hex: string): Uint8Array {

@@ -119,7 +119,7 @@ This pattern is also used in [Sage](https://www.ergoblockchain.org) — the agen
 
 ## Known gaps
 
-- **note_box_id resolution**: ergo-agent-pay's `NoteResult` does not yet expose `noteBoxId` directly — `buyer/resolve-note-box.ts` polls the explorer to derive it. Tracked as a v0.4 surface change in `packages/ergo-agent-pay/src/lifecycle.ts`.
+- **note_box_id resolution**: `ergo-agent-pay` exposes `NoteResult.noteBoxId` when the configured signer returns signed tx outputs with box ids. `buyer/resolve-note-box.ts` polls the explorer only as a fallback when the signer/submit endpoint returns `txId` alone.
 - **Verifier signing key**: The demo verifier emits a placeholder ed25519 signature. Hardening = swap `verifier/sign.ts` to call your verifier service's signing endpoint with `signingHashRaw(receipt)` from `@accord-protocol/core`.
 - **Settlement timing**: The demo waits synchronously for tx confirmation. Real services should accept a `settlement_pending` state and poll asynchronously.
 

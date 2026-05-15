@@ -141,7 +141,13 @@ const result = await agent.issueNote({
 
 result.noteOutput.expiryBlock   // absolute block height
 result.noteOutput.taskHash      // stored acceptance condition
+result.noteOutputIndex          // 0 for the Note output
+result.noteBoxId                // present if the signer returned output box ids
 ```
+
+Some signers and submit endpoints return only `txId`. When `noteBoxId` is
+absent, resolve output `noteOutputIndex` from the submitted transaction via
+your node or explorer before calling `redeemNote`.
 
 The receiver can only redeem this Note by providing the task output whose
 blake2b256 hash matches `taskHash`. Enforced on-chain. No escrow needed.

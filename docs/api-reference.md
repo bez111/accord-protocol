@@ -97,7 +97,16 @@ const result = await agent.issueNote({
 | `taskHash` | `string` | — | 32-byte hex — acceptance predicate (R6) |
 | `credentialKey` | `string` | — | GroupElement hex — credential gate (R7) |
 
-**Returns: `Promise<NoteResult>`** — extends `PayResult` with `noteOutput` summary.
+**Returns: `Promise<NoteResult>`** — extends `PayResult` with:
+
+| Field | Type | Description |
+|---|---|---|
+| `noteBoxId` | `string?` | Note output box id when the signer returned signed tx outputs with box ids |
+| `noteOutputIndex` | `number` | Note output index in the issue transaction; currently `0` |
+| `noteOutput` | `object` | Encoded Note output summary, including `boxId?`, `outputIndex`, value, recipient, reserve, expiry, and task hash |
+
+If `noteBoxId` is absent, resolve `noteOutputIndex` from the submitted
+transaction through your node or explorer before redeeming.
 
 ---
 

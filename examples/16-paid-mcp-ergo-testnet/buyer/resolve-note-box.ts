@@ -1,13 +1,10 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // Resolve note_box_id from a Note issuance tx.
 //
-// ergo-agent-pay's NoteResult currently surfaces only `txId` — the Note's
-// box id has to be looked up on the chain after the tx confirms. This is
-// a small helper that polls the testnet explorer for the issuance tx and
-// returns its first output's box id.
-//
-// TODO(ergo-agent-pay): expose noteBoxId directly on NoteResult so this
-// indirection isn't needed. Tracked as a v0.4 surface change.
+// Some signers include output box ids in the signed transaction, and
+// ergo-agent-pay surfaces that as NoteResult.noteBoxId. When a signer or
+// submit endpoint returns only `txId`, this fallback polls the explorer for
+// the issuance tx and returns the requested Note output's box id.
 // ─────────────────────────────────────────────────────────────────────────────
 
 const TESTNET_API = "https://api-testnet.ergoplatform.com/api/v1"
@@ -23,6 +20,7 @@ interface TxResponse {
 export interface ResolveOpts {
   txId: string
   network: "testnet" | "mainnet"
+  outputIndex?: number
   /** ms between polls, default 4000 — testnet block time ~120s */
   pollIntervalMs?: number
   /** max wall time, default 180_000 (3 min) */
@@ -42,7 +40,7 @@ export async function resolveNoteBoxId(opts: ResolveOpts): Promise<string> {
       const res = await fetch(`${apiBase}/transactions/${opts.txId}`)
       if (res.ok) {
         const tx = (await res.json()) as TxResponse
-        const note = tx.outputs?.[0]
+        const note = tx.outputs?.[opts.outputIndex ?? 0]
         if (note?.boxId) return note.boxId
       }
     } catch {

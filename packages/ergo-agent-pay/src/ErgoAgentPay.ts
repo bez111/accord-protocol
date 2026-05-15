@@ -25,7 +25,7 @@ import type {
 import { ErgoAgentPayError } from "./types.js";
 import { NetworkClient } from "./network.js";
 import { PolicyEngine } from "./policy.js";
-import { buildPayTx, buildNoteTx, parseAmount } from "./transactions.js";
+import { buildPayTx, buildNoteTx, parseAmount, extractOutputBoxId } from "./transactions.js";
 import { resolveDeadline } from "./predicates.js";
 import { assertProductionSafety } from "./safety.js";
 import {
@@ -182,10 +182,18 @@ export class ErgoAgentPay {
     const expiryBlock = resolveDeadline(opts.deadline, height);
     const unsignedTx = buildNoteTx(inputs, height, this.config.address, opts);
     const baseResult = await this.signAndMaybeSubmit(unsignedTx);
+    const noteOutputIndex = 0;
+    const noteBoxId = baseResult.signedTx
+      ? extractOutputBoxId(baseResult.signedTx, noteOutputIndex)
+      : undefined;
 
     const result: NoteResult = {
       ...baseResult,
+      ...(noteBoxId ? { noteBoxId } : {}),
+      noteOutputIndex,
       noteOutput: {
+        ...(noteBoxId ? { boxId: noteBoxId } : {}),
+        outputIndex: noteOutputIndex,
         value: valueNanoErg.toString(),
         recipient: opts.recipient,
         reserveBoxId: opts.reserveBoxId,

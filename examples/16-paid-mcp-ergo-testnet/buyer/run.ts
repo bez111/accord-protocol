@@ -104,13 +104,15 @@ export async function runDemo(opts: RunDemoOpts = {}): Promise<DemoTrace> {
     }
   }
 
-  // 5 + 6. Resolve note_box_id from the Note issuance tx. ergo-agent-pay
-  //        doesn't yet expose this directly on NoteResult — see TODO in
-  //        packages/ergo-agent-pay/src/lifecycle.ts to surface it natively.
-  const noteBoxId = await resolveNoteBoxId({
-    txId: noteResult.txId,
-    network: "testnet",
-  })
+  // 5 + 6. Prefer signer-provided output ids; fall back to explorer polling
+  //        when the signer/submit endpoint returned only txId.
+  const noteBoxId =
+    noteResult.noteBoxId ??
+    (await resolveNoteBoxId({
+      txId: noteResult.txId,
+      network: "testnet",
+      outputIndex: noteResult.noteOutputIndex,
+    }))
 
   // 7. Make the paid call.
   const verifier = makeDemoVerifier()

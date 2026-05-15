@@ -146,8 +146,22 @@ export interface NoteOptions {
 }
 
 export interface NoteResult extends PayResult {
+  /**
+   * Note output box id when the configured signer returned signed tx outputs
+   * with box ids. Some signers and submit endpoints return only `txId`; callers
+   * should fall back to explorer/node lookup in that case.
+   */
+  noteBoxId?: string;
+
+  /** Output index of the Note inside the issue transaction. */
+  noteOutputIndex: number;
+
   /** Encoded note output for inspection */
   noteOutput: {
+    /** Same value as `noteBoxId`, when available. */
+    boxId?: string;
+    /** Same value as `noteOutputIndex`. */
+    outputIndex: number;
     value: string;
     recipient: string;
     reserveBoxId: string;
