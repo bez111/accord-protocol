@@ -275,6 +275,10 @@ assert(changelog.includes('## [0.4.0]'), 'CHANGELOG.md must contain a v0.4.0 rel
 const publishNpm = read('.github/workflows/publish-npm.yml');
 assert(publishNpm.includes('workflow_dispatch'), 'publish-npm.yml should allow manual workflow_dispatch reruns after publish fixes');
 assert(publishNpm.includes('already on npm; skipping.'), 'publish-npm.yml manual reruns must stay idempotent via skip-if-already-published guards');
+assert(publishNpm.includes('prepublish-gates:'), 'publish-npm.yml should run repository-wide prepublish gates before package publish jobs');
+assert(publishNpm.includes('npm run cjs:check'), 'publish-npm.yml prepublish gates should run CommonJS export smoke');
+assert(publishNpm.includes('npm test --workspaces --if-present'), 'publish-npm.yml prepublish gates should run all workspace tests before publishing any package');
+assert(publishNpm.includes('needs: [prepublish-gates]'), 'foundation npm publish jobs should depend on prepublish-gates');
 assert(publishNpm.includes('- ergo-agent-pay') && publishNpm.includes('- ergo-agent-scripts') && publishNpm.includes('- agentpay-base'), 'accord-conformance publish job should depend on legacy foundation packages');
 assert(publishNpm.includes('npm test -w ergo-agent-cli'), 'ergo-agent-cli publish job should run tests');
 assert(publishNpm.includes('npm test -w ergo-agent-mcp'), 'ergo-agent-mcp publish job should run tests');

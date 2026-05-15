@@ -33,10 +33,38 @@ env:
   NODE_VERSION: "20"
 
 jobs:
+  prepublish-gates:
+    name: Prepublish gates
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: "https://registry.npmjs.org"
+          cache: npm
+      - name: Install
+        run: npm install --include=optional
+      - name: Build all workspaces
+        run: npm run build
+      - name: CommonJS export smoke
+        run: npm run cjs:check
+      - name: Typecheck all workspaces
+        run: npm run typecheck
+      - name: Test all workspaces
+        run: npm test --workspaces --if-present
+      - name: Release readiness check
+        run: npm run release:check
+      - name: Audit readiness check
+        run: npm run audit:check
+      - name: Site metadata check
+        run: npm run site:check
+
   # ── Legacy: foundation ──────────────────────────────────────────────────────
 
   ergo-agent-pay:
     name: ergo-agent-pay
+    needs: [prepublish-gates]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -63,6 +91,7 @@ jobs:
 
   ergo-agent-scripts:
     name: ergo-agent-scripts
+    needs: [prepublish-gates]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -91,6 +120,7 @@ jobs:
 
   agentpay-base:
     name: agentpay-base
+    needs: [prepublish-gates]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -270,6 +300,7 @@ jobs:
 
   accord-core:
     name: "@accord-protocol/core"
+    needs: [prepublish-gates]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
