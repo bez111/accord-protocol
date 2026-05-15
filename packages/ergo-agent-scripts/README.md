@@ -6,10 +6,11 @@ trees are populated by running `npm run compile-predicates` against
 `ergo-lib-wasm-nodejs` (a peer dependency that this package deliberately
 does NOT bundle).
 
-This is the package that turns the SDK from "verify-only on testnet" into
-"production-safe on mainnet" — once the registry is populated and an
-auditor has signed off on the trees, the SDK can pass them as
-`scriptErgoTree` to `createReserve`, `issueNote`, and `deployTracker`.
+This is the package that lets the SDK move from testnet-only verification
+toward explicitly gated mainnet use: the registry must be populated, the
+exact trees must be externally audited, and the signed manifest must mark
+them `mainnetAllowed: true` before callers pass them as `scriptErgoTree` to
+`createReserve`, `issueNote`, or `deployTracker`.
 
 ## What ships in the package
 

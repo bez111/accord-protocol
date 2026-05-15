@@ -170,14 +170,14 @@ the same overall release process — see the project's
 externally audited. Deploy on Base Sepolia for development; build the
 audit story before promoting.
 
-## Roadmap
+## Implementation status
 
 | Item | Status |
 |---|---|
-| Solidity contract — Reserve / Note / refund / audit gate | ✅ this PR |
-| TypeScript adapter — viem-based, mirrors ergo-agent-pay | ✅ this PR |
-| Audit manifest scaffold | ✅ this PR |
-| 49 mock-based unit tests (encoding, audit gate, adapter) | ✅ this PR |
+| Solidity contract — Reserve / Note / refund / audit gate | Implemented |
+| TypeScript adapter — viem-based, mirrors ergo-agent-pay | Implemented |
+| Audit manifest scaffold | Implemented |
+| Mock-based unit tests (encoding, audit gate, adapter) | Implemented |
 | Hardhat / Foundry deployment scripts | next PR |
 | On-chain integration tests (anvil + viem testClient) | next PR |
 | External auditor sign-off | requires human |

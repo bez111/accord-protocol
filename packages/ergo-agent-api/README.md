@@ -198,8 +198,7 @@ server.addHook("preHandler", async (request, reply) => {
 ## Compatibility with the safety guardrail
 
 The middleware delegates to `agent.checkNote` and `agent.redeemNote`, both
-of which inherit the SDK's mainnet guardrail from PR #2. If the agent
-config refuses to redeem on mainnet without a compiled `scriptErgoTree`,
-the middleware surfaces that as `REDEMPTION_FAILED` and releases the
-replay claim so the client can switch networks or supply a script and
-retry.
+of which inherit the SDK's mainnet guardrail. If the agent config refuses
+to redeem on mainnet without a compiled `scriptErgoTree`, the middleware
+surfaces that as `REDEMPTION_FAILED` and releases the replay claim so the
+client can switch networks or supply a script and retry.
