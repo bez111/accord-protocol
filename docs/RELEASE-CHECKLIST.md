@@ -76,7 +76,22 @@ The Python package is the Ergo-rail reference SDK. It is not the canonical Pytho
 
 ## Step 4 — local pre-flight
 
-Run from repo root:
+For PR branches, first commit and push the branch, then run the same release smoke with branch mode enabled:
+
+```bash
+npm run release:preflight -- --allow-branch
+npm run release:preflight -- --allow-branch --pack
+```
+
+Expected: all gates pass. The `--pack` run additionally builds every npm tarball, installs all 18 packages into a fresh temporary project, and imports the 10 canonical `@accord-protocol/*` packages.
+
+For the final tag candidate on `main`, run from repo root:
+
+```bash
+npm run release:preflight:pack
+```
+
+The preflight script covers the manual checks below. If it fails and you need to isolate a failing gate, run the equivalent commands directly:
 
 ```bash
 npm install --include=optional

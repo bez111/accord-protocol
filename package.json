@@ -42,6 +42,8 @@
     "audit:check": "node scripts/check-audit-readiness.mjs",
     "audit:handoff": "node scripts/audit-handoff.mjs",
     "release:check": "node scripts/check-release-readiness.mjs",
+    "release:preflight": "node scripts/release-preflight.mjs",
+    "release:preflight:pack": "node scripts/release-preflight.mjs --pack",
     "site:serve": "node site/serve.mjs",
     "site:check": "node site/check.mjs"
   },

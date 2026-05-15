@@ -8,7 +8,8 @@
 //
 // Sequence:
 //   1. Working tree clean
-//   2. On main, in sync with origin
+//   2. On main, in sync with origin (or a clean, pushed branch when
+//      --allow-branch is passed)
 //   3. Version distribution (10 × 0.4.0 + 8 × 0.3.0 expected)
 //   4. `npm install --include=optional` clean
 //   5. `npm run typecheck --workspaces` clean
@@ -25,8 +26,9 @@
 //      (opt-in via --pack — depends on gate 13's output)
 //
 // Usage:
-//   node scripts/release-preflight.mjs              # run gates 1-12
-//   node scripts/release-preflight.mjs --pack       # also run gates 13-14
+//   node scripts/release-preflight.mjs                       # run gates 1-12 on main
+//   node scripts/release-preflight.mjs --pack                # also run gates 13-14
+//   node scripts/release-preflight.mjs --allow-branch --pack # PR branch smoke
 //
 // Exit code 0 iff all gates pass. Designed to be run before
 // `git tag v0.4.0 && git push --tags`.
@@ -42,7 +44,17 @@ import { fileURLToPath } from "node:url";
 // Node 18 (the package.json minimum) as well as Node 20+ (publish workflow).
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, "..");
-const RUN_PACK = process.argv.includes("--pack");
+const ALLOWED_ARGS = new Set(["--pack", "--allow-branch"]);
+const REQUESTED_ARGS = process.argv.slice(2);
+const UNKNOWN_ARGS = REQUESTED_ARGS.filter((arg) => !ALLOWED_ARGS.has(arg));
+if (UNKNOWN_ARGS.length > 0) {
+  console.error(`Unknown release-preflight option(s): ${UNKNOWN_ARGS.join(", ")}`);
+  console.error(`Usage: node scripts/release-preflight.mjs [--allow-branch] [--pack]`);
+  process.exit(2);
+}
+
+const RUN_PACK = REQUESTED_ARGS.includes("--pack");
+const ALLOW_BRANCH = REQUESTED_ARGS.includes("--allow-branch");
 
 const ACCORD_PACKAGES = [
   "@accord-protocol/core",
@@ -88,6 +100,14 @@ function run(cmd, args, opts = {}) {
   return r;
 }
 
+function fetchRemoteBranch(branch) {
+  return run(
+    "git",
+    ["fetch", "origin", `refs/heads/${branch}:refs/remotes/origin/${branch}`],
+    { stdio: "ignore" },
+  );
+}
+
 function fail(msg) {
   return { ok: false, msg };
 }
@@ -105,15 +125,44 @@ gate("01 working-tree clean", () => {
     : fail(`uncommitted changes:\n${r.stdout}`);
 });
 
-gate("02 on main, up-to-date with origin", () => {
+gate("02 release branch synced with origin", () => {
   const branch = run("git", ["branch", "--show-current"]).stdout.trim();
-  if (branch !== "main") return fail(`expected main, got ${branch}`);
-  run("git", ["fetch", "origin", "main"], { stdio: "ignore" });
-  const ahead = run("git", ["rev-list", "--count", "origin/main..HEAD"]).stdout.trim();
-  const behind = run("git", ["rev-list", "--count", "HEAD..origin/main"]).stdout.trim();
-  if (ahead !== "0") return fail(`local main is ${ahead} commits ahead of origin`);
-  if (behind !== "0") return fail(`local main is ${behind} commits behind origin`);
-  return pass("on main, in sync with origin");
+  if (!branch) return fail("detached HEAD; checkout main or a named release branch");
+
+  if (branch === "main") {
+    const fetch = fetchRemoteBranch("main");
+    if (fetch.status !== 0) return fail("could not fetch origin/main");
+    const ahead = run("git", ["rev-list", "--count", "origin/main..HEAD"]).stdout.trim();
+    const behind = run("git", ["rev-list", "--count", "HEAD..origin/main"]).stdout.trim();
+    if (ahead !== "0") return fail(`local main is ${ahead} commits ahead of origin`);
+    if (behind !== "0") return fail(`local main is ${behind} commits behind origin`);
+    return pass("on main, in sync with origin");
+  }
+
+  if (!ALLOW_BRANCH) {
+    return fail(`expected main, got ${branch}; pass --allow-branch for PR smoke`);
+  }
+
+  const fetchMain = fetchRemoteBranch("main");
+  if (fetchMain.status !== 0) return fail("could not fetch origin/main");
+  const fetchBranch = fetchRemoteBranch(branch);
+  if (fetchBranch.status !== 0) return fail(`could not fetch origin/${branch}`);
+
+  const remoteBranch = `origin/${branch}`;
+  const remoteExists = run("git", ["rev-parse", "--verify", "--quiet", remoteBranch]);
+  if (remoteExists.status !== 0) return fail(`${remoteBranch} does not exist; push the branch first`);
+
+  const ahead = run("git", ["rev-list", "--count", `${remoteBranch}..HEAD`]).stdout.trim();
+  const behind = run("git", ["rev-list", "--count", `HEAD..${remoteBranch}`]).stdout.trim();
+  if (ahead !== "0") return fail(`local ${branch} is ${ahead} commits ahead of ${remoteBranch}; push first`);
+  if (behind !== "0") return fail(`local ${branch} is ${behind} commits behind ${remoteBranch}; pull first`);
+
+  const includesMain = run("git", ["merge-base", "--is-ancestor", "origin/main", "HEAD"]);
+  if (includesMain.status !== 0) {
+    return fail(`${branch} does not contain origin/main; merge or rebase main before release smoke`);
+  }
+
+  return pass(`${branch} is pushed and contains origin/main (--allow-branch)`);
 });
 
 gate("03 version distribution (10×0.4.0 + 8×0.3.0)", () => {
@@ -377,7 +426,11 @@ for (const g of GATES) {
 }
 console.log("");
 if (failures === 0) {
-  console.log(`✓ All ${GATES.length} gates passed. Ready to tag v0.4.0.`);
+  const branch = run("git", ["branch", "--show-current"]).stdout.trim();
+  const nextStep = branch === "main"
+    ? "Ready to tag v0.4.0."
+    : "Branch pre-flight passed; merge to main before tagging v0.4.0.";
+  console.log(`✓ All ${GATES.length} gates passed. ${nextStep}`);
   process.exit(0);
 } else {
   console.log(`✗ ${failures} of ${GATES.length} gates failed. Fix before tagging.`);

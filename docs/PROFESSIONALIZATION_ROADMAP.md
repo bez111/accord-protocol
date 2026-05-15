@@ -57,6 +57,7 @@ Acceptance criteria:
 - `npm test` succeeds from the repository root;
 - `npm run typecheck` succeeds;
 - `npm run release:check` succeeds;
+- `npm run release:preflight -- --allow-branch --pack` succeeds on a clean pushed PR branch;
 - `npm run site:check` succeeds;
 - Python tests pass for `packages/ergo-agent-py`;
 - CommonJS smoke tests pass for all packages that advertise CJS exports;

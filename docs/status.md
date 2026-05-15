@@ -157,10 +157,11 @@ Full example inventory: [`docs/EXAMPLE_MODES.md`](./EXAMPLE_MODES.md).
 | Item | State |
 |---|---|
 | Publish workflows | Present; `npm run release:check` verifies the package matrix before tag |
+| Local release preflight | `npm run release:preflight -- --allow-branch --pack` can smoke a pushed PR branch; `npm run release:preflight:pack` is the final main-branch pack/install smoke |
 | Package matrix | [`docs/PACKAGE_MATRIX.md`](./PACKAGE_MATRIX.md) tracks install status, rail scope, and mainnet posture |
 | `NPM_TOKEN` GitHub secret | Configure before release |
 | PyPI Trusted Publishing | Configure before release |
-| `v0.4.0` tag | Do not push until `npm run release:check`, CI, npm secret, and PyPI Trusted Publishing are ready |
+| `v0.4.0` tag | Do not push until `npm run release:preflight:pack`, CI, npm secret, and PyPI Trusted Publishing are ready |
 | GitHub Release | Create only after packages are published or intentionally marked local-only |
 
 See [`PUBLISHING.md`](../PUBLISHING.md), [`RELEASING.md`](../RELEASING.md), and [`docs/RELEASE-CHECKLIST.md`](./RELEASE-CHECKLIST.md) if present.

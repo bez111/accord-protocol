@@ -31,6 +31,7 @@ Release tags should run publishing workflows only after:
 
 - package versions are updated;
 - `CHANGELOG.md` is updated;
+- `npm run release:preflight:pack` passes on `main`;
 - npm/PyPI publishing credentials are configured;
 - status docs agree with release posture;
 - audit manifests remain safe by default.

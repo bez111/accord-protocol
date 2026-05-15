@@ -88,6 +88,8 @@ assert(exists('LICENSE'), 'root LICENSE file must exist');
 const rootPkg = readJson('package.json');
 assert(rootPkg.workspaces?.includes('examples/15-paid-mcp-repo-audit'), 'examples/15-paid-mcp-repo-audit must remain a tested workspace demo');
 assert(rootPkg.workspaces?.includes('examples/16-paid-mcp-ergo-testnet'), 'examples/16-paid-mcp-ergo-testnet must remain a tested workspace demo');
+assert(rootPkg.scripts?.['release:preflight'] === 'node scripts/release-preflight.mjs', 'package.json must expose npm run release:preflight');
+assert(rootPkg.scripts?.['release:preflight:pack'] === 'node scripts/release-preflight.mjs --pack', 'package.json must expose npm run release:preflight:pack');
 const example16Pkg = readJson('examples/16-paid-mcp-ergo-testnet/package.json');
 assert(example16Pkg.scripts?.typecheck === 'tsc --noEmit', 'example 16 workspace must expose npm run typecheck');
 assert(Boolean(example16Pkg.scripts?.test), 'example 16 workspace must expose npm test');
@@ -156,6 +158,11 @@ for (const [, expectedName] of [...accordPackages, ...referencePackages]) {
 }
 assert(packageMatrix.includes('ergo-agent-pay` Python'), 'docs/PACKAGE_MATRIX.md must mention the Python ergo-agent-pay package');
 assert(packageMatrix.includes('NOT') || packageMatrix.includes('Not certified'), 'docs/PACKAGE_MATRIX.md must preserve a conservative mainnet posture');
+
+const releaseChecklist = read('docs/RELEASE-CHECKLIST.md');
+assert(releaseChecklist.includes('npm run release:preflight -- --allow-branch --pack'), 'docs/RELEASE-CHECKLIST.md must document PR-branch pack smoke');
+assert(releaseChecklist.includes('npm run release:preflight:pack'), 'docs/RELEASE-CHECKLIST.md must document main-branch pack smoke');
+assert(releaseChecklist.includes('installs all 18 packages into a fresh temporary project'), 'docs/RELEASE-CHECKLIST.md must describe install-in-tempdir package smoke');
 
 const exampleModes = read('docs/EXAMPLE_MODES.md');
 for (const entry of fs.readdirSync(path.join(root, 'examples'), { withFileTypes: true })) {
