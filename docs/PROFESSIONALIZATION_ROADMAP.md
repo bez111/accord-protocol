@@ -33,7 +33,7 @@ verification pass is clean.
 Immediate remaining work before opening a PR:
 
 - run a final full verification pass from a clean working tree;
-- decide whether Rosen example 11 should become a workspace once its external TokenMap dependencies are suitable for clean CI;
+- keep Rosen example 11 out of the root workspace until external TokenMap dependencies are suitable for clean CI;
 - prepare the PR body with command evidence and the P0-P3 scope boundary.
 
 ## Phase P0 - Repository stabilization
