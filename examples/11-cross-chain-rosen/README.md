@@ -110,3 +110,13 @@ with `NOTE_BOX_ID=<resolved box id>`.
 Both examples live side by side. The audit gate is identical (manifest
 binding by name); the choice between them is a UX one — what does the
 buyer already hold?
+
+## Workspace / CI status
+
+This example is intentionally not part of the root npm workspace yet. It
+depends on Rosen's external TokenMap package plus Express-specific runtime
+and type packages, while the reusable Rosen logic is already covered in
+`ergo-agent-rosen` and `@accord-protocol/rails-rosen` workspace CI.
+
+Keep example 11 as an architecture/testnet walkthrough until the project
+chooses a stable policy for vendoring or pinning Rosen TokenMap data in CI.

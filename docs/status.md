@@ -2,7 +2,7 @@
 
 This page is the single source of truth for what works, what does not work, and what can reach mainnet. Other docs MUST defer to this page when they conflict.
 
-Last updated: 2026-05-15 — protocol compatibility, registry semantics, buyer-policy sync, receipt-binding validation, package matrix, example modes, and testnet-first example guidance.
+Last updated: 2026-05-15 — protocol compatibility, registry semantics, buyer-policy sync, receipt-binding validation, package matrix, example modes, testnet-first example guidance, P4 pilot runbooks, and the first mock pilot result.
 
 ## Executive summary
 
@@ -50,6 +50,8 @@ Use Accord today for:
 - Ergo testnet experiments;
 - x402-compatible HTTP payment architecture demos;
 - MCP tool gating prototypes;
+- P4 pilot dry-runs using [`docs/pilots/`](./pilots/);
+- completed local mock pilot evidence in [`docs/pilots/results/2026-05-15-mock-mcp-paid-tool.md`](./pilots/results/2026-05-15-mock-mcp-paid-tool.md);
 - conformance testing;
 - protocol/schema review;
 - audit preparation.
@@ -156,10 +158,11 @@ Full example inventory: [`docs/EXAMPLE_MODES.md`](./EXAMPLE_MODES.md).
 | Item | State |
 |---|---|
 | Publish workflows | Present; `npm run release:check` verifies the package matrix before tag |
+| Local release preflight | `npm run release:preflight -- --allow-branch --pack` can smoke a pushed PR branch, including Python tests and venv install smoke; `npm run release:preflight:pack` is the final main-branch pack/install/conformance-CLI smoke |
 | Package matrix | [`docs/PACKAGE_MATRIX.md`](./PACKAGE_MATRIX.md) tracks install status, rail scope, and mainnet posture |
 | `NPM_TOKEN` GitHub secret | Configure before release |
 | PyPI Trusted Publishing | Configure before release |
-| `v0.4.0` tag | Do not push until `npm run release:check`, CI, npm secret, and PyPI Trusted Publishing are ready |
+| `v0.4.0` tag | Do not push until `npm run release:preflight:pack`, CI, npm secret, and PyPI Trusted Publishing are ready |
 | GitHub Release | Create only after packages are published or intentionally marked local-only |
 
 See [`PUBLISHING.md`](../PUBLISHING.md), [`RELEASING.md`](../RELEASING.md), and [`docs/RELEASE-CHECKLIST.md`](./RELEASE-CHECKLIST.md) if present.

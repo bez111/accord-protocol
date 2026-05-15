@@ -28,7 +28,7 @@ Rules of thumb:
 | [`08-treasury-multisig`](../examples/08-treasury-multisig/) | Local simulation | No | No | No | Demonstrates Sigma threshold policy with mock keys. |
 | [`09-crewai-agents`](../examples/09-crewai-agents/) | Mock by default; optional legacy server | Optional | Testnet only if connected | No | CrewAI is optional; default path is local mock. |
 | [`10-autogen-agent`](../examples/10-autogen-agent/) | Mock by default; optional legacy server | Optional | Testnet only if connected | No | AutoGen is optional; default path is local mock. |
-| [`11-cross-chain-rosen`](../examples/11-cross-chain-rosen/) | Rosen architecture / testnet-first | Optional | No by default | No | Bridge assumptions are external; not a mainnet recipe. |
+| [`11-cross-chain-rosen`](../examples/11-cross-chain-rosen/) | Rosen architecture / testnet-first | Optional | No by default | No | Bridge assumptions and TokenMap data are external; not in root workspace CI yet. |
 | [`12-paywalled-mcp`](../examples/12-paywalled-mcp/) | Legacy MCP / testnet-first | Optional | Testnet only | No | Prefer `@accord-protocol/mcp` for new work. |
 | [`13-paywalled-langchain`](../examples/13-paywalled-langchain/) | Legacy LangChain / testnet-first | Optional | Testnet only | No | Demonstrates wire shape for paid LangChain tools. |
 | [`14-paywalled-crewai`](../examples/14-paywalled-crewai/) | Legacy CrewAI / testnet-first | Optional | Testnet only | No | Demonstrates shared payment policy across a crew. |
@@ -39,4 +39,3 @@ Before turning any example into production infrastructure, check
 [`docs/status.md`](./status.md), [`SECURITY.md`](../SECURITY.md), and the
 relevant audit manifests. Mainnet use requires signed external audit evidence
 for the exact scripts or contracts being used.
-

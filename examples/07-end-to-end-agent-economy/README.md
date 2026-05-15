@@ -97,16 +97,16 @@ substitute a `seedSigner` (Fleet SDK) — that's a one-line change in
 
 | Guarantee | Comes from |
 |---|---|
-| Hash function matches on-chain check | PR #2 — BLAKE2b-256 across SDK + golden vectors |
-| No accidental P2PK on mainnet | PR #2 — `assertProductionSafety` |
-| Per-recipient budget cap | PR #5 — `policy.perRecipientCap` |
-| Daily spend cap | PR #5 — `policy.dailyBudget` |
-| Structured audit | PR #5 — `policy.auditLog` |
-| Verified Note on every request | PR #6 — middleware verifies via `agent.checkNote` |
-| One-shot Note redemption | PR #6 — `InMemoryReplayStore.tryClaim` |
-| Inline redemption | PR #6 — `redeemStrategy: "immediate"` |
-| Python participation | PR #7 — daemon + BridgeClient |
-| On-chain predicate enforcement | PR #8 — `tryGetErgoTree("task_hash_v0")` |
+| Hash function matches on-chain check | BLAKE2b-256 across SDK + golden vectors |
+| No accidental P2PK on mainnet | `assertProductionSafety` |
+| Per-recipient budget cap | `policy.perRecipientCap` |
+| Daily spend cap | `policy.dailyBudget` |
+| Structured audit | `policy.auditLog` |
+| Verified Note on every request | Middleware verifies via `agent.checkNote` |
+| One-shot Note redemption | `InMemoryReplayStore.tryClaim` |
+| Inline redemption | `redeemStrategy: "immediate"` |
+| Python participation | Daemon + BridgeClient |
+| On-chain predicate enforcement | `tryGetErgoTree("task_hash_v0")` |
 
 The demo is the place these pieces compose; the actual safety logic
 lives in the packages so any combination works without recompiling.

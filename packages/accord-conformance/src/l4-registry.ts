@@ -22,6 +22,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import fs from "node:fs";
+import { createRequire } from "node:module";
 import path from "node:path";
 import type { ConformanceCheck, ConformanceLevelResult } from "./types.js";
 
@@ -32,6 +33,9 @@ interface RunL4Options {
 
 const VALID_LEVELS = new Set(["L0", "L1", "L2", "L3", "L4"]);
 const VALID_RAILS = new Set(["ergo", "rosen", "base", "x402"]);
+const requireFromHere = createRequire(
+  typeof __filename !== "undefined" ? __filename : import.meta.url,
+);
 
 export async function runL4(opts: RunL4Options = {}): Promise<ConformanceLevelResult> {
   const repoRoot = opts.repoRoot ?? process.cwd();
@@ -206,18 +210,20 @@ function validateManifests(registryDir: string, checks: ConformanceCheck[]): voi
       result: okShape ? "pass" : "fail",
       detail: okShape ? undefined : `record fields incomplete`,
     });
-    // Manifest path must resolve from repoRoot.
+    // Manifest path must resolve from repoRoot. When the conformance suite is
+    // packaged, registry fixtures still carry monorepo-style package paths; in
+    // that mode, resolve them through installed package dependencies.
     if (typeof rec.manifest_path === "string") {
       const repoRoot = path.dirname(registryDir);
-      const target = path.join(repoRoot, rec.manifest_path);
+      const target = resolveManifestPath(repoRoot, rec.manifest_path);
       checks.push({
         id: `${id}.path-resolves`,
         level: "L4",
         description: `${path.relative(registryDir, full)}.manifest_path → file exists`,
-        result: fs.existsSync(target) ? "pass" : "fail",
-        detail: fs.existsSync(target)
+        result: target ? "pass" : "fail",
+        detail: target
           ? undefined
-          : `${rec.manifest_path} not found from repo root`,
+          : `${rec.manifest_path} not found from repo root or installed package dependency`,
       });
     }
   }
@@ -359,5 +365,48 @@ function stringifyError(err: unknown): string {
     return JSON.stringify(err);
   } catch {
     return String(err);
+  }
+}
+
+function resolveManifestPath(repoRoot: string, manifestPath: string): string | undefined {
+  const direct = path.join(repoRoot, manifestPath);
+  if (fs.existsSync(direct)) return direct;
+
+  const parts = manifestPath.split(/[\\/]/);
+  if (parts[0] !== "packages" || parts.length < 3) return undefined;
+
+  const packageDir = parts[1];
+  if (!packageDir) return undefined;
+
+  const packageName = packageNameFromMonorepoDir(packageDir);
+  const packageRoot = resolveInstalledPackageRoot(packageName);
+  if (!packageRoot) return undefined;
+
+  const installedTarget = path.join(packageRoot, ...parts.slice(2));
+  return fs.existsSync(installedTarget) ? installedTarget : undefined;
+}
+
+function packageNameFromMonorepoDir(dir: string): string {
+  if (dir.startsWith("accord-")) {
+    return `@accord-protocol/${dir.slice("accord-".length)}`;
+  }
+  return dir;
+}
+
+function resolveInstalledPackageRoot(packageName: string): string | undefined {
+  try {
+    let dir = path.dirname(requireFromHere.resolve(packageName));
+    while (true) {
+      const pkgPath = path.join(dir, "package.json");
+      if (fs.existsSync(pkgPath)) {
+        const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf-8")) as { name?: string };
+        if (pkg.name === packageName) return dir;
+      }
+      const parent = path.dirname(dir);
+      if (parent === dir) return undefined;
+      dir = parent;
+    }
+  } catch {
+    return undefined;
   }
 }

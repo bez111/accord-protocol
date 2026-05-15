@@ -16,24 +16,25 @@ The guiding rule is simple: ship useful developer infrastructure now, but keep e
 
 ## Current execution state
 
-As of 2026-05-15, the stabilization work is being staged on the
-`p0-stabilization-roadmap` branch. Local commits should stay small and
-reviewable; push only after the final verification pass is clean.
+As of 2026-05-15, the P0-P3 base has been merged to `main`; follow-up
+hardening is staged on `p3-example-ci-hardening`. Commits
+should stay small and reviewable, and each pushed batch should preserve clean
+CI plus a clean local release preflight when release surfaces change.
 
 | Phase | Current state | Evidence on branch |
 |---|---|---|
-| P0 Repository stabilization | Mostly complete locally | root build/test/typecheck path repaired, release preflight aligned, CJS/path/package data fixes committed |
+| P0 Repository stabilization | Complete on PR branch | root build/test/typecheck path repaired, release preflight aligned, CJS/path/package data fixes committed, and branch pack/install/packaged-conformance preflight passed |
 | P1 Audit readiness | Implemented locally | audit docs, audit handoff scripts, manifest checks, and `npm run audit:check` gate committed |
 | P2 Protocol hardening | Implemented locally for v0 | schema hardening, receipt parent-binding validation, registry/buyer-policy semantics, and conformance negatives committed |
-| P3 Developer experience | In progress | package matrix, full example-mode matrix, safer legacy/mainnet wording, `noteBoxId` DX, and Rosen example cleanup committed |
-| P4 Testnet pilots | Not started | needs written pilot runs and signed sample receipts after PR/CI |
+| P3 Developer experience | In review | package matrix, full example-mode matrix, safer legacy/mainnet wording, `noteBoxId` DX, Rosen example cleanup, example 16 CI coverage, contributor templates, public README wording cleanup, and release-readiness CI committed |
+| P4 Testnet pilots | Started | pilot matrix, result template, testnet wallet setup, per-rail rollback plans, and first local mock pilot result committed; external testnet pilot evidence still pending |
 | P5 Controlled mainnet launch | Blocked by design | requires external audit reports and signed manifests with exact `mainnetAllowed: true` entries |
 
-Immediate remaining work before opening a PR:
+Immediate remaining work before marking the branch ready for review:
 
-- run a final full verification pass from a clean working tree;
-- review launch/announcement docs for claims that imply production or mainnet certification;
-- decide whether example-specific typecheck scripts should be added for non-workspace examples;
+- rerun the final full verification pass after the last commit in the PR;
+- execute the remaining P4 pilot runbooks and archive dated result records when external testnet credentials and facilitator access are available;
+- keep Rosen example 11 out of the root workspace until external TokenMap dependencies are suitable for clean CI;
 - prepare the PR body with command evidence and the P0-P3 scope boundary.
 
 ## Phase P0 - Repository stabilization
@@ -55,7 +56,9 @@ Acceptance criteria:
 - `npm run build` succeeds;
 - `npm test` succeeds from the repository root;
 - `npm run typecheck` succeeds;
+- `npm run cjs:check` succeeds after build;
 - `npm run release:check` succeeds;
+- `npm run release:preflight -- --allow-branch --pack` succeeds on a clean pushed PR branch;
 - `npm run site:check` succeeds;
 - Python tests pass for `packages/ergo-agent-py`;
 - CommonJS smoke tests pass for all packages that advertise CJS exports;

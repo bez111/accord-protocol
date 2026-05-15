@@ -11,7 +11,7 @@ A public package release is **not** production certification. Accord remains tes
 | `NPM_TOKEN` secret in repo | Configure before tag | accord-protocol |
 | PyPI Trusted Publishing config | Configure before tag | accord-protocol |
 | `publish-npm.yml` package matrix | Covers 10 `@accord-protocol/*` packages + 8 legacy npm packages | shipped / verify |
-| Publish jobs | 18 npm jobs total; PyPI is separate | shipped / verify |
+| Publish jobs | npm prepublish gates run before any package publish; PyPI runs unit tests, builds dist, `twine check`, and wheel install smoke | shipped / verify |
 | Skip-if-already-published guard | Each npm job pre-checks via `npm view` | shipped |
 | Self-conformance gate | L0+L1+L2+L3+L4 before publishing `@accord-protocol/conformance` | shipped |
 | Package versions | Accord packages `0.4.0`; legacy/reference packages `0.3.0`; Python `0.3.0` | by design |
@@ -76,11 +76,28 @@ The Python package is the Ergo-rail reference SDK. It is not the canonical Pytho
 
 ## Step 4 — local pre-flight
 
-Run from repo root:
+For PR branches, first commit and push the branch, then run the same release smoke with branch mode enabled:
+
+```bash
+npm run release:preflight -- --allow-branch
+npm run release:preflight -- --allow-branch --pack
+```
+
+Expected: all gates pass, including the Python reference package tests and venv install smoke. The `--pack` run additionally builds every npm tarball, installs all 18 packages into a fresh temporary project, imports the 10 canonical `@accord-protocol/*` packages, and runs the packaged `accord-conformance` CLI from outside the repository root.
+
+For the final tag candidate on `main`, run from repo root:
+
+```bash
+npm run release:preflight:pack
+```
+
+The preflight script covers the manual checks below. If it fails and you need to isolate a failing gate, run the equivalent commands directly:
 
 ```bash
 npm install --include=optional
 npm run build --workspaces --if-present
+npm run cjs:check
+npm run typecheck --workspaces --if-present
 npm test --workspaces --if-present
 npm run release:check
 ```

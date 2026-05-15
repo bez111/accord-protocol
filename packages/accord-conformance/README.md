@@ -219,9 +219,9 @@ For every fixture in `test-vectors/{agreement,verification-receipt,settlement-re
 
 Missing pinned sidecars are reported as `inconclusive` (not `fail`) — the implementation isn't broken, the fixtures just need re-deriving via `node scripts/derive-fixture-hashes.mjs`.
 
-## What's NOT in this PR
+## Current limits
 
-- L1 / L2 transport / rail tests — PR-018 / PR-019.
+- L1 / L2 transport / rail tests — planned transport/rail conformance scope.
 - A network-mode CLI (`--target https://provider.example`) — for L0 the implementation under test is a directory of schemas + fixtures, not a live endpoint. L1 / L2 will introduce HTTP / MCP probing.
 - Conformance-result signing. The result JSON is plain text today; v1 may add an issuer signature so the registry can verify provenance.
 

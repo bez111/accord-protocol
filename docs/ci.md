@@ -11,13 +11,15 @@ This document explains the intended role of Accord Protocol GitHub Actions workf
 | Conformance CI | Run Accord conformance checks |
 | Python CI | Test Python reference package |
 | Demo CI | Ensure examples still run or compile |
-| Publish workflows | Publish npm/PyPI packages after a release tag |
+| Release readiness CI | Build workspaces, smoke CommonJS exports, then run root typecheck plus `release:check`, `audit:check`, and `site:check` |
+| Publish workflows | Publish npm/PyPI packages after a release tag; npm publish runs repository-wide prepublish gates first, and PyPI publish runs Python unit tests, builds dist, validates metadata, and smoke-installs the wheel before publishing |
 
 ## Merge expectations
 
 For changes touching protocol, security, schemas, rails, or release files:
 
 - relevant CI should pass;
+- release readiness CI should pass when docs, examples, package metadata, scripts, site assets, or GitHub PR/issue templates change;
 - conformance should pass when object shape changes;
 - `docs/status.md` must stay accurate;
 - `SECURITY.md` must be updated if risk posture changes;
@@ -29,6 +31,7 @@ Release tags should run publishing workflows only after:
 
 - package versions are updated;
 - `CHANGELOG.md` is updated;
+- `npm run release:preflight:pack` passes on `main`;
 - npm/PyPI publishing credentials are configured;
 - status docs agree with release posture;
 - audit manifests remain safe by default.

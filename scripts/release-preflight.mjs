@@ -8,25 +8,31 @@
 //
 // Sequence:
 //   1. Working tree clean
-//   2. On main, in sync with origin
+//   2. On main, in sync with origin (or a clean, pushed branch when
+//      --allow-branch is passed)
 //   3. Version distribution (10 × 0.4.0 + 8 × 0.3.0 expected)
 //   4. `npm install --include=optional` clean
 //   5. `npm run typecheck --workspaces` clean
 //   6. `npm run build --workspaces` clean
-//   7. `npm test --workspaces` (expect 582+ TS tests pass)
-//   8. Conformance L0+L1+L2+L3+L4 PASS (Achieved: L4)
-//   9. Fixture-hash drift check
-//  10. End-to-end demo (paid-MCP repo-audit)
-//  11. accord-conformance keygen + sign + verify round-trip
-//  12. MCP-stdio probe against the bundled stub
-//  13. `npm pack` for every @accord-protocol/* package (opt-in via --pack)
-//  14. install-in-tempdir smoke for all 10 @accord-protocol/* tarballs —
-//      installs them into one fresh project and imports each one
-//      (opt-in via --pack — depends on gate 13's output)
+//   7. CommonJS export smoke for packages that advertise require() support
+//   8. `npm test --workspaces` (expect 653+ TS tests pass)
+//   9. Python reference package unittest suite
+//  10. Python reference package venv install smoke
+//  11. Conformance L0+L1+L2+L3+L4 PASS (Achieved: L4)
+//  12. Fixture-hash drift check
+//  13. End-to-end demo (paid-MCP repo-audit)
+//  14. accord-conformance keygen + sign + verify round-trip
+//  15. MCP-stdio probe against the bundled stub
+//  16. `npm pack` for every @accord-protocol/* package (opt-in via --pack)
+//  17. install-in-tempdir smoke for all 18 workspace tarballs —
+//      installs them into one fresh project, imports each canonical Accord package,
+//      and runs the packaged accord-conformance CLI from outside the repo root
+//      (opt-in via --pack — depends on gate 16's output)
 //
 // Usage:
-//   node scripts/release-preflight.mjs              # run gates 1-12
-//   node scripts/release-preflight.mjs --pack       # also run gates 13-14
+//   node scripts/release-preflight.mjs                       # run gates 1-15 on main
+//   node scripts/release-preflight.mjs --pack                # also run gates 16-17
+//   node scripts/release-preflight.mjs --allow-branch --pack # PR branch smoke
 //
 // Exit code 0 iff all gates pass. Designed to be run before
 // `git tag v0.4.0 && git push --tags`.
@@ -42,7 +48,17 @@ import { fileURLToPath } from "node:url";
 // Node 18 (the package.json minimum) as well as Node 20+ (publish workflow).
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, "..");
-const RUN_PACK = process.argv.includes("--pack");
+const ALLOWED_ARGS = new Set(["--pack", "--allow-branch"]);
+const REQUESTED_ARGS = process.argv.slice(2);
+const UNKNOWN_ARGS = REQUESTED_ARGS.filter((arg) => !ALLOWED_ARGS.has(arg));
+if (UNKNOWN_ARGS.length > 0) {
+  console.error(`Unknown release-preflight option(s): ${UNKNOWN_ARGS.join(", ")}`);
+  console.error(`Usage: node scripts/release-preflight.mjs [--allow-branch] [--pack]`);
+  process.exit(2);
+}
+
+const RUN_PACK = REQUESTED_ARGS.includes("--pack");
+const ALLOW_BRANCH = REQUESTED_ARGS.includes("--allow-branch");
 
 const ACCORD_PACKAGES = [
   "@accord-protocol/core",
@@ -88,6 +104,20 @@ function run(cmd, args, opts = {}) {
   return r;
 }
 
+function fetchRemoteBranch(branch) {
+  return run(
+    "git",
+    ["fetch", "origin", `refs/heads/${branch}:refs/remotes/origin/${branch}`],
+    { stdio: "ignore" },
+  );
+}
+
+function pythonInVenv(venvDir) {
+  return process.platform === "win32"
+    ? path.join(venvDir, "Scripts", "python.exe")
+    : path.join(venvDir, "bin", "python");
+}
+
 function fail(msg) {
   return { ok: false, msg };
 }
@@ -105,15 +135,44 @@ gate("01 working-tree clean", () => {
     : fail(`uncommitted changes:\n${r.stdout}`);
 });
 
-gate("02 on main, up-to-date with origin", () => {
+gate("02 release branch synced with origin", () => {
   const branch = run("git", ["branch", "--show-current"]).stdout.trim();
-  if (branch !== "main") return fail(`expected main, got ${branch}`);
-  run("git", ["fetch", "origin", "main"], { stdio: "ignore" });
-  const ahead = run("git", ["rev-list", "--count", "origin/main..HEAD"]).stdout.trim();
-  const behind = run("git", ["rev-list", "--count", "HEAD..origin/main"]).stdout.trim();
-  if (ahead !== "0") return fail(`local main is ${ahead} commits ahead of origin`);
-  if (behind !== "0") return fail(`local main is ${behind} commits behind origin`);
-  return pass("on main, in sync with origin");
+  if (!branch) return fail("detached HEAD; checkout main or a named release branch");
+
+  if (branch === "main") {
+    const fetch = fetchRemoteBranch("main");
+    if (fetch.status !== 0) return fail("could not fetch origin/main");
+    const ahead = run("git", ["rev-list", "--count", "origin/main..HEAD"]).stdout.trim();
+    const behind = run("git", ["rev-list", "--count", "HEAD..origin/main"]).stdout.trim();
+    if (ahead !== "0") return fail(`local main is ${ahead} commits ahead of origin`);
+    if (behind !== "0") return fail(`local main is ${behind} commits behind origin`);
+    return pass("on main, in sync with origin");
+  }
+
+  if (!ALLOW_BRANCH) {
+    return fail(`expected main, got ${branch}; pass --allow-branch for PR smoke`);
+  }
+
+  const fetchMain = fetchRemoteBranch("main");
+  if (fetchMain.status !== 0) return fail("could not fetch origin/main");
+  const fetchBranch = fetchRemoteBranch(branch);
+  if (fetchBranch.status !== 0) return fail(`could not fetch origin/${branch}`);
+
+  const remoteBranch = `origin/${branch}`;
+  const remoteExists = run("git", ["rev-parse", "--verify", "--quiet", remoteBranch]);
+  if (remoteExists.status !== 0) return fail(`${remoteBranch} does not exist; push the branch first`);
+
+  const ahead = run("git", ["rev-list", "--count", `${remoteBranch}..HEAD`]).stdout.trim();
+  const behind = run("git", ["rev-list", "--count", `HEAD..${remoteBranch}`]).stdout.trim();
+  if (ahead !== "0") return fail(`local ${branch} is ${ahead} commits ahead of ${remoteBranch}; push first`);
+  if (behind !== "0") return fail(`local ${branch} is ${behind} commits behind ${remoteBranch}; pull first`);
+
+  const includesMain = run("git", ["merge-base", "--is-ancestor", "origin/main", "HEAD"]);
+  if (includesMain.status !== 0) {
+    return fail(`${branch} does not contain origin/main; merge or rebase main before release smoke`);
+  }
+
+  return pass(`${branch} is pushed and contains origin/main (--allow-branch)`);
 });
 
 gate("03 version distribution (10×0.4.0 + 8×0.3.0)", () => {
@@ -151,7 +210,18 @@ gate("06 build --workspaces", () => {
   return r.status === 0 ? pass("18 packages built") : fail(`exit ${r.status}`);
 });
 
-gate("07 test --workspaces (expect ≥653 pass, 0 fail)", () => {
+gate("07 CommonJS export smoke", () => {
+  const r = run("npm", ["run", "cjs:check"]);
+  if (r.status !== 0) return fail(`exit ${r.status}: ${(r.stderr || r.stdout).slice(0, 500)}`);
+  const summary =
+    r.stdout
+      .trim()
+      .split("\n")
+      .find((line) => line.startsWith("CommonJS export smoke passed:")) ?? "CJS smoke passed";
+  return pass(summary.replace(/^CommonJS export smoke passed: /, ""));
+});
+
+gate("08 test --workspaces (expect ≥653 pass, 0 fail)", () => {
   const r = run("npm", ["test", "--workspaces", "--if-present"]);
   if (r.status !== 0) return fail(`exit ${r.status}: ${r.stderr.slice(0, 200)}`);
   const lines = r.stdout.split("\n");
@@ -167,7 +237,43 @@ gate("07 test --workspaces (expect ≥653 pass, 0 fail)", () => {
   return pass(`${total} tests, 0 fails`);
 });
 
-gate("08 conformance L0+L1+L2+L3+L4 (Achieved: L4)", () => {
+gate("09 Python reference package tests", () => {
+  const r = run(
+    process.env.PYTHON ?? "python3",
+    ["-m", "unittest", "discover", "-s", "tests", "-v"],
+    { cwd: path.join(REPO_ROOT, "packages", "ergo-agent-py") },
+  );
+  const output = `${r.stdout}\n${r.stderr}`;
+  if (r.status !== 0) return fail(`exit ${r.status}: ${output.slice(-700)}`);
+  const testCount = output.match(/Ran (\d+) tests/)?.[1];
+  return pass(`${testCount ?? "Python"} tests OK`);
+});
+
+gate("10 Python package install smoke", () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "accord-py-install-"));
+  const py = process.env.PYTHON ?? "python3";
+  try {
+    const venv = run(py, ["-m", "venv", tmp]);
+    if (venv.status !== 0) return fail(`venv exit ${venv.status}: ${(venv.stderr || venv.stdout).slice(-500)}`);
+
+    const venvPy = pythonInVenv(tmp);
+    const install = run(venvPy, ["-m", "pip", "install", path.join(REPO_ROOT, "packages", "ergo-agent-py")]);
+    if (install.status !== 0) {
+      return fail(`pip install exit ${install.status}: ${(install.stderr || install.stdout).slice(-700)}`);
+    }
+
+    const probe = run(venvPy, [
+      "-c",
+      "from ergo_agent_pay import BridgeClient, ErgoAgentPay; print(BridgeClient.__name__, ErgoAgentPay.__name__)",
+    ]);
+    if (probe.status !== 0) return fail(`import probe exit ${probe.status}: ${(probe.stderr || probe.stdout).slice(-500)}`);
+    return pass("venv install + import OK");
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+});
+
+gate("11 conformance L0+L1+L2+L3+L4 (Achieved: L4)", () => {
   const r = run("node", [
     "packages/accord-conformance/dist/cli.js",
     "run",
@@ -181,14 +287,14 @@ gate("08 conformance L0+L1+L2+L3+L4 (Achieved: L4)", () => {
   return pass("Achieved: L4");
 });
 
-gate("09 fixture-hash drift", () => {
+gate("12 fixture-hash drift", () => {
   const r = run("node", ["scripts/derive-fixture-hashes.mjs", "--check"]);
   return r.status === 0
     ? pass("0 drift")
     : fail(`exit ${r.status}: ${r.stdout}`);
 });
 
-gate("10 end-to-end demo", () => {
+gate("13 end-to-end demo", () => {
   const r = run("npm", ["run", "dev", "-w", "accord-paid-mcp-repo-audit-demo"]);
   if (r.status !== 0) return fail(`exit ${r.status}: ${r.stdout.slice(-500)}`);
   if (!r.stdout.includes("Settlement Receipt")) {
@@ -197,7 +303,7 @@ gate("10 end-to-end demo", () => {
   return pass("full lifecycle, both receipts emitted");
 });
 
-gate("11 keygen + sign + verify round-trip", () => {
+gate("14 keygen + sign + verify round-trip", () => {
   const kg = run("node", ["packages/accord-conformance/dist/cli.js", "keygen"]);
   const priv = kg.stdout.match(/private:\s+(0x[0-9a-f]+)/)?.[1];
   if (!priv) return fail(`keygen did not emit a private key`);
@@ -228,7 +334,7 @@ gate("11 keygen + sign + verify round-trip", () => {
   }
 });
 
-gate("12 MCP-stdio probe against bundled stub", () => {
+gate("15 MCP-stdio probe against bundled stub", () => {
   const r = run("node", [
     "packages/accord-conformance/dist/cli.js",
     "run",
@@ -248,7 +354,7 @@ gate("12 MCP-stdio probe against bundled stub", () => {
 let PACK_TARBALL_DIR = null;
 
 if (RUN_PACK) {
-  gate("13 npm pack every workspace package (10 Accord + 8 legacy)", () => {
+  gate("16 npm pack every workspace package (10 Accord + 8 legacy)", () => {
     const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "accord-pack-"));
     PACK_TARBALL_DIR = tmp;
     const allPackages = [...ACCORD_PACKAGES, ...LEGACY_PACKAGES];
@@ -268,8 +374,8 @@ if (RUN_PACK) {
       : fail(`got ${tarballs.length}, expected ${allPackages.length}`);
   });
 
-  gate("14 install-in-tempdir smoke for all 18 workspace packages", () => {
-    if (!PACK_TARBALL_DIR) return fail("gate 13 did not produce tarballs");
+  gate("17 install-in-tempdir smoke for all 18 workspace packages", () => {
+    if (!PACK_TARBALL_DIR) return fail("gate 16 did not produce tarballs");
     const allTarballs = fs
       .readdirSync(PACK_TARBALL_DIR)
       .filter((f) => f.endsWith(".tgz"));
@@ -343,7 +449,28 @@ if (RUN_PACK) {
       if (!m || parseInt(m[1], 10) === 0) {
         return fail(`probe reported no exports:\n${probe.stdout}`);
       }
-      return pass(`installed all 18 + imported 10 Accord (${m[1]} total exports)`);
+
+      const conformanceCli = path.join(
+        proj,
+        "node_modules",
+        "@accord-protocol",
+        "conformance",
+        "dist",
+        "cli.js",
+      );
+      const conformance = run(
+        process.execPath,
+        [conformanceCli, "run", "--levels", "L0,L1,L2,L3,L4"],
+        { cwd: proj },
+      );
+      if (conformance.status !== 0) {
+        return fail(`packaged conformance CLI exit ${conformance.status}: ${conformance.stdout.slice(-500)}`);
+      }
+      if (!conformance.stdout.includes("Achieved: L4")) {
+        return fail(`packaged conformance CLI did not reach L4:\n${conformance.stdout.slice(-500)}`);
+      }
+
+      return pass(`installed all 18 + imported 10 Accord (${m[1]} exports) + packaged conformance L4`);
     } finally {
       fs.rmSync(proj, { recursive: true, force: true });
       if (PACK_TARBALL_DIR) {
@@ -377,7 +504,11 @@ for (const g of GATES) {
 }
 console.log("");
 if (failures === 0) {
-  console.log(`✓ All ${GATES.length} gates passed. Ready to tag v0.4.0.`);
+  const branch = run("git", ["branch", "--show-current"]).stdout.trim();
+  const nextStep = branch === "main"
+    ? "Ready to tag v0.4.0."
+    : "Branch pre-flight passed; merge to main before tagging v0.4.0.";
+  console.log(`✓ All ${GATES.length} gates passed. ${nextStep}`);
   process.exit(0);
 } else {
   console.log(`✗ ${failures} of ${GATES.length} gates failed. Fix before tagging.`);
