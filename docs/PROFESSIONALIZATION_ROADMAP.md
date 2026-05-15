@@ -14,6 +14,28 @@ The guiding rule is simple: ship useful developer infrastructure now, but keep e
 4. The conformance suite is the compatibility contract for third-party implementations.
 5. AgentAccord commercial products stay separate from the open Accord Protocol standard.
 
+## Current execution state
+
+As of 2026-05-15, the stabilization work is being staged on the
+`p0-stabilization-roadmap` branch. Local commits should stay small and
+reviewable; push only after the final verification pass is clean.
+
+| Phase | Current state | Evidence on branch |
+|---|---|---|
+| P0 Repository stabilization | Mostly complete locally | root build/test/typecheck path repaired, release preflight aligned, CJS/path/package data fixes committed |
+| P1 Audit readiness | Implemented locally | audit docs, audit handoff scripts, manifest checks, and `npm run audit:check` gate committed |
+| P2 Protocol hardening | Implemented locally for v0 | schema hardening, receipt parent-binding validation, registry/buyer-policy semantics, and conformance negatives committed |
+| P3 Developer experience | In progress | package matrix, full example-mode matrix, safer legacy/mainnet wording, `noteBoxId` DX, and Rosen example cleanup committed |
+| P4 Testnet pilots | Not started | needs written pilot runs and signed sample receipts after PR/CI |
+| P5 Controlled mainnet launch | Blocked by design | requires external audit reports and signed manifests with exact `mainnetAllowed: true` entries |
+
+Immediate remaining work before opening a PR:
+
+- run a final full verification pass from a clean working tree;
+- review launch/announcement docs for claims that imply production or mainnet certification;
+- decide whether example-specific typecheck scripts should be added for non-workspace examples;
+- prepare the PR body with command evidence and the P0-P3 scope boundary.
+
 ## Phase P0 - Repository stabilization
 
 Goal: make the repository trustworthy to clone, install, build, test, and read.
