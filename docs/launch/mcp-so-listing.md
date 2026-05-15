@@ -1,5 +1,9 @@
 # mcp.so listing copy
 
+Draft copy. Do not submit without checking current package availability and
+[`docs/status.md`](../status.md). Accord is testnet-first and not
+mainnet-certified.
+
 Submission text for the public [mcp.so](https://mcp.so) registry. The
 `mcp.json` manifest lives at
 [`packages/ergo-agent-mcp/mcp.json`](../../packages/ergo-agent-mcp/mcp.json)
@@ -26,7 +30,7 @@ the BLAKE2b-256 task-hash utility — as MCP tools any compatible host
 
 Most MCP servers run their tools for free. This one ships a
 `createPaywalledTool` helper so a server author can gate any tool
-behind a real Note: the tool's input schema gets `note_box_id` and
+behind a testnet Note by default: the tool's input schema gets `note_box_id` and
 `task_output` injected automatically, the wrapper verifies the Note
 on-chain, redeems it inline (when a signer is configured), and
 otherwise returns a structured 402-style error.
@@ -64,7 +68,7 @@ https://testnet.ergofaucet.org.
 **Status:**
 
 - npm: `ergo-agent-mcp@0.3.0` — published on tag.
-- Mainnet: blocked at the audit gate. Testnet works fully.
+- Mainnet: blocked at the audit gate. Testnet/demo workflows only.
 - Source repo: https://github.com/accord-protocol/accord-protocol
 
 **Caveats for the listing reviewer:**

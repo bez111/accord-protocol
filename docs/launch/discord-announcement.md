@@ -1,5 +1,9 @@
 # Discord launch announcement
 
+Archived pre-Accord drafts. Do not post as-is; rewrite against
+[`docs/status.md`](../status.md) and keep every claim testnet-first /
+not-mainnet-certified.
+
 Targeted at agent-dev communities. Post one variant per server, not the
 same text twice.
 
@@ -33,7 +37,7 @@ same text twice.
 
 ## CrewAI Discord
 
-> 🤝 **Want your CrewAI orchestrator to pay sub-agents in real money?**
+> 🤝 **Want your CrewAI orchestrator to try predicate-bound testnet payments?**
 >
 > `ergo-agent-economy` lets a parent agent issue **budgeted Notes** to
 > sub-agents — value-capped + acceptance-predicate-bound. The
@@ -49,7 +53,7 @@ same text twice.
 
 ## AutoGen Discord
 
-> 💸 **Multi-agent payments with built-in escrow — no custodial server**
+> 💸 **Multi-agent testnet payments with predicate-bound Notes**
 >
 > AutoGen agents negotiate; one of them owes another. We built
 > `ergo-agent-economy` so the payment side has the same expressiveness

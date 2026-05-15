@@ -1,5 +1,8 @@
 # X (Twitter) launch thread
 
+Archived pre-Accord draft. Do not post as-is; rewrite against
+[`docs/status.md`](../status.md) before publication.
+
 **Tweet 1 / pinned:**
 
 We shipped ergo-agent-economy v0.3.0 — a payment + credit protocol for
@@ -43,9 +46,9 @@ Rosen brings the USD stable layer; Ergo carries the credit primitives.
 
 **Tweet 4:**
 
-What's audited:
+What's hardened, and what still needs external audit:
 
-- BLAKE2b-256 hash function (matches ErgoScript's `blake2b256` exactly,
+- BLAKE2b-256 hash vectors match ErgoScript's `blake2b256` exactly,
   shared golden vectors across TS / Python / MCP).
 - Two-gate mainnet safety: refuse without `scriptErgoTree`, refuse
   without an audit-manifest entry with `mainnetAllowed: true`.

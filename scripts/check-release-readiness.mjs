@@ -116,6 +116,12 @@ for (const [docPath, banned] of [
   ['examples/11-cross-chain-rosen/README.md', 'Rosen mainnet TokenMap JSON'],
   ['examples/11-cross-chain-rosen/agent.ts', 'REPLACE_AFTER_SUBMISSION'],
   ['examples/11-cross-chain-rosen/package.json', 'audited basis_token_reserve_v0'],
+  ['docs/launch/README.md', 'public launch of `ergo-agent-economy` v0.3.0'],
+  ['docs/launch/x-thread.md', "What's audited:"],
+  ['docs/launch/hn-launch.md', 'Audited compiled ergoTrees'],
+  ['docs/launch/discord-announcement.md', 'pay sub-agents in real money'],
+  ['docs/launch/discord-announcement.md', 'built-in escrow'],
+  ['docs/launch/mcp-so-listing.md', 'Testnet works fully'],
 ]) {
   assert(!read(docPath).includes(banned), `${docPath} must not include legacy mainnet-ready wording: ${banned}`);
 }

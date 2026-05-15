@@ -1,5 +1,9 @@
 # Show HN draft
 
+Archived pre-Accord draft. Do not post as-is; rewrite against
+[`docs/status.md`](../status.md), [`SECURITY.md`](../../SECURITY.md), and the
+current package matrix before publication.
+
 **Title:** Show HN: ergo-agent-economy — autonomous AI agents pay each
 other on-chain (Ergo + Rosen)
 
@@ -28,7 +32,7 @@ So we built `ergo-agent-economy`. Eight packages:
 | `ergo-agent-api` | TS | Express middleware — paywall any HTTP endpoint behind a Note |
 | `ergo-agent-mcp` | TS | MCP server — Claude/Cursor/Windsurf can pay for tool calls |
 | `ergo-agent-server` | TS | Local HTTP bridge so any language can drive the SDK |
-| `ergo-agent-scripts` | TS | Audited compiled ergoTrees (BLAKE2b-256, predicate registry) |
+| `ergo-agent-scripts` | TS | Manifest-gated ErgoTree sources and compiled artifacts |
 | `ergo-agent-rosen` | TS | Cross-chain via Rosen Bridge — pay in rsUSDT bridged from Ethereum |
 | `ergo-agent-pay` (Python) | Py | Python client + BridgeClient |
 

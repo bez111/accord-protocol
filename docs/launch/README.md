@@ -1,9 +1,10 @@
 # Launch artifacts
 
-This directory holds drafts for the public launch of `ergo-agent-economy`
-v0.3.0. The intended audience is AI-agent developers (LangChain, CrewAI,
-AutoGen, MCP), not the existing Ergo community — we already have that
-audience via the ChainCash repo.
+This directory holds archived launch drafts from the earlier
+`ergo-agent-economy` line plus copy that may be adapted for Accord Protocol.
+Do not post any draft here without first reconciling it with
+[`docs/status.md`](../status.md), [`SECURITY.md`](../../SECURITY.md), and the
+current package matrix.
 
 * `hn-launch.md` — Show HN draft.
 * `x-thread.md` — X (Twitter) launch thread.
@@ -12,13 +13,13 @@ audience via the ChainCash repo.
 * `og-image-spec.md` — what an OG image (open graph preview) should
   look like, with a placeholder URL until we have one.
 
-Each draft is short, factual, and links back to the canonical artefacts
-in the repo (SPEC, SECURITY, audit pack). None of them claim mainnet
-readiness; everything points at the testnet-first story.
+Each draft must stay short, factual, and linked back to canonical artifacts in
+the repo. Current public wording must say Accord is alpha / testnet-first, not
+production-certified, and not mainnet-certified.
 
 ## Order of operations for the launch
 
-1. Tag `v0.3.0` and verify both registries pick it up.
+1. Cut the intended release candidate and verify package availability.
 2. Get one external auditor commitment (even informal). Without that,
    the "NOT CERTIFIED FOR MAINNET" banner stays loud.
 3. Submit `mcp.json` to the mcp.so listing.
@@ -34,8 +35,9 @@ The first 48 hours determine whether discovery happens at all.
 
 ## Don't post until
 
-* Both `npm view ergo-agent-pay version` and `pip show ergo-agent-pay`
-  return `0.3.0`.
-* The end-to-end demo in `examples/07-end-to-end-agent-economy/` runs
-  on testnet from a clean clone.
+* Package availability matches [`docs/PACKAGE_MATRIX.md`](../PACKAGE_MATRIX.md).
+* The preferred demo path from [`README.md`](../../README.md) runs from a
+  clean clone.
 * The CHANGELOG entry is finalised and the GitHub Release is published.
+* `npm run release:check`, `npm run audit:check`, and `npm run site:check`
+  pass on the release branch.
