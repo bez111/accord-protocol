@@ -302,7 +302,7 @@ assert(publishNpm.includes('id-token: write'), 'publish-npm.yml should allow npm
 assert(publishNpm.includes('already on npm; skipping.'), 'publish-npm.yml manual reruns must stay idempotent via skip-if-already-published guards');
 assert(publishNpm.includes('prepublish-gates:'), 'publish-npm.yml should run repository-wide prepublish gates before package publish jobs');
 assert(publishNpm.includes('npm run npm:publish-status'), 'publish-npm.yml should report npm publish status before package publish jobs');
-assert(publishNpm.includes('npm token probe'), 'publish-npm.yml should probe NPM_TOKEN authentication before package publish jobs');
+assert(!publishNpm.includes('secrets.NPM_TOKEN'), 'publish-npm.yml should publish via Trusted Publishing/OIDC, not the legacy NPM_TOKEN secret');
 assert(publishNpm.includes('npm run cjs:check'), 'publish-npm.yml prepublish gates should run CommonJS export smoke');
 assert(publishNpm.includes('npm test --workspaces --if-present'), 'publish-npm.yml prepublish gates should run all workspace tests before publishing any package');
 assert(publishNpm.includes('needs: [prepublish-gates]'), 'foundation npm publish jobs should depend on prepublish-gates');
