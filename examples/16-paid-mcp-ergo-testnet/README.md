@@ -36,7 +36,7 @@ The demo's `common/setup.ts` ships with a placeholder signer that throws on call
 - **sigma-rust** — derive a private key from a BIP-39 mnemonic, sign EIP-12 unsigned txs locally. Recommended for production seller services.
 - **Minotaur CLI** — invoke `minotaur sign --tx-file ...` from a child process. Easiest for a one-shot CLI demo.
 
-A reference sigma-rust signer lives at [`packages/ergo-agent-server/src/signers/sigma-rust.ts`](../../packages/ergo-agent-server/src/signers/sigma-rust.ts).
+For a process-bound signer bridge, use [`ergo-agent-server`](../../packages/ergo-agent-server/) as the service surface and keep key handling in operator-owned code.
 
 ### 3. Create a Reserve (one-time)
 
@@ -125,7 +125,7 @@ This pattern is also used in [Sage](https://www.ergoblockchain.org) — the agen
 
 ## See also
 
-- [`examples/02-note-payment.ts`](../02-note-payment.ts) — Note issuance without the Accord agreement layer
+- [`examples/02-note-payment`](../02-note-payment/) — Note issuance without the Accord agreement layer
 - [`examples/15-paid-mcp-repo-audit/`](../15-paid-mcp-repo-audit/) — same demo with the in-process Mock rail
 - [`packages/accord-rails-ergo/README.md`](../../packages/accord-rails-ergo/README.md) — adapter API surface
 - [`packages/ergo-agent-pay/README.md`](../../packages/ergo-agent-pay/README.md) — buyer-side SDK

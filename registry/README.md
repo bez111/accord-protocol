@@ -131,7 +131,7 @@ Rail records are reference info — what payment_id format the rail uses, what c
 
 ## Submitting a record
 
-1. Run the [conformance suite](../packages/accord-conformance) against your endpoint to capture a result, then sign it. The full keygen / run / sign / verify flow is walked through in [`docs/conformance-signed-example.md`](../docs/conformance-signed-example.md), with a working signed artifact at [`docs/examples/conformance-result.signed.json`](../docs/examples/conformance-result.signed.json).
+1. Run the [conformance suite](https://github.com/accord-protocol/accord-protocol/tree/main/packages/accord-conformance) against your endpoint to capture a result, then sign it. The full keygen / run / sign / verify flow is walked through in [`docs/conformance-signed-example.md`](https://github.com/accord-protocol/accord-protocol/blob/main/docs/conformance-signed-example.md), with a working signed artifact at [`docs/examples/conformance-result.signed.json`](https://github.com/accord-protocol/accord-protocol/blob/main/docs/examples/conformance-result.signed.json).
 2. Open a PR adding a single JSON file under `providers/`, `verifiers/`, or `rails/`. Include your signed conformance result either in the PR description or as a sibling JSON file the maintainers can re-verify.
 3. The PR description should include:
    - what your service does, in 1-2 sentences;
@@ -141,7 +141,10 @@ Rail records are reference info — what payment_id format the rail uses, what c
 
 ## What's in this preview
 
-This commit ships the registry **directory layout + READMEs + format docs** with one **example** record per kind so submitters can copy-paste a starting point. There are no real provider listings yet — that's intentional. The first real listings will arrive alongside the one-command MCP demo (PR-020) and the conformance suite (PR-017+).
+This registry preview ships the directory layout, format docs, and one example
+record per kind so submitters can copy-paste a starting point. There are no
+real provider listings yet — that's intentional. The first real listings
+should land alongside a public demo and signed conformance result.
 
 ## Trademark
 

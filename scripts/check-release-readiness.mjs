@@ -83,6 +83,7 @@ const pyproject = read('packages/ergo-agent-py/pyproject.toml');
 assert(pyproject.includes('version = "0.3.0"'), 'Python pyproject.toml must remain version 0.3.0 for reference rail release');
 const pyInit = read('packages/ergo-agent-py/ergo_agent_pay/__init__.py');
 assert(pyInit.includes('__version__ = "0.3.0"'), 'Python __init__.py must remain version 0.3.0');
+assert(exists('LICENSE'), 'root LICENSE file must exist');
 
 const rootPkg = readJson('package.json');
 assert(rootPkg.workspaces?.includes('examples/15-paid-mcp-repo-audit'), 'examples/15-paid-mcp-repo-audit must remain a tested workspace demo');
@@ -109,12 +110,30 @@ for (const pilotDoc of pilotDocs) {
 function assertLocalMarkdownLinks(docPath) {
   const dir = path.dirname(docPath);
   const linkPattern = /\[[^\]]+\]\(([^)]+)\)/g;
-  for (const match of read(docPath).matchAll(linkPattern)) {
+  const markdownWithoutCode = read(docPath)
+    .replace(/```[\s\S]*?```/g, '')
+    .replace(/`[^`\n]+`/g, '');
+  for (const match of markdownWithoutCode.matchAll(linkPattern)) {
     const href = match[1].split('#')[0];
     if (!href || href.startsWith('http://') || href.startsWith('https://') || href.startsWith('mailto:')) continue;
     const target = path.normalize(path.join(dir, href));
     assert(exists(target), `${docPath} has a broken local link: ${href}`);
   }
+}
+
+function collectMarkdownFiles(dir, output = []) {
+  if (!exists(dir)) return output;
+  for (const entry of fs.readdirSync(path.join(root, dir), { withFileTypes: true })) {
+    const rel = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      if (['.git', 'node_modules', 'dist'].includes(entry.name)) continue;
+      if (rel === 'docs/basis') continue;
+      collectMarkdownFiles(rel, output);
+    } else if (entry.isFile() && entry.name.endsWith('.md')) {
+      output.push(rel);
+    }
+  }
+  return output;
 }
 
 for (const pilotDoc of pilotDocs) {
@@ -178,6 +197,7 @@ const publicReadmeDocs = [
   'docs/EXAMPLE_MODES.md',
   'docs/PACKAGE_MATRIX.md',
   'docs/status.md',
+  'registry/README.md',
   ...fs.readdirSync(path.join(root, 'packages'), { withFileTypes: true })
     .filter((entry) => entry.isDirectory())
     .map((entry) => `packages/${entry.name}/README.md`)
@@ -190,6 +210,22 @@ const publicReadmeDocs = [
 
 for (const docPath of publicReadmeDocs) {
   assert(!stalePrWording.test(read(docPath)), `${docPath} must not include stale PR-number wording`);
+}
+
+const markdownDocs = [
+  'README.md',
+  'SECURITY.md',
+  'CHANGELOG.md',
+  'PUBLISHING.md',
+  'RELEASING.md',
+  ...collectMarkdownFiles('docs'),
+  ...collectMarkdownFiles('examples'),
+  ...collectMarkdownFiles('packages'),
+  ...collectMarkdownFiles('registry'),
+].filter((docPath, index, all) => exists(docPath) && all.indexOf(docPath) === index);
+
+for (const docPath of markdownDocs) {
+  assertLocalMarkdownLinks(docPath);
 }
 
 const security = read('SECURITY.md');
