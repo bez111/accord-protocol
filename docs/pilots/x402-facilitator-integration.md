@@ -18,6 +18,7 @@ npm run build -w @accord-protocol/rails-x402
 npm test -w @accord-protocol/rails-x402
 npm run build -w @accord-protocol/gateway
 npm test -w @accord-protocol/gateway
+npm run pilots:x402:stub
 ```
 
 ## Expected Receipts
