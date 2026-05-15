@@ -37,6 +37,12 @@ jobs:
       - name: Check dist
         run: twine check dist/*
 
+      - name: Install wheel smoke
+        run: |
+          python -m venv /tmp/ergo-agent-pay-wheel-smoke
+          /tmp/ergo-agent-pay-wheel-smoke/bin/python -m pip install dist/*.whl
+          /tmp/ergo-agent-pay-wheel-smoke/bin/python -c "from ergo_agent_pay import BridgeClient, ErgoAgentPay; print('wheel import OK')"
+
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         # Uses OIDC trusted publishing — no API token needed.

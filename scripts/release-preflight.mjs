@@ -17,20 +17,21 @@
 //   7. CommonJS export smoke for packages that advertise require() support
 //   8. `npm test --workspaces` (expect 653+ TS tests pass)
 //   9. Python reference package unittest suite
-//  10. Conformance L0+L1+L2+L3+L4 PASS (Achieved: L4)
-//  11. Fixture-hash drift check
-//  12. End-to-end demo (paid-MCP repo-audit)
-//  13. accord-conformance keygen + sign + verify round-trip
-//  14. MCP-stdio probe against the bundled stub
-//  15. `npm pack` for every @accord-protocol/* package (opt-in via --pack)
-//  16. install-in-tempdir smoke for all 18 workspace tarballs —
+//  10. Python reference package venv install smoke
+//  11. Conformance L0+L1+L2+L3+L4 PASS (Achieved: L4)
+//  12. Fixture-hash drift check
+//  13. End-to-end demo (paid-MCP repo-audit)
+//  14. accord-conformance keygen + sign + verify round-trip
+//  15. MCP-stdio probe against the bundled stub
+//  16. `npm pack` for every @accord-protocol/* package (opt-in via --pack)
+//  17. install-in-tempdir smoke for all 18 workspace tarballs —
 //      installs them into one fresh project, imports each canonical Accord package,
 //      and runs the packaged accord-conformance CLI from outside the repo root
-//      (opt-in via --pack — depends on gate 15's output)
+//      (opt-in via --pack — depends on gate 16's output)
 //
 // Usage:
-//   node scripts/release-preflight.mjs                       # run gates 1-12 on main
-//   node scripts/release-preflight.mjs --pack                # also run gates 13-14
+//   node scripts/release-preflight.mjs                       # run gates 1-15 on main
+//   node scripts/release-preflight.mjs --pack                # also run gates 16-17
 //   node scripts/release-preflight.mjs --allow-branch --pack # PR branch smoke
 //
 // Exit code 0 iff all gates pass. Designed to be run before
@@ -109,6 +110,12 @@ function fetchRemoteBranch(branch) {
     ["fetch", "origin", `refs/heads/${branch}:refs/remotes/origin/${branch}`],
     { stdio: "ignore" },
   );
+}
+
+function pythonInVenv(venvDir) {
+  return process.platform === "win32"
+    ? path.join(venvDir, "Scripts", "python.exe")
+    : path.join(venvDir, "bin", "python");
 }
 
 function fail(msg) {
@@ -242,7 +249,31 @@ gate("09 Python reference package tests", () => {
   return pass(`${testCount ?? "Python"} tests OK`);
 });
 
-gate("10 conformance L0+L1+L2+L3+L4 (Achieved: L4)", () => {
+gate("10 Python package install smoke", () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "accord-py-install-"));
+  const py = process.env.PYTHON ?? "python3";
+  try {
+    const venv = run(py, ["-m", "venv", tmp]);
+    if (venv.status !== 0) return fail(`venv exit ${venv.status}: ${(venv.stderr || venv.stdout).slice(-500)}`);
+
+    const venvPy = pythonInVenv(tmp);
+    const install = run(venvPy, ["-m", "pip", "install", path.join(REPO_ROOT, "packages", "ergo-agent-py")]);
+    if (install.status !== 0) {
+      return fail(`pip install exit ${install.status}: ${(install.stderr || install.stdout).slice(-700)}`);
+    }
+
+    const probe = run(venvPy, [
+      "-c",
+      "from ergo_agent_pay import BridgeClient, ErgoAgentPay; print(BridgeClient.__name__, ErgoAgentPay.__name__)",
+    ]);
+    if (probe.status !== 0) return fail(`import probe exit ${probe.status}: ${(probe.stderr || probe.stdout).slice(-500)}`);
+    return pass("venv install + import OK");
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+});
+
+gate("11 conformance L0+L1+L2+L3+L4 (Achieved: L4)", () => {
   const r = run("node", [
     "packages/accord-conformance/dist/cli.js",
     "run",
@@ -256,14 +287,14 @@ gate("10 conformance L0+L1+L2+L3+L4 (Achieved: L4)", () => {
   return pass("Achieved: L4");
 });
 
-gate("11 fixture-hash drift", () => {
+gate("12 fixture-hash drift", () => {
   const r = run("node", ["scripts/derive-fixture-hashes.mjs", "--check"]);
   return r.status === 0
     ? pass("0 drift")
     : fail(`exit ${r.status}: ${r.stdout}`);
 });
 
-gate("12 end-to-end demo", () => {
+gate("13 end-to-end demo", () => {
   const r = run("npm", ["run", "dev", "-w", "accord-paid-mcp-repo-audit-demo"]);
   if (r.status !== 0) return fail(`exit ${r.status}: ${r.stdout.slice(-500)}`);
   if (!r.stdout.includes("Settlement Receipt")) {
@@ -272,7 +303,7 @@ gate("12 end-to-end demo", () => {
   return pass("full lifecycle, both receipts emitted");
 });
 
-gate("13 keygen + sign + verify round-trip", () => {
+gate("14 keygen + sign + verify round-trip", () => {
   const kg = run("node", ["packages/accord-conformance/dist/cli.js", "keygen"]);
   const priv = kg.stdout.match(/private:\s+(0x[0-9a-f]+)/)?.[1];
   if (!priv) return fail(`keygen did not emit a private key`);
@@ -303,7 +334,7 @@ gate("13 keygen + sign + verify round-trip", () => {
   }
 });
 
-gate("14 MCP-stdio probe against bundled stub", () => {
+gate("15 MCP-stdio probe against bundled stub", () => {
   const r = run("node", [
     "packages/accord-conformance/dist/cli.js",
     "run",
@@ -323,7 +354,7 @@ gate("14 MCP-stdio probe against bundled stub", () => {
 let PACK_TARBALL_DIR = null;
 
 if (RUN_PACK) {
-  gate("15 npm pack every workspace package (10 Accord + 8 legacy)", () => {
+  gate("16 npm pack every workspace package (10 Accord + 8 legacy)", () => {
     const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "accord-pack-"));
     PACK_TARBALL_DIR = tmp;
     const allPackages = [...ACCORD_PACKAGES, ...LEGACY_PACKAGES];
@@ -343,8 +374,8 @@ if (RUN_PACK) {
       : fail(`got ${tarballs.length}, expected ${allPackages.length}`);
   });
 
-  gate("16 install-in-tempdir smoke for all 18 workspace packages", () => {
-    if (!PACK_TARBALL_DIR) return fail("gate 15 did not produce tarballs");
+  gate("17 install-in-tempdir smoke for all 18 workspace packages", () => {
+    if (!PACK_TARBALL_DIR) return fail("gate 16 did not produce tarballs");
     const allTarballs = fs
       .readdirSync(PACK_TARBALL_DIR)
       .filter((f) => f.endsWith(".tgz"));

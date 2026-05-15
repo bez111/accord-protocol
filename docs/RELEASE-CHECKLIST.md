@@ -11,7 +11,7 @@ A public package release is **not** production certification. Accord remains tes
 | `NPM_TOKEN` secret in repo | Configure before tag | accord-protocol |
 | PyPI Trusted Publishing config | Configure before tag | accord-protocol |
 | `publish-npm.yml` package matrix | Covers 10 `@accord-protocol/*` packages + 8 legacy npm packages | shipped / verify |
-| Publish jobs | npm prepublish gates run before any package publish; PyPI runs unit tests, builds dist, then `twine check` | shipped / verify |
+| Publish jobs | npm prepublish gates run before any package publish; PyPI runs unit tests, builds dist, `twine check`, and wheel install smoke | shipped / verify |
 | Skip-if-already-published guard | Each npm job pre-checks via `npm view` | shipped |
 | Self-conformance gate | L0+L1+L2+L3+L4 before publishing `@accord-protocol/conformance` | shipped |
 | Package versions | Accord packages `0.4.0`; legacy/reference packages `0.3.0`; Python `0.3.0` | by design |
@@ -83,7 +83,7 @@ npm run release:preflight -- --allow-branch
 npm run release:preflight -- --allow-branch --pack
 ```
 
-Expected: all gates pass, including the Python reference package tests. The `--pack` run additionally builds every npm tarball, installs all 18 packages into a fresh temporary project, imports the 10 canonical `@accord-protocol/*` packages, and runs the packaged `accord-conformance` CLI from outside the repository root.
+Expected: all gates pass, including the Python reference package tests and venv install smoke. The `--pack` run additionally builds every npm tarball, installs all 18 packages into a fresh temporary project, imports the 10 canonical `@accord-protocol/*` packages, and runs the packaged `accord-conformance` CLI from outside the repository root.
 
 For the final tag candidate on `main`, run from repo root:
 

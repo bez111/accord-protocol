@@ -189,7 +189,7 @@ const releaseChecklist = read('docs/RELEASE-CHECKLIST.md');
 assert(releaseChecklist.includes('npm run cjs:check'), 'docs/RELEASE-CHECKLIST.md must document cjs:check');
 assert(releaseChecklist.includes('npm run release:preflight -- --allow-branch --pack'), 'docs/RELEASE-CHECKLIST.md must document PR-branch pack smoke');
 assert(releaseChecklist.includes('npm run release:preflight:pack'), 'docs/RELEASE-CHECKLIST.md must document main-branch pack smoke');
-assert(releaseChecklist.includes('including the Python reference package tests'), 'docs/RELEASE-CHECKLIST.md must state release preflight includes Python tests');
+assert(releaseChecklist.includes('including the Python reference package tests and venv install smoke'), 'docs/RELEASE-CHECKLIST.md must state release preflight includes Python tests and install smoke');
 assert(releaseChecklist.includes('installs all 18 packages into a fresh temporary project'), 'docs/RELEASE-CHECKLIST.md must describe install-in-tempdir package smoke');
 assert(releaseChecklist.includes('runs the packaged `accord-conformance` CLI from outside the repository root'), 'docs/RELEASE-CHECKLIST.md must describe packaged conformance CLI smoke');
 
@@ -286,6 +286,8 @@ const publishPypi = read('.github/workflows/publish-pypi.yml');
 assert(publishPypi.includes('python -m unittest discover -s tests -v'), 'publish-pypi.yml should run Python unit tests before publishing');
 assert(publishPypi.includes('python -m build'), 'publish-pypi.yml should build the Python distribution');
 assert(publishPypi.includes('twine check dist/*'), 'publish-pypi.yml should validate Python dist metadata before publishing');
+assert(publishPypi.includes('Install wheel smoke'), 'publish-pypi.yml should install the built wheel before publishing');
+assert(publishPypi.includes('pip install dist/*.whl'), 'publish-pypi.yml wheel smoke should install the built wheel');
 const releaseReadinessWorkflow = read('.github/workflows/ci-release-readiness.yml');
 assert(releaseReadinessWorkflow.includes('npm run cjs:check'), 'ci-release-readiness.yml must run CommonJS export smoke after build');
 assert(releaseReadinessWorkflow.includes('CONTRIBUTING.md'), 'ci-release-readiness.yml must run when CONTRIBUTING.md changes');
@@ -293,6 +295,7 @@ const releasePreflight = read('scripts/release-preflight.mjs');
 assert(releasePreflight.includes('npm", ["run", "cjs:check"]'), 'release-preflight must run npm run cjs:check');
 assert(releasePreflight.includes('CommonJS export smoke'), 'release-preflight must name the CommonJS export smoke gate');
 assert(releasePreflight.includes('Python reference package tests'), 'release-preflight must run Python reference package tests');
+assert(releasePreflight.includes('Python package install smoke'), 'release-preflight must run Python package install smoke');
 assert(releasePreflight.includes('packaged conformance L4'), 'release-preflight must run packaged conformance CLI smoke');
 
 function collectMainnetAllowed(value, locations = [], pathParts = []) {
