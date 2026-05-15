@@ -38,6 +38,7 @@ A component is considered audited only when all of the following are true:
 - [`MAINNET_CERTIFICATION.md`](./MAINNET_CERTIFICATION.md)
 - [`SIGNING_PLAYBOOK.md`](./SIGNING_PLAYBOOK.md)
 - [`../PROTOCOL_COMPATIBILITY.md`](../PROTOCOL_COMPATIBILITY.md)
+- [`../policy-engine.md`](../policy-engine.md)
 - [`../status.md`](../status.md)
 - [`../../SECURITY.md`](../../SECURITY.md)
 

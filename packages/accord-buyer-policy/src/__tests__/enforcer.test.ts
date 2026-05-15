@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 
 import { createBuyerPolicyEnforcer } from "../enforcer.js";
 import { BuyerPolicyError } from "../errors.js";
+import type { ApprovalRequest, SignerContext } from "../types.js";
 import { counterRng, fakeClock, makeAgreement, makePolicy } from "./_helpers.js";
 
 const passSigner = async (_tx: unknown) => "signed-tx-bytes";
@@ -221,6 +222,50 @@ describe("authorize — happy path", () => {
     });
     assert.equal(res.signedTx, "signed");
   });
+
+  it("passes a minimal signer context with a unique nonce per authorization", async () => {
+    const contexts: SignerContext[] = [];
+    const e = createBuyerPolicyEnforcer({
+      policy: makePolicy({ requireApprovalAbove: undefined }),
+      randomBytes: counterRng(),
+      signer: async (_tx, context) => {
+        contexts.push(context);
+        return "signed";
+      },
+    });
+    const s = e.openSession({ agentId: "agent://x" });
+    await s.authorize({
+      agreement: makeAgreement({
+        agreement_id: "acc_01HX0BUYERPOLICY000CTX01",
+        price: { amount: "1.00", currency: "USDC", decimals: 2 },
+      }),
+      rail: "ergo",
+      unsignedTx: { internal: "not-in-context" },
+    });
+    await s.authorize({
+      agreement: makeAgreement({
+        agreement_id: "acc_01HX0BUYERPOLICY000CTX02",
+        price: { amount: "1.00", currency: "USDC", decimals: 2 },
+      }),
+      rail: "ergo",
+      unsignedTx: { internal: "not-in-context-either" },
+    });
+
+    assert.equal(contexts.length, 2);
+    assert.deepEqual(Object.keys(contexts[0] ?? {}).sort(), [
+      "agreement_id",
+      "nonce",
+      "rail",
+      "session_id",
+    ]);
+    assert.equal(contexts[0]?.session_id, s.id);
+    assert.equal(contexts[1]?.session_id, s.id);
+    assert.equal(contexts[0]?.agreement_id, "acc_01HX0BUYERPOLICY000CTX01");
+    assert.equal(contexts[1]?.agreement_id, "acc_01HX0BUYERPOLICY000CTX02");
+    assert.match(contexts[0]?.nonce ?? "", /^[0-9a-f]{32}$/);
+    assert.match(contexts[1]?.nonce ?? "", /^[0-9a-f]{32}$/);
+    assert.notEqual(contexts[0]?.nonce, contexts[1]?.nonce);
+  });
 });
 
 describe("authorize — denials", () => {
@@ -416,7 +461,7 @@ describe("authorize — denials", () => {
 
 describe("authorize — approval flow", () => {
   it("calls handler when above threshold and signs on approval", async () => {
-    const seenRequests: unknown[] = [];
+    const seenRequests: ApprovalRequest[] = [];
     const e = createBuyerPolicyEnforcer({
       policy: makePolicy({
         requireApprovalAbove: { amount: "2", currency: "USDC", decimals: 2 },
@@ -437,6 +482,16 @@ describe("authorize — approval flow", () => {
     });
     assert.equal(res.signedTx, "signed");
     assert.equal(seenRequests.length, 1);
+    assert.deepEqual(Object.keys(seenRequests[0] ?? {}).sort(), [
+      "agreement_id",
+      "buyer_id",
+      "issued_at",
+      "price",
+      "rail",
+      "seller_id",
+      "session_id",
+    ]);
+    assert.equal("unsignedTx" in (seenRequests[0] ?? {}), false);
   });
 
   it("skips handler when below threshold", async () => {

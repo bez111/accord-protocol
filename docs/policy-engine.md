@@ -1,177 +1,219 @@
-# Policy Engine
+# Buyer Policy Engine
 
-`ergo-agent-pay` ships a small policy engine that wraps every `pay()`,
-`issueNote()`, `redeemNote()`, and `settleBatch()` call. It is the place to
-say things like "this agent can spend at most 1 ERG per day", "only pay these
-three vendors", or "anything over 0.1 ERG needs a Telegram approval". The
-engine is opt-in: an empty config behaves like no policy at all.
+`@accord-protocol/buyer-policy` is the canonical buyer-side policy package for
+Accord v0. It wraps an integrator-owned signer and decides whether an agent is
+allowed to sign a payment for an Accord Agreement.
 
-The engine has v1 and v2 features. Everything in v1 still works unchanged;
-v2 adds five orthogonal capabilities on top.
+This package is for buyer-side gateways, agentic wallets, and autonomous agents
+that need a small, auditable layer between an LLM-driven decision and the key
+that signs a rail transaction.
 
----
+## Install
 
-## Configuration shape
+```bash
+npm install @accord-protocol/buyer-policy @accord-protocol/core
+```
+
+## Quick Start
 
 ```ts
-new ErgoAgentPay({
-  address,
-  network: "testnet",
+import { createBuyerPolicyEnforcer } from "@accord-protocol/buyer-policy";
+
+const enforcer = createBuyerPolicyEnforcer({
   policy: {
-    // ── v1 ──
-    maxSinglePayment: 5_000_000n,        // nanoERG
-    maxSessionSpend: 50_000_000n,
-    requireApprovalAbove: 10_000_000n,
-    approvalFn: async (ctx) => { /* prompt user, return boolean */ },
-    beforePay: async (ctx) => true,
-    afterPay: async (ctx, result) => { /* log */ },
-
-    // ── v2 ──
-    perRecipientCap: { "9XAlpha…": 1_000_000n },
-    recipientAllowlist: ["9XAlpha…", "9XBeta…"],
-    recipientBlocklist: ["9XKnownBad…"],
-    dailyBudget: 100_000_000n,
-    auditLog: (event) => { /* persist event */ },
+    maxSinglePayment: { amount: "5", currency: "USDC", decimals: 2 },
+    maxSessionSpend: { amount: "50", currency: "USDC", decimals: 2 },
+    maxDailySpend: { amount: "100", currency: "USDC", decimals: 2 },
+    requireApprovalAbove: { amount: "2", currency: "USDC", decimals: 2 },
+    allowedRecipients: ["provider://repo-audit-v1", "provider://summarizer-*"],
+    allowedRails: ["ergo", "x402"],
+    approvalTimeoutMs: 60_000,
+    sessionTtlMs: 86_400_000,
   },
-})
-```
-
-Every field is optional. Bigints are nanoERG.
-
----
-
-## Decision order
-
-```
-recipientBlocklist  →  recipientAllowlist  →  perRecipientCap (or maxSinglePayment)
-                    →  maxSessionSpend     →  dailyBudget
-                    →  requireApprovalAbove → approvalFn
-                    →  beforePay
-```
-
-Each step throws `ErgoAgentPayError` immediately if it fails; later steps
-are not consulted. The error always has a `code` and a human-readable
-`message`.
-
----
-
-## v2 features
-
-### `recipientBlocklist` / `recipientAllowlist`
-
-Either is accepted as `string[]` or `Set<string>`. The blocklist always
-wins — a blocklisted address is rejected even if it also appears in the
-allowlist.
-
-```ts
-{
-  recipientBlocklist: ["9XKnownBad"],
-  recipientAllowlist: ["9XAlpha", "9XBeta"], // anything else is rejected
-}
-```
-
-### `perRecipientCap`
-
-Single-payment caps that override `maxSinglePayment` for specific addresses.
-Recipients not in the map fall back to `maxSinglePayment` if any.
-
-```ts
-{
-  maxSinglePayment: 5_000_000n,                       // global
-  perRecipientCap: { "9XAlpha": 50_000_000n },        // override for 9XAlpha
-}
-```
-
-Accepts `Record<string, bigint>` or `Map<string, bigint>`.
-
-### `dailyBudget`
-
-Maximum total spend per UTC day. Resets at 00:00 UTC. The engine tracks the
-current epoch day internally; pass `now: () => number` for tests.
-
-```ts
-{ dailyBudget: 100_000_000n }
-```
-
-`engine.totalDailySpend` returns the post-roll value.
-
-### `auditLog`
-
-Structured sink for every policy decision. Receives:
-
-```ts
-type AuditLogEvent =
-  | { kind: "before"; ctx: PayContext; allowed: true }
-  | { kind: "before"; ctx: PayContext; allowed: false; reason: string; code: ErgoAgentPayErrorCode }
-  | { kind: "after";  ctx: PayContext; result: PayResult };
-```
-
-Errors thrown from the sink are swallowed — audit failures must never break
-payment flow. If durability matters, the sink should append to a file, push
-to a queue, or otherwise persist before returning.
-
-```ts
-{
-  auditLog: (event) => {
-    if (event.kind === "before" && event.allowed === false) {
-      logger.warn({ event }, "policy rejected payment");
-    } else {
-      logger.info({ event }, "policy event");
-    }
-  },
-}
-```
-
-### `now`
-
-Optional clock injection for tests. Defaults to `Date.now`.
-
----
-
-## Approval plugins
-
-`approvalFn` is intentionally just a callback — it's where you bolt on
-Telegram, Slack, Discord, Pushover, or a CLI prompt. There is no built-in
-plugin in v2; the goal is to keep the SDK dependency-free. Sample shape:
-
-```ts
-{
-  requireApprovalAbove: 10_000_000n,
-  approvalFn: async (ctx) => {
-    const reply = await telegramAskApproval({
-      to: ctx.to,
-      amountErg: Number(ctx.value) / 1e9,
+  signer: async (unsignedTx, context) => {
+    return wallet.sign(unsignedTx, {
+      sessionId: context.session_id,
+      nonce: context.nonce,
     });
-    return reply === "approved";
   },
+  approvalHandler: async (request, abortSignal) => {
+    return pushApprovalRequest(request, { signal: abortSignal });
+  },
+});
+
+const session = enforcer.openSession({ agentId: "agent://buyer-agent" });
+
+const result = await session.authorize({
+  agreement,
+  rail: "ergo",
+  unsignedTx,
+});
+```
+
+## Decision Semantics
+
+Every `authorize()` call is evaluated in this order:
+
+1. Session is open and not expired.
+2. Agreement has the required v0 shape and passes semantic validation.
+3. Requested rail is in `allowedRails`.
+4. `agreement.payment.rail` matches the requested rail.
+5. `agreement.seller.id` matches `allowedRecipients`.
+6. Agreement price currency and decimals match the policy caps.
+7. Price is at or below `maxSinglePayment`.
+8. Session total after this authorization is at or below `maxSessionSpend`.
+9. Rolling 24h total after this authorization is at or below `maxDailySpend`, when set.
+10. If price is at or above `requireApprovalAbove`, `approvalHandler` must approve.
+11. Budget is charged before the signer runs.
+12. Signer receives the unsigned tx and a minimal context.
+13. If the signer throws, the budget charge is rolled back.
+
+The policy is deny-first. The signer is never called after a policy denial.
+
+## Amounts
+
+All policy caps and Agreement prices are decimal strings:
+
+```ts
+{ amount: "2.50", currency: "USDC", decimals: 2 }
+```
+
+The package parses amounts into scaled `BigInt` values. JavaScript numbers are
+rejected at the API boundary to avoid precision drift. The package does not do
+currency conversion; if an integrator wants cross-currency budgets, the
+integrator must convert before calling `authorize()`.
+
+All configured caps must share the same `(currency, decimals)` pair.
+
+## Recipients
+
+`allowedRecipients` is matched against `agreement.seller.id`.
+
+Exact entries match only that exact id:
+
+```ts
+allowedRecipients: ["provider://repo-audit-v1"]
+```
+
+Suffix wildcard entries are allowed:
+
+```ts
+allowedRecipients: ["provider://summarizer-*"]
+```
+
+Only a single trailing `*` is supported. Leading, middle, `?`, and `**`
+patterns are rejected at construction so matching remains easy to audit.
+
+## Approval Handler
+
+`approvalHandler` receives only public decision facts:
+
+```ts
+{
+  agreement_id,
+  buyer_id,
+  seller_id,
+  rail,
+  price,
+  session_id,
+  issued_at
 }
 ```
 
----
+It does not receive the unsigned transaction, signer state, private keys,
+session budget internals, or the full Agreement body.
 
-## Reading state
+The handler must return:
 
-The class exposes:
+```ts
+{ approved: boolean, approver_id?: string }
+```
 
-| Property / method | Meaning |
-|---|---|
-| `engine.totalSessionSpend` | nanoERG spent in the current session |
-| `engine.totalDailySpend`   | nanoERG spent in the current UTC day (post-roll) |
-| `engine.resetSession()`    | resets session counter; daily counter is unaffected |
+If it throws, times out, or returns a malformed shape, authorization is denied.
 
-`ErgoAgentPay` exposes `agent.sessionSpend` and `agent.resetSession()` as
-shortcuts.
+## Signer Context
 
----
+The signer receives:
 
-## What this is not
+```ts
+{
+  session_id,
+  nonce,
+  agreement_id,
+  rail
+}
+```
 
-- **It does not sign or submit transactions.** It only decides whether a
-  payment may be built. Pair it with the SDK or a host process that
-  controls the signer.
-- **It does not persist state across processes.** Session and daily
-  counters live in the engine instance. Persist them yourself if you need
-  hard guarantees across restarts.
-- **It does not authenticate the recipient address.** Allowlists are
-  string-equality only; if you derive recipients from agent input, validate
-  them upstream.
+`nonce` is a fresh 16-byte hex string per authorization. The nonce helps the
+integrator correlate or idempotency-check signing requests, but it is not a
+rail replay store.
+
+## Replay Boundary
+
+Buyer policy is not replay protection.
+
+The package charges budget per `authorize()` call, even if the same Agreement is
+authorized twice. Replay and double-spend protection belongs to the rail,
+gateway, Tracker, facilitator, or settlement layer:
+
+- Accord/402 uses the gateway replay store.
+- Ergo/Rosen Notes rely on on-chain UTxO spending and optional Tracker flows.
+- Base/EVM relies on contract state.
+- x402 relies on facilitator/payment-proof semantics plus gateway replay checks.
+
+This boundary is intentional: buyer policy answers "may this signer sign this
+payment now?", not "has this payment proof already settled?"
+
+## Security Properties
+
+The implementation pins these properties in tests:
+
+- Per-session mutex prevents TOCTOU budget races.
+- Amount parsing uses decimal strings plus `BigInt`.
+- Invalid Agreement shape is rejected before policy checks.
+- Rail and recipient checks run before approval and signer calls.
+- Budget is charged before signer execution and rolled back on signer failure.
+- Approval handler has a hard timeout.
+- Session ids are 16 random bytes and membership checks use constant-time compare.
+- Error messages avoid leaking prices, Agreement bodies, and unsigned tx bodies.
+- Policy arrays are snapshotted at construction so later mutation does not reopen access.
+
+## Error Codes
+
+Branch on `err.code`, not `err.message`:
+
+```text
+POLICY_INVALID_CONFIG
+POLICY_INVALID_AMOUNT_FORMAT
+POLICY_INVALID_RECIPIENT_PATTERN
+AGREEMENT_INVALID
+RAIL_NOT_ALLOWED
+RECIPIENT_NOT_ALLOWED
+CURRENCY_MISMATCH
+BUDGET_EXCEEDED_SINGLE
+BUDGET_EXCEEDED_SESSION
+BUDGET_EXCEEDED_DAILY
+APPROVAL_REQUIRED_NO_HANDLER
+APPROVAL_DENIED
+APPROVAL_TIMEOUT
+APPROVAL_HANDLER_ERROR
+SESSION_EXPIRED
+SESSION_CLOSED
+SIGNER_ERROR
+```
+
+## What This Is Not
+
+Buyer policy is not:
+
+- a wallet;
+- a signer;
+- a custody layer;
+- a push-notification service;
+- durable cross-process accounting by itself;
+- a replacement for rail replay protection;
+- a mainnet audit certification mechanism.
+
+Mainnet safety for scripts and contracts is still controlled by the audit
+manifest workflow in [`ACCORD-010`](../specs/ACCORD-010-security-audit.md) and
+[`docs/status.md`](./status.md).

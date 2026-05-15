@@ -17,6 +17,7 @@ export const requiredAuditDocs = [
   'docs/audit/MAINNET_ERGOTREE_AUDIT.md',
   'docs/PROTOCOL_COMPATIBILITY.md',
   'docs/dev-vs-production.md',
+  'docs/policy-engine.md',
   'docs/cross-chain.md',
 ];
 

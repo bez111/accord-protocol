@@ -130,6 +130,13 @@ assertIncludes('docs/PROTOCOL_COMPATIBILITY.md', [
   'Registry policy',
 ]);
 
+assertIncludes('docs/policy-engine.md', [
+  '@accord-protocol/buyer-policy',
+  'Decision Semantics',
+  'Signer Context',
+  'Replay Boundary',
+]);
+
 assertIncludes('registry/README.md', [
   'descriptive',
   'not an audit authority',
