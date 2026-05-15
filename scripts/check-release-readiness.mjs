@@ -327,7 +327,10 @@ assert(releaseReadinessWorkflow.includes('.github/workflows/**'), 'ci-release-re
 for (const workflowName of fs.readdirSync(path.join(root, '.github/workflows')).filter((name) => name.endsWith('.yml'))) {
   const workflowPath = `.github/workflows/${workflowName}`;
   const workflow = read(workflowPath);
-  if (workflow.includes('actions/checkout@v4') || workflow.includes('actions/setup-node@v4')) {
+  assert(!workflow.includes('actions/checkout@v4'), `${workflowPath} must use actions/checkout@v6`);
+  assert(!workflow.includes('actions/setup-node@v4'), `${workflowPath} must use actions/setup-node@v6`);
+  assert(!workflow.includes('actions/setup-python@v5'), `${workflowPath} must use actions/setup-python@v6`);
+  if (/actions\/(?:checkout|setup-node|setup-python)@/.test(workflow)) {
     assert(
       workflow.includes('FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"'),
       `${workflowPath} must opt JavaScript actions into the Node 24 runtime`,
