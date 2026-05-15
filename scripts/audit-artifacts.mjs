@@ -16,6 +16,7 @@ export const requiredAuditDocs = [
   'docs/audit/DEEP_REVIEW.md',
   'docs/audit/MAINNET_ERGOTREE_AUDIT.md',
   'docs/PROTOCOL_COMPATIBILITY.md',
+  'docs/PACKAGE_MATRIX.md',
   'docs/dev-vs-production.md',
   'docs/policy-engine.md',
   'docs/cross-chain.md',

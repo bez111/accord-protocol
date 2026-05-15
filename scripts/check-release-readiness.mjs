@@ -88,6 +88,13 @@ const status = read('docs/status.md');
 assert(status.includes('NOT CERTIFIED FOR MAINNET'), 'docs/status.md must include NOT CERTIFIED FOR MAINNET');
 assert(status.includes('mainnetAllowed: true'), 'docs/status.md must describe the mainnetAllowed audit gate');
 
+const packageMatrix = read('docs/PACKAGE_MATRIX.md');
+for (const [, expectedName] of [...accordPackages, ...referencePackages]) {
+  assert(packageMatrix.includes(expectedName), `docs/PACKAGE_MATRIX.md must mention ${expectedName}`);
+}
+assert(packageMatrix.includes('ergo-agent-pay` Python'), 'docs/PACKAGE_MATRIX.md must mention the Python ergo-agent-pay package');
+assert(packageMatrix.includes('NOT') || packageMatrix.includes('Not certified'), 'docs/PACKAGE_MATRIX.md must preserve a conservative mainnet posture');
+
 const security = read('SECURITY.md');
 assert(security.includes('NOT CERTIFIED FOR MAINNET'), 'SECURITY.md must include NOT CERTIFIED FOR MAINNET');
 

@@ -2,7 +2,7 @@
 
 This page is the single source of truth for what works, what does not work, and what can reach mainnet. Other docs MUST defer to this page when they conflict.
 
-Last updated: 2026-05-15 — protocol compatibility, registry semantics, buyer-policy sync, and receipt-binding validation.
+Last updated: 2026-05-15 — protocol compatibility, registry semantics, buyer-policy sync, receipt-binding validation, and package matrix.
 
 ## Executive summary
 
@@ -15,6 +15,7 @@ Last updated: 2026-05-15 — protocol compatibility, registry semantics, buyer-p
 | Mainnet status | **NOT CERTIFIED FOR MAINNET** |
 | Production use | Blocked until signed audit manifests mark relevant scripts/contracts `mainnetAllowed: true` |
 | Compatibility policy | [`docs/PROTOCOL_COMPATIBILITY.md`](./PROTOCOL_COMPATIBILITY.md) |
+| Package matrix | [`docs/PACKAGE_MATRIX.md`](./PACKAGE_MATRIX.md) |
 
 Accord Protocol is alpha / testnet-first software. The repo may contain working code and testnet demos, but no Accord rail, Note/Reserve/Tracker script, ChainCash/Basis contract, or EVM contract is production-certified until the relevant signed audit manifests say so.
 
@@ -153,6 +154,7 @@ Conformance passing means an implementation matches current Accord v0 rules. It 
 | Item | State |
 |---|---|
 | Publish workflows | Present; `npm run release:check` verifies the package matrix before tag |
+| Package matrix | [`docs/PACKAGE_MATRIX.md`](./PACKAGE_MATRIX.md) tracks install status, rail scope, and mainnet posture |
 | `NPM_TOKEN` GitHub secret | Configure before release |
 | PyPI Trusted Publishing | Configure before release |
 | `v0.4.0` tag | Do not push until `npm run release:check`, CI, npm secret, and PyPI Trusted Publishing are ready |

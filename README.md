@@ -118,6 +118,9 @@ The canonical public API lives in the `@accord-protocol/*` packages. The older `
 
 Until `v0.4.0` is tagged and published, treat npm/PyPI install commands as release targets and run workspace examples locally from this monorepo.
 
+For install status, package role, rail scope, and mainnet posture, see the
+[`package matrix`](./docs/PACKAGE_MATRIX.md).
+
 ### Accord Protocol packages
 
 | Package | Purpose |
