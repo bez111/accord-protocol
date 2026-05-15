@@ -85,6 +85,20 @@ describe("conformance L4 — registry-certified", () => {
     }
   });
 
+  it("resolves packaged monorepo-style manifest paths through installed package dependencies", async () => {
+    const root = makeRegistryFixture((fixtureRoot) => {
+      writeJson(path.join(fixtureRoot, "registry", "manifests", "ergo.json"), {
+        type: "accord.audited_manifest_ref.v0",
+        version: "v0",
+        rail: "ergo",
+        manifest_path: "packages/ergo-agent-scripts/data/AUDITED_ERGOTREES.json",
+      });
+    });
+    const result = await runL4({ repoRoot: root });
+    const check = result.checks.find((c) => c.id.endsWith(".path-resolves"));
+    assert.equal(check?.result, "pass", check?.detail);
+  });
+
   it("fails when a provider names an unregistered rail", async () => {
     const root = makeRegistryFixture((fixtureRoot) => {
       writeJson(path.join(fixtureRoot, "registry", "providers", "example.json"), {
