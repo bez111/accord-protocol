@@ -40,7 +40,7 @@
     "phase": "phase-2-testnet",
     "tier_routing": "free | premium",
     "premium_premise": "questions flagged by gate.ts (explicit /command, code-request hints, deep-research phrasing, >400 chars, multi-turn follow-up) require an Accord Note before Sonnet 4.6 routing",
-    "settlement_mode": "full-redemption — seller signer is wired and live. The first end-to-end settled redemption tx confirmed at testnet block 345673 on 2026-05-15."
+    "settlement_mode": "testnet settlement proven; hosted site may degrade to verify-only when the off-Vercel signer is unavailable. The first end-to-end settled redemption tx confirmed at testnet block 345673 on 2026-05-15."
   },
   "live_proof": {
     "first_settlement_tx": "f697e4841dd9a0c689d0b83a311130b85a0cfbab123230a6c40284b44c4cafef",
@@ -48,14 +48,23 @@
     "first_settlement_block": 345673,
     "explorer_url": "https://testnet.ergoplatform.com/transactions/f697e4841dd9a0c689d0b83a311130b85a0cfbab123230a6c40284b44c4cafef",
     "public_receipt_url": "https://www.ergoblockchain.org/r/sage/f697e4841dd9a0c689d0b83a311130b85a0cfbab123230a6c40284b44c4cafef",
+    "latest_full_receipt_bundle": {
+      "receipt_id": "09a9e5c0e5e5ca716bfc7c856aa4ece42a0655ad06f8806cf054c79c09eb318c",
+      "agreement_id": "acc_sage_9ac19993a88a4d984325",
+      "status": "verified_pending_redemption",
+      "public_receipt_url": "https://www.ergoblockchain.org/r/sage/09a9e5c0e5e5ca716bfc7c856aa4ece42a0655ad06f8806cf054c79c09eb318c",
+      "api_receipt_url": "https://www.ergoblockchain.org/api/sage/receipt/09a9e5c0e5e5ca716bfc7c856aa4ece42a0655ad06f8806cf054c79c09eb318c"
+    },
     "live_activity_feed": "https://www.ergoblockchain.org/api/sage/activity",
-    "notes": "Activity feed enumerates Sage's seller-wallet settlements live from the explorer; consumers (other agents, conformance runners, dashboards) poll it to verify rail health without trusting the operator's claim."
+    "notes": "Activity feed enumerates Sage's seller-wallet settlements live from the explorer; the latest post-Blob receipt bundle stores Agreement JSON, Verification Receipt JSON, and Settlement Receipt JSON through Vercel Blob. Consumers (other agents, conformance runners, dashboards) should inspect receipt and evidence URLs rather than trusting article prose."
   },
   "conformance": {
-    "level": "L0",
-    "last_run_at": null,
-    "result_uri": null,
-    "notes": "Manual end-to-end verified 2026-05-15 (see live_proof). Automated conformance run pending — accord-conformance v0 still in-flight; will target the four Sage HTTP endpoints + the live activity feed once the runner ships."
+    "level": "L1",
+    "last_run_at": "2026-05-20T13:50:27.327Z",
+    "result_uri": "https://www.ergoblockchain.org/evidence/sage/conformance-l1-2026-05-20.signed.json",
+    "public_key_uri": "https://www.ergoblockchain.org/evidence/sage/provider-signing-key.json",
+    "receipt_uri": "https://www.ergoblockchain.org/api/sage/receipt/09a9e5c0e5e5ca716bfc7c856aa4ece42a0655ad06f8806cf054c79c09eb318c",
+    "notes": "Automated L1 network conformance passed against the post-Blob full receipt bundle and was signed by provider://sage-ergoblockchain. This is testnet evidence only; mainnet claims remain blocked until script identity, audit manifests, and permanent signer operations are published."
   },
   "operator": {
     "kind": "open-source-project",
