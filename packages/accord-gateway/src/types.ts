@@ -63,6 +63,16 @@ export interface AccordReplayStore {
     paymentId: string,
     expiresAtMs: number,
   ): Promise<void> | void;
+  /**
+   * Atomically records the claim if it has not been seen in the past TTL.
+   * Production stores SHOULD implement this instead of relying on has()+put().
+   * Returns true when the claim was accepted, false when it was a replay.
+   */
+  claim?(
+    rail: string,
+    paymentId: string,
+    expiresAtMs: number,
+  ): Promise<boolean> | boolean;
 }
 
 export interface AccordGatewayConfig<TBody, TOut> {

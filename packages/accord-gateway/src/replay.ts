@@ -25,6 +25,14 @@ export class InMemoryReplayStore implements AccordReplayStore {
     this.map.set(this.key(rail, paymentId), { expiresAtMs });
   }
 
+  claim(rail: string, paymentId: string, expiresAtMs: number): boolean {
+    this.gc();
+    const key = this.key(rail, paymentId);
+    if (this.map.has(key)) return false;
+    this.map.set(key, { expiresAtMs });
+    return true;
+  }
+
   /** Test helper: how many live entries are tracked right now. */
   size(): number {
     this.gc();
@@ -37,7 +45,7 @@ export class InMemoryReplayStore implements AccordReplayStore {
   }
 
   private key(rail: string, paymentId: string): string {
-    return `${rail}::${paymentId}`;
+    return `accord:v0:${rail}:${paymentId}`;
   }
 
   private gc(): void {

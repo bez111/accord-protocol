@@ -28,6 +28,7 @@
 import {
   accordHashV0,
   validateAgreement,
+  validateSettlementReceipt,
   validateVerificationReceipt,
   type AccordAgreement,
   type AccordSettlementReceipt,
@@ -97,6 +98,16 @@ export function accordGateway<TBody = unknown, TOut = unknown>(
         });
       }
 
+      if (config.rail.rail !== agreement.payment.rail) {
+        return respondJson(res, 400, {
+          error: ACCORD_GATEWAY_ERROR_CODES.PAYMENT_RAIL_MISMATCH,
+          accord_agreement_id: agreementId,
+          message:
+            `gateway rail ${config.rail.rail} does not match agreement.payment.rail ` +
+            `${agreement.payment.rail}`,
+        });
+      }
+
       // ── 4. Decode payment ──────────────────────────────────────────────
       if (!paymentRaw) {
         return respond402(res, config.buildAgreementTemplate(req), {
@@ -142,10 +153,27 @@ export function accordGateway<TBody = unknown, TOut = unknown>(
           message: verification.message,
         });
       }
+      if (
+        verification.rail !== config.rail.rail ||
+        verification.rail !== agreement.payment.rail
+      ) {
+        return respondJson(res, 402, {
+          error: ACCORD_GATEWAY_ERROR_CODES.PAYMENT_RAIL_MISMATCH,
+          rail: verification.rail,
+          accord_agreement_id: agreementId,
+          message:
+            `rail.verifyPayment returned rail ${verification.rail}, expected ` +
+            `${agreement.payment.rail}`,
+        });
+      }
 
       // ── 6. Replay protection ───────────────────────────────────────────
       const replayKey = verification.payment_id;
-      if (await replayStore.has(verification.rail, replayKey)) {
+      const expiresAtMs = Date.now() + DEFAULT_REPLAY_TTL_MS;
+      const claimAccepted = replayStore.claim
+        ? await replayStore.claim(verification.rail, replayKey, expiresAtMs)
+        : !(await replayStore.has(verification.rail, replayKey));
+      if (!claimAccepted) {
         return respondJson(res, 402, {
           error: ACCORD_GATEWAY_ERROR_CODES.REPLAY_DETECTED,
           rail: verification.rail,
@@ -153,11 +181,7 @@ export function accordGateway<TBody = unknown, TOut = unknown>(
           message: `payment_id was already claimed in the past TTL window`,
         });
       }
-      await replayStore.put(
-        verification.rail,
-        replayKey,
-        Date.now() + DEFAULT_REPLAY_TTL_MS,
-      );
+      if (!replayStore.claim) await replayStore.put(verification.rail, replayKey, expiresAtMs);
 
       // ── 7. Optional pre-committed task-output check ────────────────────
       if (taskOutputRaw && agreement.task.output_hash) {
@@ -225,6 +249,7 @@ export function accordGateway<TBody = unknown, TOut = unknown>(
 
       // ── 10. Best-effort settle ─────────────────────────────────────────
       let settlementReceipt: AccordSettlementReceipt | undefined;
+      let settlementError: string | undefined;
       if (config.rail.settle) {
         try {
           settlementReceipt = await config.rail.settle({
@@ -232,8 +257,14 @@ export function accordGateway<TBody = unknown, TOut = unknown>(
             payment,
             verification: verificationReceipt,
           });
-        } catch {
+          const sr = validateSettlementReceipt(settlementReceipt, { agreement });
+          if (!sr.ok) {
+            settlementError = `settlement receipt is invalid: ${sr.problems.map((p) => p.code).join(", ")}`;
+            settlementReceipt = undefined;
+          }
+        } catch (err) {
           // Logged in the response meta; not a hard failure.
+          settlementError = `rail.settle threw: ${stringifyError(err)}`;
           settlementReceipt = undefined;
         }
       }
@@ -270,6 +301,7 @@ export function accordGateway<TBody = unknown, TOut = unknown>(
             accord_verification_receipt: verificationReceipt,
             accord_settlement_receipt: settlementReceipt,
             accord_settlement_attempted: !!config.rail.settle,
+            accord_settlement_error: settlementError,
           },
         });
       }

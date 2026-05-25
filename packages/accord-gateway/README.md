@@ -57,11 +57,11 @@ app.listen(3000);
 3. validateAgreement(agreement)               → 400 if cross-field problems
 4. JSON.parse(X-Accord-Payment)               → 402 if missing
 5. rail.verifyPayment(...)                    → 402 if rejected, 502 if threw
-6. replayStore.has/put(rail, payment_id)      → 402 if same id replayed
+6. replayStore.claim(rail, payment_id)        → 402 if same id replayed
 7. (optional) accord_task_output hash check   → 400 if mismatch
 8. handler(req, { agreement, body })          → 500 if threw
 9. (if required) verifier(...) + validate     → 422 if rejected/invalid
-10. (best-effort) rail.settle(...)            → swallowed, attached to _meta
+10. (best-effort) rail.settle(...) + validate → invalid receipts omitted from _meta
 11. 200 with { output, _meta } JSON body + Accord headers
 ```
 
@@ -87,21 +87,35 @@ Content-Type: application/json
 
 ## Replay protection
 
-Default: in-process `Map`-backed `InMemoryReplayStore` with a 24h TTL. Suitable for dev / tests / single-process demos. For production, plug in a Redis-backed implementation:
+Default: in-process `Map`-backed `InMemoryReplayStore` with a 24h TTL. Suitable for dev / tests / single-process demos. For production, plug in a Redis-backed implementation with an atomic `claim(...)` operation:
 
 ```ts
 import type { AccordReplayStore } from "@accord-protocol/gateway";
 
 const replayStore: AccordReplayStore = {
-  has: async (rail, id) => (await redis.exists(`replay:${rail}:${id}`)) === 1,
+  claim: async (rail, id, expiresAtMs) => {
+    const ttlSec = Math.max(1, Math.floor((expiresAtMs - Date.now()) / 1000));
+    const result = await redis.set(`accord:v0:${rail}:${id}`, "1", {
+      NX: true,
+      EX: ttlSec,
+    });
+    return result === "OK";
+  },
+  has: async (rail, id) => (await redis.exists(`accord:v0:${rail}:${id}`)) === 1,
   put: async (rail, id, expiresAtMs) => {
     const ttlSec = Math.max(1, Math.floor((expiresAtMs - Date.now()) / 1000));
-    await redis.setex(`replay:${rail}:${id}`, ttlSec, "1");
+    await redis.setex(`accord:v0:${rail}:${id}`, ttlSec, "1");
   },
 };
 ```
 
-The interface is intentionally tiny — two methods.
+The `has`/`put` pair stays in the interface for simple adapters, but production stores SHOULD implement `claim` so replay protection is a single atomic operation.
+
+## Rail binding and settlement validation
+
+The gateway rejects requests when the configured adapter rail, `agreement.payment.rail`, and `verifyPayment(...).rail` disagree. This prevents a proof from one rail domain from being accepted under a different Agreement.
+
+If `rail.settle(...)` is configured, the returned Settlement Receipt is validated against the Agreement before the gateway emits it in `_meta` or `X-Accord-Settlement-Receipt-Hash`. Invalid settlement receipts are omitted and `_meta.accord_settlement_error` records the validation failure.
 
 ## Error codes
 
@@ -112,6 +126,7 @@ The interface is intentionally tiny — two methods.
 | `MISSING_PAYMENT` | 402 |
 | `AGREEMENT_INVALID` | 400 |
 | `PAYMENT_VERIFICATION_FAILED` | 402 |
+| `PAYMENT_RAIL_MISMATCH` | 400 / 402 |
 | `RAIL_UNAVAILABLE` | 502 |
 | `REPLAY_DETECTED` | 402 |
 | `TASK_OUTPUT_HASH_MISMATCH` | 400 |

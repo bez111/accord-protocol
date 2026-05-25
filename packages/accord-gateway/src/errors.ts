@@ -22,6 +22,9 @@ export const ACCORD_GATEWAY_ERROR_CODES = {
   /** Rail's verifyPayment returned ok:false. */
   PAYMENT_VERIFICATION_FAILED: "PAYMENT_VERIFICATION_FAILED",
 
+  /** Agreement, configured adapter, or verification result named different rails. */
+  PAYMENT_RAIL_MISMATCH: "PAYMENT_RAIL_MISMATCH",
+
   /** Rail's verifyPayment threw. */
   RAIL_UNAVAILABLE: "RAIL_UNAVAILABLE",
 

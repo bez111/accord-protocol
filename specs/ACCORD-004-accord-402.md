@@ -94,17 +94,24 @@ Content-Type: application/json
     "accord_agreement_id": "acc_…",
     "accord_agreement_hash": "blake2b256:0x…",
     "accord_verification_receipt": { … } ,    // present when verification.required
-    "accord_settlement_receipt": { … },        // present when rail.settle was attempted
-    "accord_settlement_attempted": true
+    "accord_settlement_receipt": { … },        // present when rail.settle returned a valid receipt
+    "accord_settlement_attempted": true,
+    "accord_settlement_error": "…"             // present when best-effort settlement failed or was invalid
   }
 }
 ```
 
 The receipt-hash response headers are a fast-path for clients that don't want to parse the body. The full receipts are in `_meta`.
 
+Before returning success, the seller MUST bind the configured rail adapter to the Agreement rail. `agreement.payment.rail`, the configured adapter rail, and the rail reported by payment verification MUST all match. If they do not match, the seller MUST reject the request with `PAYMENT_RAIL_MISMATCH`.
+
+When the seller emits `accord_settlement_receipt`, the receipt MUST validate against the Agreement under ACCORD-003. Invalid settlement receipts MUST NOT be emitted in the response body or receipt-hash headers.
+
 ## 5. Replay protection
 
 The seller derives a `payment_id` from the rail's `verifyPayment` response and rejects the second use of the same id within a TTL window. The default reference implementation uses a 24-hour TTL and an in-memory store; production deployments SHOULD plug in Redis or equivalent.
+
+Production replay stores SHOULD claim `(accord version, rail, payment_id)` atomically. A non-atomic `has()` then `put()` sequence is acceptable for local demos and single-process tests, but it is not sufficient for horizontally scaled production gateways.
 
 When a replay is detected:
 
@@ -133,6 +140,7 @@ The seller emits structured 4xx / 5xx responses with a JSON body that carries an
 | `MISSING_PAYMENT` | 402 | Agreement resolved but `X-Accord-Payment` missing |
 | `AGREEMENT_INVALID` | 400 | Resolved agreement fails cross-field validation |
 | `PAYMENT_VERIFICATION_FAILED` | 402 | Rail's `verifyPayment` returned `ok: false` |
+| `PAYMENT_RAIL_MISMATCH` | 400 / 402 | Configured adapter, Agreement rail, or verified payment rail disagree |
 | `RAIL_UNAVAILABLE` | 502 | Rail's `verifyPayment` threw |
 | `REPLAY_DETECTED` | 402 | `payment_id` already claimed |
 | `TASK_OUTPUT_HASH_MISMATCH` | 400 | Pre-committed task-output hash mismatch |
@@ -182,12 +190,14 @@ A v0-conformant Accord/402 endpoint MUST:
 3. Return 200 with `X-Accord-Agreement-Hash` (matching `blake2b256(canonical(agreement))`) and a body containing `_meta.accord_agreement_id` when both Accord-* headers are valid.
 4. Reject the second use of the same `payment_id` within a TTL window (`REPLAY_DETECTED`).
 5. Return 422 with `VERIFICATION_REJECTED` when the verifier rejects the seller's output.
+6. Reject rail-domain mismatches between the Agreement, configured adapter, and verification result (`PAYMENT_RAIL_MISMATCH`).
+7. Omit invalid Settlement Receipts from `_meta` and settlement receipt-hash headers.
 
-The conformance suite (`@accord-protocol/conformance`, level L1 in network mode) probes these requirements against a live endpoint via `--target <url>`. See [ACCORD-009](./ACCORD-009-conformance.md).
+The conformance suite (`@accord-protocol/conformance`, level L1) probes these requirements against the reference transports. Network mode can additionally probe the public HTTP shape of a live endpoint via `--target <url>`. See [ACCORD-009](./ACCORD-009-conformance.md).
 
 ## 10. Reference implementation
 
-[`@accord-protocol/gateway`](../packages/accord-gateway/). 16 unit tests covering the full flow including replay protection. Drops into any Connect/Express-style HTTP framework.
+[`@accord-protocol/gateway`](../packages/accord-gateway/). Unit tests cover the full flow including replay protection, rail binding, verification receipts, and settlement receipt validation. Drops into any Connect/Express-style HTTP framework.
 
 ## 11. Open questions (v1 candidates)
 

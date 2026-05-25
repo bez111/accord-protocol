@@ -51,4 +51,14 @@ describe("conformance L1 — transport-compatibility", () => {
     const replay = result.checks.find((c) => c.id === "L1.gateway.replay-detected");
     assert.equal(replay?.result, "pass");
   });
+
+  it("L1 includes gateway rail-binding and settlement-omission checks", async () => {
+    const result = await runL1();
+    const rail = result.checks.find((c) => c.id === "L1.gateway.rail-mismatch-rejected");
+    const settlement = result.checks.find(
+      (c) => c.id === "L1.gateway.invalid-settlement-omitted",
+    );
+    assert.equal(rail?.result, "pass", rail?.detail);
+    assert.equal(settlement?.result, "pass", settlement?.detail);
+  });
 });

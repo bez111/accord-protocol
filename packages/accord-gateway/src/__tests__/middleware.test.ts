@@ -67,8 +67,8 @@ function minimalAgreement(overrides: Partial<AccordAgreement> = {}): AccordAgree
 
 function makeRail(stub: Partial<AccordRailAdapter> = {}): AccordRailAdapter {
   return {
-    rail: "test",
-    verifyPayment: async () => ({ ok: true, rail: "test", payment_id: "tx-001" }),
+    rail: "ergo",
+    verifyPayment: async () => ({ ok: true, rail: "ergo", payment_id: "tx-001" }),
     ...stub,
   } as AccordRailAdapter;
 }
@@ -172,7 +172,7 @@ describe("accordGateway — failure paths", () => {
       rail: makeRail({
         verifyPayment: async () => ({
           ok: false,
-          rail: "test",
+          rail: "ergo",
           code: "INSUFFICIENT_VALUE",
           message: "value too low",
         }),
@@ -195,6 +195,48 @@ describe("accordGateway — failure paths", () => {
       bodyJson(res).error,
       ACCORD_GATEWAY_ERROR_CODES.PAYMENT_VERIFICATION_FAILED,
     );
+  });
+
+  it("400 PAYMENT_RAIL_MISMATCH when the configured adapter does not match the agreement rail", async () => {
+    const mw = accordGateway({
+      rail: makeRail({ rail: "x402" }),
+      buildAgreementTemplate: () => TEMPLATE,
+      resolveAgreement: async () => minimalAgreement(),
+      handler: async () => "x",
+    });
+    const res = mockRes();
+    await mw(
+      reqWith({
+        [ACCORD_HEADERS.agreementId]: "acc_01HX0000000000000000000000",
+        [ACCORD_HEADERS.payment]: '{"proof":"x"}',
+      }),
+      res,
+      () => {},
+    );
+    assert.equal(res.statusCode, 400);
+    assert.equal(bodyJson(res).error, ACCORD_GATEWAY_ERROR_CODES.PAYMENT_RAIL_MISMATCH);
+  });
+
+  it("402 PAYMENT_RAIL_MISMATCH when verifyPayment returns a different rail", async () => {
+    const mw = accordGateway({
+      rail: makeRail({
+        verifyPayment: async () => ({ ok: true, rail: "x402", payment_id: "p-wrong-rail" }),
+      }),
+      buildAgreementTemplate: () => TEMPLATE,
+      resolveAgreement: async () => minimalAgreement(),
+      handler: async () => "x",
+    });
+    const res = mockRes();
+    await mw(
+      reqWith({
+        [ACCORD_HEADERS.agreementId]: "acc_01HX0000000000000000000000",
+        [ACCORD_HEADERS.payment]: '{"proof":"x"}',
+      }),
+      res,
+      () => {},
+    );
+    assert.equal(res.statusCode, 402);
+    assert.equal(bodyJson(res).error, ACCORD_GATEWAY_ERROR_CODES.PAYMENT_RAIL_MISMATCH);
   });
 
   it("502 RAIL_UNAVAILABLE when the rail throws", async () => {
@@ -225,7 +267,7 @@ describe("accordGateway — failure paths", () => {
     const replayStore = new InMemoryReplayStore();
     const mw = accordGateway({
       rail: makeRail({
-        verifyPayment: async () => ({ ok: true, rail: "test", payment_id: "duplicate-1" }),
+        verifyPayment: async () => ({ ok: true, rail: "ergo", payment_id: "duplicate-1" }),
       }),
       replayStore,
       buildAgreementTemplate: () => TEMPLATE,
@@ -262,7 +304,7 @@ describe("accordGateway — failure paths", () => {
     });
     const mw = accordGateway({
       rail: makeRail({
-        verifyPayment: async () => ({ ok: true, rail: "test", payment_id: "p1" }),
+        verifyPayment: async () => ({ ok: true, rail: "ergo", payment_id: "p1" }),
       }),
       buildAgreementTemplate: () => TEMPLATE,
       resolveAgreement: async () => ag,
@@ -439,6 +481,7 @@ describe("accordGateway — happy paths", () => {
           amount: "1",
           currency: "ERG",
           decimals: 9,
+          verification_receipts: ["vr_01HX0000000000000000000000"],
           tx: {
             network: "testnet",
             tx_id: "0x" + "a".repeat(64),
@@ -501,6 +544,55 @@ describe("accordGateway — happy paths", () => {
       (body._meta as Record<string, unknown>).accord_settlement_receipt,
       undefined,
     );
+    assert.match(
+      String((body._meta as Record<string, unknown>).accord_settlement_error),
+      /rail\.settle threw/,
+    );
+  });
+
+  it("invalid settlement receipt is not emitted in response meta or headers", async () => {
+    const ag = minimalAgreement();
+    const mw = accordGateway({
+      rail: {
+        rail: "ergo",
+        verifyPayment: async () => ({ ok: true, rail: "ergo", payment_id: "tx-invalid-settle" }),
+        settle: async () => ({
+          type: "accord.settlement_receipt.v0",
+          version: "v0",
+          settlement_id: "sr_01HX0000000000000000000000",
+          agreement_id: "acc_DIFFERENT",
+          agreement_hash: "blake2b256:0x" + "0".repeat(64),
+          rail: "base",
+          mode: "redeemed",
+          status: "settled",
+          amount: "99",
+          currency: "USDC",
+          decimals: 6,
+          tx: {
+            network: "base-sepolia",
+            tx_id: "0x" + "a".repeat(64),
+          },
+          created_at: "2026-05-07T00:00:20Z",
+        }),
+      },
+      buildAgreementTemplate: () => TEMPLATE,
+      resolveAgreement: async () => ag,
+      handler: async () => ({ ok: true }),
+    });
+    const res = mockRes();
+    await mw(
+      reqWith({
+        [ACCORD_HEADERS.agreementId]: ag.agreement_id,
+        [ACCORD_HEADERS.payment]: '{"proof":"x"}',
+      }),
+      res,
+      () => {},
+    );
+    assert.equal(res.statusCode, 200);
+    assert.equal(res.headerMap.has("x-accord-settlement-receipt-hash"), false);
+    const meta = bodyJson(res)._meta as Record<string, unknown>;
+    assert.equal(meta.accord_settlement_receipt, undefined);
+    assert.match(String(meta.accord_settlement_error), /settlement receipt is invalid/);
   });
 });
 
@@ -520,5 +612,12 @@ describe("InMemoryReplayStore", () => {
     s.put("ergo", "tx-a", Date.now() - 1); // already expired
     assert.equal(s.has("ergo", "tx-a"), false);
     assert.equal(s.size(), 0);
+  });
+
+  it("claim() atomically accepts the first claim and rejects replays", () => {
+    const s = new InMemoryReplayStore();
+    assert.equal(s.claim("ergo", "tx-a", Date.now() + 1000), true);
+    assert.equal(s.claim("ergo", "tx-a", Date.now() + 1000), false);
+    assert.equal(s.claim("base", "tx-a", Date.now() + 1000), true);
   });
 });

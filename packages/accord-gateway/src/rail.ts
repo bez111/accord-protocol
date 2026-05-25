@@ -33,9 +33,9 @@ export type VerifyPaymentResult =
       /**
        * Stable per-payment id the gateway uses for replay protection.
        * For Ergo Notes this is the box id; for Base it's the tx hash;
-       * for x402 it's whatever the facilitator hands out. Required for
-       * `replayStore.put()` — the gateway rejects calls whose id was
-       * claimed in the past TTL.
+       * for x402 it should be the facilitator's unique payment id.
+       * The gateway binds this id to `(Accord version, rail, payment_id)`
+       * and rejects calls whose id was claimed in the past TTL.
        */
        payment_id: string;
        /** Optional rail-specific bag of debugging data. */

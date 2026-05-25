@@ -463,6 +463,125 @@ async function runGatewayChecks(checks: ConformanceCheck[]): Promise<void> {
         : `first=${resA.statusCode}, second=${resB.statusCode}, body=${resB.body}`,
     });
   }
+
+  // 7. Rail binding: configured adapter rail must match agreement.payment.rail
+  {
+    const mismatchedRail = { ...makeRail(), rail: "x402" } as AccordRailAdapter;
+    const mismatchMiddleware = accordGateway({
+      rail: mismatchedRail,
+      verifier,
+      resolveAgreement: async (id) => store.get(id),
+      buildAgreementTemplate: () => ({
+        agreement_template: "https://l1.example/.well-known/accord/agreement-template",
+        price: { amount: "0.001", currency: "ERG", decimals: 9 },
+        accepted_rails: ["ergo"],
+        verification_required: true,
+      }),
+      handler: async () => ({ pong: true }),
+    });
+    const res = mockRes();
+    await mismatchMiddleware(
+      {
+        method: "POST",
+        url: "/api/run",
+        headers: {
+          [ACCORD_HEADERS.agreementId]: agreement.agreement_id,
+          [ACCORD_HEADERS.payment]: '{"value":"0.001"}',
+        },
+      },
+      res,
+      () => {},
+    );
+    const body = JSON.parse(res.body ?? "{}") as { error?: string };
+    const ok =
+      res.statusCode === 400 &&
+      body.error === "PAYMENT_RAIL_MISMATCH";
+    checks.push({
+      id: "L1.gateway.rail-mismatch-rejected",
+      level: "L1",
+      description:
+        "configured gateway rail must match agreement.payment.rail before payment is accepted",
+      result: ok ? "pass" : "fail",
+      detail: ok ? undefined : `status=${res.statusCode}, body=${res.body}`,
+    });
+  }
+
+  // 8. Settlement validation: invalid receipts are not emitted as evidence
+  {
+    const baseRail = makeRail();
+    const invalidSettlementRail: AccordRailAdapter = {
+      ...baseRail,
+      async verifyPayment(input: VerifyPaymentInput): Promise<VerifyPaymentResult> {
+        const base = await baseRail.verifyPayment(input);
+        return base.ok
+          ? { ...base, payment_id: "invalid-settlement-" + base.payment_id }
+          : base;
+      },
+      async settle(input: SettleInput): Promise<AccordSettlementReceipt> {
+        return {
+          type: "accord.settlement_receipt.v0",
+          version: "v0",
+          settlement_id: "sr_L1INVALIDSETTLEMENTXXXXXXX",
+          agreement_id: "acc_WRONG",
+          agreement_hash: "blake2b256:0x" + accordHashV0(input.agreement),
+          rail: "base",
+          mode: "redeemed",
+          status: "settled",
+          amount: "999",
+          currency: "USDC",
+          decimals: 6,
+          tx: {
+            network: "base-sepolia",
+            tx_id: "0x" + "4".repeat(64),
+          },
+          created_at: "2026-05-07T00:00:20Z",
+        };
+      },
+    };
+    const invalidSettlementMiddleware = accordGateway({
+      rail: invalidSettlementRail,
+      verifier,
+      resolveAgreement: async (id) => store.get(id),
+      buildAgreementTemplate: () => ({
+        agreement_template: "https://l1.example/.well-known/accord/agreement-template",
+        price: { amount: "0.001", currency: "ERG", decimals: 9 },
+        accepted_rails: ["ergo"],
+        verification_required: true,
+      }),
+      handler: async () => ({ pong: true }),
+    });
+    const res = mockRes();
+    await invalidSettlementMiddleware(
+      {
+        method: "POST",
+        url: "/api/run",
+        headers: {
+          [ACCORD_HEADERS.agreementId]: agreement.agreement_id,
+          [ACCORD_HEADERS.payment]: '{"value":"0.001","__settle_seed":"bad"}',
+        },
+      },
+      res,
+      () => {},
+    );
+    const body = JSON.parse(res.body ?? "{}") as {
+      _meta?: Record<string, unknown>;
+    };
+    const emittedReceipt = body._meta?.accord_settlement_receipt;
+    const header = res.headerMap.get("x-accord-settlement-receipt-hash");
+    const ok =
+      res.statusCode === 200 &&
+      emittedReceipt === undefined &&
+      header === undefined &&
+      typeof body._meta?.accord_settlement_error === "string";
+    checks.push({
+      id: "L1.gateway.invalid-settlement-omitted",
+      level: "L1",
+      description:
+        "invalid Settlement Receipts are omitted from _meta and settlement receipt hash headers",
+      result: ok ? "pass" : "fail",
+      detail: ok ? undefined : `status=${res.statusCode}, body=${res.body}, header=${header}`,
+    });
+  }
 }
 
 // ── helpers ──────────────────────────────────────────────────────────────────
