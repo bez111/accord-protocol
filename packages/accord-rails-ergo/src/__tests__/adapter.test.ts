@@ -20,6 +20,7 @@ import {
 
 const NOTE_BOX_ID = "a".repeat(64);
 const RESERVE_BOX_ID = "b".repeat(64);
+const SELLER_ERGO_ADDRESS = "9XSellerAddressForAccordRailTests";
 
 function blake2b256Hex(bytes: string | Uint8Array): string {
   const buf = typeof bytes === "string" ? new TextEncoder().encode(bytes) : bytes;
@@ -36,7 +37,7 @@ function agreement(overrides: Partial<AccordAgreement> = {}): AccordAgreement {
     agreement_id: "acc_01HX0000000000000000000000",
     created_at: "2026-05-07T00:00:00Z",
     buyer: { id: "agent://buyer" },
-    seller: { id: "provider://seller" },
+    seller: { id: "provider://seller", wallet: `ergo:${SELLER_ERGO_ADDRESS}` },
     task: { kind: "summarise", input_ref: "inline:hi", description: "x" },
     price: { amount: "0.001", currency: "ERG", decimals: 9 },
     payment: {
@@ -237,6 +238,26 @@ describe("createErgoRailAdapter — verifyPayment rejection paths", () => {
     if (!result.ok) assert.equal(result.code, ERGO_RAIL_ERROR_CODES.RESERVE_MISMATCH);
   });
 
+  it("RECIPIENT_MISMATCH when agreement.seller.wallet is missing", async () => {
+    const adapter = createErgoRailAdapter({ ops: makeOps() });
+    const result = await adapter.verifyPayment({
+      agreement: agreement({ seller: { id: "provider://seller" } }),
+      payment: VALID_PAYMENT,
+    });
+    assert.equal(result.ok, false);
+    if (!result.ok) assert.equal(result.code, ERGO_RAIL_ERROR_CODES.RECIPIENT_MISMATCH);
+  });
+
+  it("RECIPIENT_MISMATCH when receiver_address overrides the seller wallet", async () => {
+    const adapter = createErgoRailAdapter({ ops: makeOps() });
+    const result = await adapter.verifyPayment({
+      agreement: agreement(),
+      payment: { ...VALID_PAYMENT, receiver_address: "9XAttackerAddress" },
+    });
+    assert.equal(result.ok, false);
+    if (!result.ok) assert.equal(result.code, ERGO_RAIL_ERROR_CODES.RECIPIENT_MISMATCH);
+  });
+
   it("TASK_HASH_MISSING when the Note has no R6", async () => {
     const adapter = createErgoRailAdapter({
       ops: makeOps({
@@ -352,5 +373,19 @@ describe("createErgoRailAdapter — settle", () => {
       payment: VALID_PAYMENT,
     });
     assert.equal(receipt.tx.network, "mainnet");
+  });
+
+  it("settles to agreement.seller.wallet, ignoring missing receiver override", async () => {
+    let receiverAddress: string | undefined;
+    const adapter = createErgoRailAdapter({
+      ops: makeOps({
+        redeemNote: async (opts) => {
+          receiverAddress = opts.receiverAddress;
+          return { txId: "c".repeat(64), submitted: true };
+        },
+      }),
+    });
+    await adapter.settle!({ agreement: agreement(), payment: VALID_PAYMENT });
+    assert.equal(receiverAddress, SELLER_ERGO_ADDRESS);
   });
 });

@@ -21,7 +21,7 @@ import { wrapAccordMcp, describeAccordMcpTool, type AccordRailAdapter } from "@a
 const rail: AccordRailAdapter = {
   rail: "ergo",
   async verifyPayment({ agreement, payment }) {
-    return { ok: true, rail: "ergo" };
+    return { ok: true, rail: "ergo", payment_id: "<note-box-id>" };
   },
   async settle({ agreement }) {
     return { /* AccordSettlementReceipt */ } as never;
@@ -58,13 +58,14 @@ const toolDef = describeAccordMcpTool({
 3. validateAgreement(agreement)                → reject on cross-field problems
 4. bind configured rail to agreement.payment.rail
    + rail.verifyPayment(agreement, payment)    → reject if payment fails or rail mismatch
-5. (optional) check accord_task_output hash    → reject if it doesn't match agreement.task.output_hash
-6. handler(strippedArgs, { agreement })        → run the seller's tool
-7. (if required) verifier(agreement, output)
+5. replayStore.claim(rail, payment_id)         → reject if same id replayed
+6. (optional) check accord_task_output hash    → reject if it doesn't match agreement.task.output_hash
+7. handler(strippedArgs, { agreement })        → run the seller's tool
+8. (if required) verifier(agreement, output)
    + validateVerificationReceipt(receipt)
    + check result !== "rejected"
-8. (best-effort) rail.settle(...) + validate   → invalid receipts omitted from _meta
-9. return output + _meta.accord_*
+9. (best-effort) rail.settle(...) + validate   → invalid receipts omitted from _meta
+10. return output + _meta.accord_*
 ```
 
 The wrapper **returns** structured errors (`isError: true` + `_meta.accord_error_code`) instead of throwing. MCP clients are easier to wire that way.
@@ -80,6 +81,7 @@ The wrapper **returns** structured errors (`isError: true` + `_meta.accord_error
 | `PAYMENT_VERIFICATION_FAILED` | Rail returned `{ ok: false }` |
 | `PAYMENT_RAIL_MISMATCH` | Configured adapter, Agreement rail, or verified payment rail disagree |
 | `RAIL_UNAVAILABLE` | Rail's `verifyPayment` threw |
+| `REPLAY_DETECTED` | `payment_id` was already claimed within the replay TTL |
 | `TASK_OUTPUT_HASH_MISMATCH` | Buyer's `accord_task_output` hash ≠ `agreement.task.output_hash` |
 | `HANDLER_THREW` | Seller's handler threw |
 | `VERIFICATION_REQUIRED` | `agreement.verification.required` is true but no verifier configured |
@@ -88,6 +90,8 @@ The wrapper **returns** structured errors (`isError: true` + `_meta.accord_error
 ## Rail binding and settlement validation
 
 The wrapper rejects calls when the configured adapter rail, `agreement.payment.rail`, and `verifyPayment(...).rail` disagree.
+
+Successful `verifyPayment(...)` results must include a stable non-empty `payment_id`. The wrapper claims `(rail, payment_id)` before running the tool; pass a production replay store with atomic `claim(...)` when running more than one process.
 
 If `rail.settle(...)` is configured, the returned Settlement Receipt is validated against the Agreement before it is emitted in `_meta.accord_settlement_receipt`. Invalid settlement receipts are omitted and `_meta.accord_settlement_error` records the validation failure.
 

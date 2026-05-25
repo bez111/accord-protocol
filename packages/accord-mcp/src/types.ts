@@ -52,7 +52,7 @@ export interface VerifyPaymentInput {
 }
 
 export type VerifyPaymentResult =
-  | { ok: true; rail: string; details?: Record<string, unknown> }
+  | { ok: true; rail: string; payment_id: string; details?: Record<string, unknown> }
   | { ok: false; rail: string; code: string; message: string };
 
 export interface SettleInput {
@@ -85,6 +85,21 @@ export type AccordMcpHandler<TArgs = Record<string, unknown>, TOut = unknown> = 
   ctx: { agreement: AccordAgreement },
 ) => Promise<TOut> | TOut;
 
+/** Storage for MCP payment replay protection. */
+export interface AccordMcpReplayStore {
+  /** Returns true if the (rail, payment_id) pair was claimed in the past TTL. */
+  has(rail: string, paymentId: string): boolean | Promise<boolean>;
+
+  /** Record a claim until expiresAtMs. Used when claim() is not implemented. */
+  put(rail: string, paymentId: string, expiresAtMs: number): void | Promise<void>;
+
+  /**
+   * Atomic claim hook for production stores. Returns true for the first claim,
+   * false for a replay.
+   */
+  claim?(rail: string, paymentId: string, expiresAtMs: number): boolean | Promise<boolean>;
+}
+
 /**
  * Configuration the seller passes to `wrapAccordMcp(...)`. The result is
  * a function that handles a single tool call and returns either the
@@ -100,6 +115,15 @@ export interface AccordMcpWrapperConfig<TArgs, TOut> {
 
   /** The seller's tool implementation. */
   handler: AccordMcpHandler<TArgs, TOut>;
+
+  /**
+   * Optional replay store. Defaults to an in-process Map, suitable for tests
+   * and single-process demos. Production servers should pass an atomic store.
+   */
+  replayStore?: AccordMcpReplayStore;
+
+  /** Replay TTL in milliseconds. Defaults to 24h. */
+  replayTtlMs?: number;
 
   /**
    * Resolve an agreement_id to the full AccordAgreement. The wrapper does
@@ -126,6 +150,7 @@ export interface AccordMcpSuccessResult<TOut> {
   _meta: {
     accord_agreement_id: string;
     accord_agreement_hash: string;
+    accord_payment_id: string;
     accord_verification_receipt?: AccordVerificationReceipt;
     accord_settlement_receipt?: AccordSettlementReceipt;
     accord_settlement_error?: string;

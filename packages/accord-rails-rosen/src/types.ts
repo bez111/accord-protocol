@@ -39,7 +39,7 @@ export interface RosenPaymentProof {
   note_box_id: string;
   /** Raw task-output bytes the buyer pre-committed to. blake2b256(taskOutput) MUST equal R6. */
   task_output: string | Uint8Array;
-  /** Optional override for the redemption recipient. */
+  /** Optional redemption recipient. When present it MUST equal agreement.seller.wallet. */
   receiver_address?: string;
 }
 

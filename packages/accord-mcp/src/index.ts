@@ -20,6 +20,7 @@ export type {
   AccordVerifierFn,
   VerifierInput,
   AccordMcpHandler,
+  AccordMcpReplayStore,
   AccordMcpWrapperConfig,
   AccordMcpInputArgs,
   AccordMcpResult,

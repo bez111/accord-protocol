@@ -20,6 +20,7 @@
 
 import {
   accordHashV0,
+  type AccordAgreement,
   type AccordSettlementReceipt,
 } from "@accord-protocol/core";
 import { blake2b } from "@noble/hashes/blake2";
@@ -47,6 +48,7 @@ export const ROSEN_RAIL_ERROR_CODES = {
   NOTE_NOT_FOUND: "NOTE_NOT_FOUND",
   NOTE_EXPIRED: "NOTE_EXPIRED",
   RESERVE_MISMATCH: "RESERVE_MISMATCH",
+  RECIPIENT_MISMATCH: "RECIPIENT_MISMATCH",
   TASK_HASH_MISSING: "TASK_HASH_MISSING",
   TASK_HASH_MISMATCH: "TASK_HASH_MISMATCH",
   CURRENCY_NOT_REGISTERED: "CURRENCY_NOT_REGISTERED",
@@ -90,6 +92,18 @@ async function verifyPayment(
   if (proof.task_output === undefined || proof.task_output === null) {
     return rejection("INVALID_PAYMENT_SHAPE", "payment.task_output is required");
   }
+  if (
+    proof.receiver_address !== undefined &&
+    (typeof proof.receiver_address !== "string" || proof.receiver_address.trim().length === 0)
+  ) {
+    return rejection(
+      "INVALID_PAYMENT_SHAPE",
+      "payment.receiver_address must be a non-empty string when provided",
+    );
+  }
+
+  const receiverCheck = checkSellerReceiver(input.agreement, proof.receiver_address);
+  if (receiverCheck) return receiverCheck;
 
   // 2. Currency must be a Rosen-supported one.
   const currency = input.agreement.price.currency;
@@ -208,10 +222,11 @@ async function settle(
   input: SettleInput,
 ): Promise<AccordSettlementReceipt> {
   const proof = input.payment as RosenPaymentProof;
+  const receiverAddress = requireSellerReceiver(input.agreement, proof.receiver_address);
   const result = await ops.redeemNote({
     noteBoxId: proof.note_box_id,
     taskOutput: proof.task_output,
-    receiverAddress: proof.receiver_address,
+    receiverAddress,
   });
 
   const agreement = input.agreement;
@@ -244,7 +259,7 @@ async function settle(
 function rejection(
   codeKey: keyof typeof ROSEN_RAIL_ERROR_CODES,
   message: string,
-): VerifyPaymentResult {
+): Extract<VerifyPaymentResult, { ok: false }> {
   return { ok: false, rail: "rosen", code: ROSEN_RAIL_ERROR_CODES[codeKey], message };
 }
 
@@ -263,6 +278,49 @@ function stripReservePrefix(ref: string | undefined): string | undefined {
   if (!ref) return undefined;
   const candidate = ref.replace(/^ergo:box:/i, "").replace(/^ergo:/i, "").toLowerCase();
   return HEX_64.test(candidate) ? candidate : undefined;
+}
+
+function sellerWalletAddress(agreement: AccordAgreement): string | undefined {
+  const wallet = agreement.seller.wallet;
+  if (typeof wallet !== "string") return undefined;
+  for (const prefix of ["rosen:", "ergo:"]) {
+    if (wallet.startsWith(prefix)) {
+      const address = wallet.slice(prefix.length);
+      return address.length > 0 ? address : undefined;
+    }
+  }
+  return undefined;
+}
+
+function checkSellerReceiver(
+  agreement: AccordAgreement,
+  receiverAddress: string | undefined,
+): Extract<VerifyPaymentResult, { ok: false }> | undefined {
+  const expected = sellerWalletAddress(agreement);
+  if (!expected) {
+    return rejection(
+      "RECIPIENT_MISMATCH",
+      "agreement.seller.wallet must be rosen:<seller-address> or ergo:<seller-address> for rails-rosen",
+    );
+  }
+  if (receiverAddress !== undefined && receiverAddress !== expected) {
+    return rejection(
+      "RECIPIENT_MISMATCH",
+      "payment.receiver_address must match agreement.seller.wallet",
+    );
+  }
+  return undefined;
+}
+
+function requireSellerReceiver(
+  agreement: AccordAgreement,
+  receiverAddress: string | undefined,
+): string {
+  const check = checkSellerReceiver(agreement, receiverAddress);
+  if (check) {
+    throw new Error(check.message);
+  }
+  return sellerWalletAddress(agreement)!;
 }
 
 function makeSettlementId(agreementId: string, anchor: string): string {

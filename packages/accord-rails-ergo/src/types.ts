@@ -25,7 +25,7 @@ export interface ErgoPaymentProof {
   note_box_id: string;
   /** Raw task-output bytes (or string) the buyer pre-committed to. blake2b256(taskOutput) MUST equal the Note's R6. */
   task_output: string | Uint8Array;
-  /** Optional override for the redemption recipient. Defaults to the seller's address. */
+  /** Optional redemption recipient. When present it MUST equal agreement.seller.wallet. */
   receiver_address?: string;
 }
 

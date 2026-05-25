@@ -19,6 +19,7 @@ import {
 
 const NOTE_ID: Hex = `0x${"a".repeat(64)}`;
 const TX_HASH: Hex = `0x${"b".repeat(64)}`;
+const SELLER_WALLET: Hex = `0x${"2".repeat(40)}`;
 
 function keccak256Hex(s: string | Uint8Array): string {
   const buf = typeof s === "string" ? new TextEncoder().encode(s) : s;
@@ -35,7 +36,7 @@ function agreement(overrides: Partial<AccordAgreement> = {}): AccordAgreement {
     agreement_id: "acc_01HX0000000000000000000000",
     created_at: "2026-05-07T00:00:00Z",
     buyer: { id: "agent://buyer" },
-    seller: { id: "provider://seller" },
+    seller: { id: "provider://seller", wallet: `base:${SELLER_WALLET}` },
     task: { kind: "summarise", input_ref: "inline:hi", description: "x" },
     price: { amount: "0.05", currency: "USDC", decimals: 6 },
     payment: { mode: "pay_before_response", rail: "base", deadline: "+30 seconds" },
@@ -65,7 +66,7 @@ function noteInfo(overrides: Partial<NoteInfoLite> = {}): NoteInfoLite {
   return {
     noteId: NOTE_ID,
     issuer: `0x${"1".repeat(40)}` as Hex,
-    recipient: `0x${"2".repeat(40)}` as Hex,
+    recipient: SELLER_WALLET,
     amount: 50_000n,                                // 0.05 USDC = 50_000 base units (decimals=6)
     expiryBlock: 100n,
     currentBlock: 50n,
@@ -227,6 +228,30 @@ describe("createBaseRailAdapter — verifyPayment rejection paths", () => {
     });
     assert.equal(result.ok, false);
     if (!result.ok) assert.equal(result.code, BASE_RAIL_ERROR_CODES.NOTE_EXPIRED);
+  });
+
+  it("RECIPIENT_MISMATCH when agreement.seller.wallet is missing", async () => {
+    const adapter = createBaseRailAdapter({ ops: makeOps() });
+    const result = await adapter.verifyPayment({
+      agreement: agreement({ seller: { id: "provider://seller" } }),
+      payment: VALID_PAYMENT,
+    });
+    assert.equal(result.ok, false);
+    if (!result.ok) assert.equal(result.code, BASE_RAIL_ERROR_CODES.RECIPIENT_MISMATCH);
+  });
+
+  it("RECIPIENT_MISMATCH when note recipient is not the seller wallet", async () => {
+    const adapter = createBaseRailAdapter({
+      ops: makeOps({
+        checkNote: async () => noteInfo({ recipient: `0x${"3".repeat(40)}` as Hex }),
+      }),
+    });
+    const result = await adapter.verifyPayment({
+      agreement: agreement(),
+      payment: VALID_PAYMENT,
+    });
+    assert.equal(result.ok, false);
+    if (!result.ok) assert.equal(result.code, BASE_RAIL_ERROR_CODES.RECIPIENT_MISMATCH);
   });
 
   it("CURRENCY_NOT_SUPPORTED when agreement asks for ERG", async () => {

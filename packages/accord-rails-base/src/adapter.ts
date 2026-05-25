@@ -40,6 +40,7 @@ export const BASE_RAIL_ERROR_CODES = {
   NOTE_NOT_FOUND: "NOTE_NOT_FOUND",
   NOTE_EXPIRED: "NOTE_EXPIRED",
   NOTE_ALREADY_REDEEMED: "NOTE_ALREADY_REDEEMED",
+  RECIPIENT_MISMATCH: "RECIPIENT_MISMATCH",
   TASK_HASH_MISSING: "TASK_HASH_MISSING",
   TASK_HASH_MISMATCH: "TASK_HASH_MISMATCH",
   INSUFFICIENT_VALUE: "INSUFFICIENT_VALUE",
@@ -105,6 +106,20 @@ async function verifyPayment(
     return rejection(
       "NOTE_EXPIRED",
       `Note expired at block ${note.expiryBlock}; current ${note.currentBlock}`,
+    );
+  }
+
+  const expectedRecipient = parseEvmWallet(input.agreement.seller.wallet);
+  if (!expectedRecipient) {
+    return rejection(
+      "RECIPIENT_MISMATCH",
+      "agreement.seller.wallet must be base:0x... or eth:0x... for rails-base",
+    );
+  }
+  if (note.recipient.toLowerCase() !== expectedRecipient) {
+    return rejection(
+      "RECIPIENT_MISMATCH",
+      `Note recipient ${shorten(note.recipient)} does not match agreement.seller.wallet ${shorten(expectedRecipient)}`,
     );
   }
 
@@ -253,7 +268,7 @@ function makeReceipt(
 function rejection(
   codeKey: keyof typeof BASE_RAIL_ERROR_CODES,
   message: string,
-): VerifyPaymentResult {
+): Extract<VerifyPaymentResult, { ok: false }> {
   return { ok: false, rail: "base", code: BASE_RAIL_ERROR_CODES[codeKey], message };
 }
 
@@ -266,6 +281,11 @@ function keccak256Hex(taskOutput: string | Uint8Array): string {
     out += (digest[i] as number).toString(16).padStart(2, "0");
   }
   return out;
+}
+
+function parseEvmWallet(wallet: string | undefined): string | undefined {
+  const m = /^(?:base|eth):(0x[0-9a-fA-F]{40})$/.exec(wallet ?? "");
+  return m ? m[1]!.toLowerCase() : undefined;
 }
 
 function makeSettlementId(agreementId: string, txHash: Hex): string {

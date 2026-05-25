@@ -20,6 +20,7 @@ const NOTE_BOX_ID = "a".repeat(64);
 const RESERVE_BOX_ID = "b".repeat(64);
 const RS_USDT_TOKEN = "c".repeat(64);
 const RS_BTC_TOKEN = "d".repeat(64);
+const SELLER_ROSEN_ADDRESS = "9XRosenSellerAddressForAccordRailTests";
 
 function blake2b256Hex(s: string | Uint8Array): string {
   const buf = typeof s === "string" ? new TextEncoder().encode(s) : s;
@@ -36,7 +37,7 @@ function agreement(overrides: Partial<AccordAgreement> = {}): AccordAgreement {
     agreement_id: "acc_01HX0000000000000000000000",
     created_at: "2026-05-07T00:00:00Z",
     buyer: { id: "agent://buyer" },
-    seller: { id: "provider://seller" },
+    seller: { id: "provider://seller", wallet: `rosen:${SELLER_ROSEN_ADDRESS}` },
     task: { kind: "summarise", input_ref: "inline:hi", description: "x" },
     price: { amount: "0.05", currency: "rsUSDT", decimals: 6 },
     payment: {
@@ -238,6 +239,26 @@ describe("createRosenRailAdapter — verifyPayment rejection paths", () => {
     if (!result.ok) assert.equal(result.code, ROSEN_RAIL_ERROR_CODES.RESERVE_MISMATCH);
   });
 
+  it("RECIPIENT_MISMATCH when agreement.seller.wallet is missing", async () => {
+    const adapter = createRosenRailAdapter({ ops: makeOps(), tokens: TOKENS });
+    const result = await adapter.verifyPayment({
+      agreement: agreement({ seller: { id: "provider://seller" } }),
+      payment: VALID_PAYMENT,
+    });
+    assert.equal(result.ok, false);
+    if (!result.ok) assert.equal(result.code, ROSEN_RAIL_ERROR_CODES.RECIPIENT_MISMATCH);
+  });
+
+  it("RECIPIENT_MISMATCH when receiver_address overrides the seller wallet", async () => {
+    const adapter = createRosenRailAdapter({ ops: makeOps(), tokens: TOKENS });
+    const result = await adapter.verifyPayment({
+      agreement: agreement(),
+      payment: { ...VALID_PAYMENT, receiver_address: "9XAttackerAddress" },
+    });
+    assert.equal(result.ok, false);
+    if (!result.ok) assert.equal(result.code, ROSEN_RAIL_ERROR_CODES.RECIPIENT_MISMATCH);
+  });
+
   it("TASK_HASH_MISMATCH when blake2b256(task_output) ≠ R6", async () => {
     const adapter = createRosenRailAdapter({ ops: makeOps(), tokens: TOKENS });
     const result = await adapter.verifyPayment({
@@ -307,5 +328,20 @@ describe("createRosenRailAdapter — settle", () => {
     const v = validateSettlementReceipt(receipt, { agreement: ag });
     assert.equal(v.ok, true, JSON.stringify(v.problems));
     assert.deepEqual(receipt.verification_receipts, [verification.receipt_id]);
+  });
+
+  it("settles to agreement.seller.wallet, ignoring missing receiver override", async () => {
+    let receiverAddress: string | undefined;
+    const adapter = createRosenRailAdapter({
+      ops: makeOps({
+        redeemNote: async (opts) => {
+          receiverAddress = opts.receiverAddress;
+          return { txId: "e".repeat(64), submitted: true };
+        },
+      }),
+      tokens: TOKENS,
+    });
+    await adapter.settle!({ agreement: agreement(), payment: VALID_PAYMENT });
+    assert.equal(receiverAddress, SELLER_ROSEN_ADDRESS);
   });
 });

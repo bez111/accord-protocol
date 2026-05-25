@@ -80,13 +80,16 @@ For each tool call, a conformant Accord/MCP wrapper:
 2. Resolves the agreement via the seller-supplied `resolveAgreement(id)` callback.
 3. Runs `validateAgreement` (cross-field rules from ACCORD-001 §7).
 4. Binds the configured rail to `agreement.payment.rail`, then calls `rail.verifyPayment({ agreement, payment })`.
-5. (Optional) Hashes `accord_task_output` and compares against `agreement.task.output_hash`.
-6. Runs the seller's handler with the **non-Accord** args + the resolved Agreement.
-7. (If `agreement.verification.required`) calls the configured verifier; runs `validateVerificationReceipt(receipt, { agreement })`; rejects if `result == "rejected"`.
-8. (Best-effort) calls `rail.settle(...)`, then validates the Settlement Receipt against the Agreement before emitting it. Failure or an invalid receipt here does NOT reject the call — the buyer already got the work; receipts are reconciled out of band.
-9. Returns the handler's output with `_meta.accord_*` annotations.
+5. Claims `(rail, payment_id)` in the replay store before the tool handler runs.
+6. (Optional) Hashes `accord_task_output` and compares against `agreement.task.output_hash`.
+7. Runs the seller's handler with the **non-Accord** args + the resolved Agreement.
+8. (If `agreement.verification.required`) calls the configured verifier; runs `validateVerificationReceipt(receipt, { agreement })`; rejects if `result == "rejected"`.
+9. (Best-effort) calls `rail.settle(...)`, then validates the Settlement Receipt against the Agreement before emitting it. Failure or an invalid receipt here does NOT reject the call — the buyer already got the work; receipts are reconciled out of band.
+10. Returns the handler's output with `_meta.accord_*` annotations.
 
 The configured rail adapter, `agreement.payment.rail`, and the rail reported by payment verification MUST all match. If they do not match, the wrapper MUST reject the call with `PAYMENT_RAIL_MISMATCH`.
+
+Successful `verifyPayment(...)` results MUST include a stable non-empty `payment_id`. The wrapper MUST reject the second use of the same `(rail, payment_id)` within its replay TTL with `REPLAY_DETECTED`. Production deployments SHOULD use an atomic replay-store claim.
 
 When the wrapper emits `accord_settlement_receipt`, the receipt MUST validate against the Agreement under ACCORD-003. Invalid settlement receipts MUST NOT be emitted in result metadata.
 
@@ -103,6 +106,7 @@ The wrapper surfaces errors via `_meta.accord_error_code`. Conformant implementa
 | `PAYMENT_VERIFICATION_FAILED` | Rail returned `{ ok: false }` |
 | `PAYMENT_RAIL_MISMATCH` | Configured adapter, Agreement rail, or verified payment rail disagree |
 | `RAIL_UNAVAILABLE` | Rail's `verifyPayment` threw |
+| `REPLAY_DETECTED` | `payment_id` was already claimed within the replay TTL |
 | `TASK_OUTPUT_HASH_MISMATCH` | `accord_task_output` hash ≠ `agreement.task.output_hash` |
 | `HANDLER_THREW` | Seller's handler threw |
 | `VERIFICATION_REQUIRED` | `verification.required: true` but no verifier configured |

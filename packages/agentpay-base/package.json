@@ -49,7 +49,7 @@
     "url": "https://github.com/accord-protocol/accord-protocol/issues"
   },
   "dependencies": {
-    "viem": "^2.0.0"
+    "viem": "2.50.4"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

@@ -235,6 +235,7 @@ function baseAgreement(overrides: Partial<AccordAgreement>): AccordAgreement {
 function ergoRail(): RailUnderTest {
   const NOTE_BOX_ID = "a".repeat(64);
   const RESERVE_BOX_ID = "b".repeat(64);
+  const SELLER_ADDRESS = "9fL2ConformanceErgoSellerAddress";
   const TASK_OUTPUT = '{"word_count":2}';
   const TASK_HASH = blake2bHex(TASK_OUTPUT);
 
@@ -259,6 +260,7 @@ function ergoRail(): RailUnderTest {
     adapter,
     buildAgreement: () =>
       baseAgreement({
+        seller: { id: "provider://l2-seller", wallet: `ergo:${SELLER_ADDRESS}` },
         price: { amount: "0.001", currency: "ERG", decimals: 9 },
         payment: {
           mode: "note",
@@ -278,6 +280,7 @@ function rosenRail(): RailUnderTest {
   const NOTE_BOX_ID = "1".repeat(64);
   const RESERVE_BOX_ID = "2".repeat(64);
   const RS_USDT_TOKEN = "3".repeat(64);
+  const SELLER_ADDRESS = "9fL2ConformanceRosenSellerAddress";
   const TASK_OUTPUT = '{"word_count":2}';
   const TASK_HASH = blake2bHex(TASK_OUTPUT);
 
@@ -306,6 +309,7 @@ function rosenRail(): RailUnderTest {
     adapter,
     buildAgreement: () =>
       baseAgreement({
+        seller: { id: "provider://l2-seller", wallet: `rosen:${SELLER_ADDRESS}` },
         price: { amount: "0.05", currency: "rsUSDT", decimals: 6 },
         payment: {
           mode: "note",
@@ -324,6 +328,7 @@ function rosenRail(): RailUnderTest {
 function baseRail(): RailUnderTest {
   const NOTE_ID = `0x${"a".repeat(64)}` as const;
   const TX_HASH = `0x${"b".repeat(64)}` as const;
+  const SELLER_ADDRESS = `0x${"2".repeat(40)}` as const;
   const TASK_OUTPUT = '{"word_count":2}';
   const TASK_HASH = `0x${keccak256Hex(TASK_OUTPUT)}` as `0x${string}`;
 
@@ -333,7 +338,7 @@ function baseRail(): RailUnderTest {
       checkNote: async () => ({
         noteId: NOTE_ID,
         issuer: `0x${"1".repeat(40)}` as `0x${string}`,
-        recipient: `0x${"2".repeat(40)}` as `0x${string}`,
+        recipient: SELLER_ADDRESS,
         amount: 50_000n,
         expiryBlock: 100n,
         currentBlock: 50n,
@@ -351,6 +356,7 @@ function baseRail(): RailUnderTest {
     adapter,
     buildAgreement: () =>
       baseAgreement({
+        seller: { id: "provider://l2-seller", wallet: `base:${SELLER_ADDRESS}` },
         price: { amount: "0.05", currency: "USDC", decimals: 6 },
         payment: { mode: "pay_before_response", rail: "base", deadline: "+30 seconds" },
       }),

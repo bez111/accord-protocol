@@ -15,6 +15,8 @@
  * Run: node index.js
  */
 
+import { randomUUID } from "node:crypto";
+
 // Mock agent public keys (32-byte hex — in production use real GroupElement compressed keys)
 const AGENTS = [
   { name: "research-agent",   pubkey: "02" + "a".repeat(62) },
@@ -34,7 +36,7 @@ function buildTreasuryScript(threshold, agents) {
 // Simulate a spend proposal + approval flow
 class TreasuryProposal {
   constructor(description, amount, recipient) {
-    this.id = Math.random().toString(36).slice(2, 10);
+    this.id = randomUUID().slice(0, 8);
     this.description = description;
     this.amount = amount;
     this.recipient = recipient;

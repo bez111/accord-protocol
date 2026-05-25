@@ -36,7 +36,7 @@ function minimalAgreement(overrides: Partial<AccordAgreement> = {}): AccordAgree
 function makeRail(stub: Partial<AccordRailAdapter> = {}): AccordRailAdapter {
   return {
     rail: "ergo",
-    verifyPayment: async () => ({ ok: true, rail: "ergo" }),
+    verifyPayment: async () => ({ ok: true, rail: "ergo", payment_id: "pay-1" }),
     ...stub,
   } as AccordRailAdapter;
 }
@@ -194,7 +194,7 @@ describe("wrapAccordMcp — error paths", () => {
   it("returns PAYMENT_RAIL_MISMATCH when verifyPayment reports a different rail", async () => {
     const call = wrapAccordMcp({
       rail: makeRail({
-        verifyPayment: async () => ({ ok: true, rail: "x402" }),
+        verifyPayment: async () => ({ ok: true, rail: "x402", payment_id: "pay-x402" }),
       }),
       handler: async () => "ok",
       resolveAgreement: async () => minimalAgreement(),
@@ -206,6 +206,35 @@ describe("wrapAccordMcp — error paths", () => {
     assert.equal(r.isError, true);
     if (r.isError)
       assert.equal(r._meta.accord_error_code, ACCORD_MCP_ERROR_CODES.PAYMENT_RAIL_MISMATCH);
+  });
+
+  it("returns REPLAY_DETECTED when the same payment_id is presented twice", async () => {
+    const ag = minimalAgreement();
+    let handlerCalls = 0;
+    const call = wrapAccordMcp({
+      rail: makeRail({
+        verifyPayment: async () => ({ ok: true, rail: "ergo", payment_id: "duplicate-pay" }),
+      }),
+      handler: async () => {
+        handlerCalls += 1;
+        return "ok";
+      },
+      resolveAgreement: async () => ag,
+    });
+    const first = await call({
+      accord_agreement_id: ag.agreement_id,
+      accord_payment: { proof: "x" },
+    } as never);
+    const second = await call({
+      accord_agreement_id: ag.agreement_id,
+      accord_payment: { proof: "x" },
+    } as never);
+    assert.equal(first.isError, undefined);
+    assert.equal(second.isError, true);
+    assert.equal(handlerCalls, 1);
+    if (second.isError) {
+      assert.equal(second._meta.accord_error_code, ACCORD_MCP_ERROR_CODES.REPLAY_DETECTED);
+    }
   });
 
   it("returns RAIL_UNAVAILABLE when the rail throws", async () => {
@@ -339,6 +368,7 @@ describe("wrapAccordMcp — happy paths", () => {
       assert.equal(r.output.word_count, 2);
       assert.equal(r._meta.accord_agreement_id, ag.agreement_id);
       assert.match(r._meta.accord_agreement_hash, /^blake2b256:0x[0-9a-f]{64}$/);
+      assert.equal(r._meta.accord_payment_id, "pay-1");
       assert.equal(r._meta.accord_verification_receipt, undefined);
     }
   });
@@ -400,7 +430,11 @@ describe("wrapAccordMcp — happy paths", () => {
       created_at: "2026-05-07T00:00:20Z",
     });
     const call = wrapAccordMcp({
-      rail: { rail: "ergo", verifyPayment: async () => ({ ok: true, rail: "ergo" }), settle },
+      rail: {
+        rail: "ergo",
+        verifyPayment: async () => ({ ok: true, rail: "ergo", payment_id: "pay-settle" }),
+        settle,
+      },
       verifier,
       handler: async () => "ok",
       resolveAgreement: async () => ag,
@@ -421,7 +455,7 @@ describe("wrapAccordMcp — happy paths", () => {
     const call = wrapAccordMcp({
       rail: {
         rail: "ergo",
-        verifyPayment: async () => ({ ok: true, rail: "ergo" }),
+        verifyPayment: async () => ({ ok: true, rail: "ergo", payment_id: "pay-settle-throws" }),
         settle: async () => {
           throw new Error("rail down");
         },
@@ -445,7 +479,7 @@ describe("wrapAccordMcp — happy paths", () => {
     const call = wrapAccordMcp({
       rail: {
         rail: "ergo",
-        verifyPayment: async () => ({ ok: true, rail: "ergo" }),
+        verifyPayment: async () => ({ ok: true, rail: "ergo", payment_id: "pay-invalid-settle" }),
         settle: async () => ({
           type: "accord.settlement_receipt.v0",
           version: "v0",

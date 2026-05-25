@@ -11,20 +11,21 @@
 //   4. Bind the configured rail to `agreement.payment.rail`, then call
 //      `rail.verifyPayment({ agreement, payment })`. Reject on failure or
 //      if the verified rail does not match.
-//   5. (Optional) If `accord_task_output` was sent, ensure its
+//   5. Claim `(rail, payment_id)` in the replay store before work runs.
+//   6. (Optional) If `accord_task_output` was sent, ensure its
 //      `accord_hash_v0` matches `agreement.task.output_hash` if that field
 //      was set.
-//   6. Run the seller's handler with the *non-Accord* args + the resolved
+//   7. Run the seller's handler with the *non-Accord* args + the resolved
 //      Agreement.
-//   7. If `agreement.verification.required` is true:
+//   8. If `agreement.verification.required` is true:
 //        a. Call `config.verifier({ agreement, output })`.
 //        b. Run `validateVerificationReceipt(receipt, { agreement })`.
 //        c. Reject the call if the receipt's `result === "rejected"`.
-//   8. (Optional) Call `rail.settle(...)` and validate the returned
+//   9. (Optional) Call `rail.settle(...)` and validate the returned
 //      Settlement Receipt. Don't reject the tool call if settle fails
 //      post-execution — report the settlement error in `_meta` so the buyer
 //      can retry settlement out-of-band.
-//   9. Return the handler's output, with both receipts (if any) attached
+//  10. Return the handler's output, with both receipts (if any) attached
 //      under `_meta.accord_*`.
 //
 // The wrapper returns `AccordMcpResult` — either a success result with
@@ -48,6 +49,7 @@ import { ACCORD_MCP_ERROR_CODES } from "./errors.js";
 import type {
   AccordMcpHandler,
   AccordMcpInputArgs,
+  AccordMcpReplayStore,
   AccordMcpResult,
   AccordMcpToolDefinition,
   AccordMcpWrapperConfig,
@@ -56,6 +58,8 @@ import type {
 
 /** The tool args shape after Accord fields are stripped. */
 type StrippedArgs<TArgs> = Omit<TArgs, keyof AccordMcpInputArgs>;
+
+const DEFAULT_REPLAY_TTL_MS = 24 * 60 * 60 * 1000;
 
 /**
  * Inject `accord_agreement_id`, `accord_payment`, `accord_task_output`
@@ -99,6 +103,10 @@ export function injectAccordSchemaFields(schema: McpJsonSchema | undefined): Mcp
 export function wrapAccordMcp<TArgs extends Record<string, unknown>, TOut>(
   config: AccordMcpWrapperConfig<StrippedArgs<TArgs>, TOut>,
 ): (args: TArgs & AccordMcpInputArgs) => Promise<AccordMcpResult<TOut>> {
+  const replayStore: AccordMcpReplayStore =
+    config.replayStore ?? new InMemoryMcpReplayStore();
+  const replayTtlMs = config.replayTtlMs ?? DEFAULT_REPLAY_TTL_MS;
+
   return async function callAccordMcp(rawArgs) {
     // ── 1. Pull the Accord fields ─────────────────────────────────────────
     const { accord_agreement_id, accord_payment, accord_task_output, ...rest } =
@@ -156,7 +164,7 @@ export function wrapAccordMcp<TArgs extends Record<string, unknown>, TOut>(
 
     // ── 4. Verify payment with the rail ───────────────────────────────────
     let verification:
-      | { ok: true; rail: string; details?: Record<string, unknown> }
+      | { ok: true; rail: string; payment_id: string; details?: Record<string, unknown> }
       | { ok: false; rail: string; code: string; message: string };
     try {
       verification = await config.rail.verifyPayment({
@@ -187,6 +195,33 @@ export function wrapAccordMcp<TArgs extends Record<string, unknown>, TOut>(
         expected_rail: agreement.payment.rail,
         accord_agreement_id,
       });
+    }
+    if (
+      typeof verification.payment_id !== "string" ||
+      verification.payment_id.trim().length === 0
+    ) {
+      return mcpError(ACCORD_MCP_ERROR_CODES.PAYMENT_VERIFICATION_FAILED, {
+        message: "rail.verifyPayment returned ok=true without a non-empty payment_id",
+        rail: verification.rail,
+        rail_error_code: "MISSING_PAYMENT_ID",
+        accord_agreement_id,
+      });
+    }
+
+    const expiresAtMs = Date.now() + replayTtlMs;
+    const claimAccepted = replayStore.claim
+      ? await replayStore.claim(verification.rail, verification.payment_id, expiresAtMs)
+      : !(await replayStore.has(verification.rail, verification.payment_id));
+    if (!claimAccepted) {
+      return mcpError(ACCORD_MCP_ERROR_CODES.REPLAY_DETECTED, {
+        message: "payment_id was already claimed in the past TTL window",
+        rail: verification.rail,
+        payment_id: verification.payment_id,
+        accord_agreement_id,
+      });
+    }
+    if (!replayStore.claim) {
+      await replayStore.put(verification.rail, verification.payment_id, expiresAtMs);
     }
 
     // ── 5. Optional pre-committed task-output hash check ──────────────────
@@ -287,12 +322,45 @@ export function wrapAccordMcp<TArgs extends Record<string, unknown>, TOut>(
       _meta: {
         accord_agreement_id,
         accord_agreement_hash: "blake2b256:0x" + accordHashV0(agreement),
+        accord_payment_id: verification.payment_id,
         accord_verification_receipt: verificationReceipt,
         accord_settlement_receipt: settlementReceipt,
         accord_settlement_error: settlementError,
       },
     };
   };
+}
+
+class InMemoryMcpReplayStore implements AccordMcpReplayStore {
+  private readonly map = new Map<string, { expiresAtMs: number }>();
+
+  has(rail: string, paymentId: string): boolean {
+    this.gc();
+    return this.map.has(this.key(rail, paymentId));
+  }
+
+  put(rail: string, paymentId: string, expiresAtMs: number): void {
+    this.map.set(this.key(rail, paymentId), { expiresAtMs });
+  }
+
+  claim(rail: string, paymentId: string, expiresAtMs: number): boolean {
+    this.gc();
+    const key = this.key(rail, paymentId);
+    if (this.map.has(key)) return false;
+    this.map.set(key, { expiresAtMs });
+    return true;
+  }
+
+  private key(rail: string, paymentId: string): string {
+    return `accord:mcp:v0:${rail}:${paymentId}`;
+  }
+
+  private gc(): void {
+    const now = Date.now();
+    for (const [k, v] of this.map) {
+      if (v.expiresAtMs <= now) this.map.delete(k);
+    }
+  }
 }
 
 /** Build an MCP-shaped error result. */
