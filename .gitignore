@@ -1,0 +1,14 @@
+node_modules/
+dist/
+packages/accord-conformance/fixtures/
+.env
+*.local
+.DS_Store
+.idea/
+
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+build/
+.venv/

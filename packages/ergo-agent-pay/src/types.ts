@@ -1,0 +1,433 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// ergo-agent-pay — Type Definitions
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type Network = "mainnet" | "testnet";
+
+// ── Configuration ─────────────────────────────────────────────────────────────
+
+export interface ErgoAgentPayConfig {
+  /** Ergo address of the agent */
+  address: string;
+
+  /** Network to operate on. Default: "mainnet" */
+  network?: Network;
+
+  /** Signer function. Receives unsigned EIP-12 TX, returns signed TX.
+   *  If omitted, transactions are returned unsigned for external signing. */
+  signer?: SignerFn;
+
+  /** Policy hooks — called before/after every transaction */
+  policy?: PolicyConfig;
+
+  /** Custom API node URL. Defaults to the public Ergo API. */
+  nodeUrl?: string;
+
+  /** @deprecated No longer bypasses mainnet safety; rejected on mainnet. */
+  allowInsecureDevMode?: boolean;
+
+  /** @deprecated No longer bypasses mainnet safety; rejected on mainnet. */
+  dangerouslyAllowInsecureMainnetP2PK?: boolean;
+
+  /**
+   * Audit policy gate. Mainnet writes that include a `scriptErgoTree`
+   * are routed through this callback before signing/submission. Without
+   * an audit policy, mainnet rejects every tree.
+   *
+   * Typical wiring (with `ergo-agent-scripts`):
+   * ```ts
+   * import { verifyAuditedErgoTree } from "ergo-agent-scripts"
+   * new ErgoAgentPay({
+   *   ...,
+   *   auditPolicy: (tree, name) => {
+   *     if (!name) return { ok: false, reason: "scriptName required" }
+   *     const v = verifyAuditedErgoTree(name, tree, { requireMainnet: true })
+   *     return v.ok ? { ok: true } : { ok: false, reason: v.message ?? "unaudited" }
+   *   },
+   * })
+   * ```
+   */
+  auditPolicy?: import("./safety.js").AuditPolicy;
+
+  /**
+   * @deprecated No longer bypasses mainnet safety; rejected on mainnet.
+   * Testnet ignores this flag.
+   */
+  dangerouslyAllowUnauditedErgoTree?: boolean;
+}
+
+export type SignerFn = (unsignedTx: EIP12UnsignedTx) => Promise<SignedTx>;
+
+// ── Payment ───────────────────────────────────────────────────────────────────
+
+export interface PayOptions {
+  /** Arbitrary metadata stored in R4 (UTF-8 string → hex encoded) */
+  memo?: string;
+
+  /** Custom spending script for the output (advanced) */
+  script?: string;
+}
+
+export interface PayResult {
+  /** EIP-12 unsigned transaction — always present */
+  unsignedTx: EIP12UnsignedTx;
+
+  /** Signed transaction — present only if a signer was configured */
+  signedTx?: SignedTx;
+
+  /** Transaction ID — present only if submitted to the network */
+  txId?: string;
+
+  /** Whether the transaction was submitted */
+  submitted: boolean;
+}
+
+// ── Note (bearer instrument) ──────────────────────────────────────────────────
+
+export interface NoteOptions {
+  /** Receiver address */
+  recipient: string;
+
+  /** Amount in nanoERG */
+  value: bigint | string | number;
+
+  /** Reserve box ID backing this Note */
+  reserveBoxId: string;
+
+  /** Expiry as absolute block height or "+N blocks" relative offset */
+  deadline: number | `+${number} blocks` | `+${number} block`;
+
+  /** Acceptance predicate: task hash (hex, 32 bytes) */
+  taskHash?: string;
+
+  /** Acceptance predicate: required credential public key (GroupElement hex) */
+  credentialKey?: string;
+
+  /**
+   * Compiled ErgoTree for the Note's spending condition.
+   *
+   * When set, the Note output enforces the predicate on-chain. When
+   * omitted, the Note is a plain P2PK at `recipient` and the registers
+   * are advisory only. Mainnet writes in this mode are always blocked.
+   */
+  scriptErgoTree?: string;
+
+  /**
+   * Optional name of the audited predicate this tree corresponds to
+   * (e.g. `"credential_v0"`). Used by the agent's audit policy to look
+   * up the canonical tree and verify byte-for-byte equality. Mainnet
+   * audit policies require this to be set.
+   */
+  scriptName?: string;
+
+  /**
+   * @deprecated No longer bypasses mainnet safety; rejected on mainnet.
+   * Testnet ignores this flag.
+   */
+  dangerouslyAllowUnauditedErgoTree?: boolean;
+}
+
+export interface NoteResult extends PayResult {
+  /**
+   * Note output box id when the configured signer returned signed tx outputs
+   * with box ids. Some signers and submit endpoints return only `txId`; callers
+   * should fall back to explorer/node lookup in that case.
+   */
+  noteBoxId?: string;
+
+  /** Output index of the Note inside the issue transaction. */
+  noteOutputIndex: number;
+
+  /** Encoded note output for inspection */
+  noteOutput: {
+    /** Same value as `noteBoxId`, when available. */
+    boxId?: string;
+    /** Same value as `noteOutputIndex`. */
+    outputIndex: number;
+    value: string;
+    recipient: string;
+    reserveBoxId: string;
+    expiryBlock: number;
+    taskHash?: string;
+  };
+}
+
+// ── Policy ────────────────────────────────────────────────────────────────────
+
+export interface PolicyConfig {
+  /** Called before every payment. Return false to reject. */
+  beforePay?: BeforePayHook;
+
+  /** Called after every successful payment. */
+  afterPay?: AfterPayHook;
+
+  /** Maximum single payment in nanoERG. Default: unlimited. */
+  maxSinglePayment?: bigint;
+
+  /** Maximum total spend per session in nanoERG. Default: unlimited. */
+  maxSessionSpend?: bigint;
+
+  /** Require explicit approval for payments above this threshold (nanoERG) */
+  requireApprovalAbove?: bigint;
+
+  /** Approval callback — called when requireApprovalAbove is triggered */
+  approvalFn?: ApprovalFn;
+
+  // ── v2 additions ────────────────────────────────────────────────────────────
+
+  /**
+   * Per-recipient single-payment caps (nanoERG). Overrides
+   * `maxSinglePayment` for the listed addresses; absent addresses fall back to
+   * the global `maxSinglePayment` if any.
+   */
+  perRecipientCap?: ReadonlyMap<string, bigint> | Readonly<Record<string, bigint>>;
+
+  /**
+   * Allowlist of recipient addresses. When set, payments to anything outside
+   * the allowlist are rejected with `POLICY_REJECTED`.
+   */
+  recipientAllowlist?: ReadonlyArray<string> | ReadonlySet<string>;
+
+  /**
+   * Blocklist of recipient addresses. Always rejected with `POLICY_REJECTED`,
+   * even if the address is also in the allowlist (blocklist wins).
+   */
+  recipientBlocklist?: ReadonlyArray<string> | ReadonlySet<string>;
+
+  /**
+   * Maximum total spend per UTC day in nanoERG. Resets at 00:00 UTC.
+   * Tracked across sessions only if the same `PolicyEngine` instance is used.
+   */
+  dailyBudget?: bigint;
+
+  /**
+   * Audit-log sink. Called for every policy decision (allow or reject) and
+   * after every successful payment. Errors thrown from the sink are
+   * swallowed so audit failures cannot break payment flow.
+   */
+  auditLog?: AuditLogFn;
+
+  /**
+   * Optional clock injection. Returns the current Unix epoch in ms.
+   * Defaults to `Date.now`. Useful for tests and deterministic replay.
+   */
+  now?: () => number;
+}
+
+export type AuditLogEvent =
+  | { kind: "before"; ctx: PayContext; allowed: true }
+  | { kind: "before"; ctx: PayContext; allowed: false; reason: string; code: ErgoAgentPayErrorCode }
+  | { kind: "after"; ctx: PayContext; result: PayResult };
+
+export type AuditLogFn = (event: AuditLogEvent) => void | Promise<void>;
+
+export type BeforePayHook = (ctx: PayContext) => boolean | Promise<boolean>;
+export type AfterPayHook = (ctx: PayContext, result: PayResult) => void | Promise<void>;
+export type ApprovalFn = (ctx: PayContext) => boolean | Promise<boolean>;
+
+export interface PayContext {
+  to: string;
+  value: bigint;
+  memo?: string;
+  sessionSpend: bigint;
+  timestamp: number;
+}
+
+// ── LangChain / OpenAI adapters ───────────────────────────────────────────────
+
+export interface LangChainToolConfig {
+  /** Tool name exposed to the LLM. Default: "ergo_pay" */
+  name?: string;
+
+  /** Tool description. Default: auto-generated. */
+  description?: string;
+}
+
+export interface OpenAIFunctionConfig {
+  /** Function name. Default: "ergo_pay" */
+  name?: string;
+}
+
+// ── Internal EIP-12 / TX types ────────────────────────────────────────────────
+
+/** EIP-12 unsigned transaction (passed to wallets / external signers) */
+export type EIP12UnsignedTx = Record<string, unknown>;
+
+/** Signed transaction ready for submission */
+export type SignedTx = Record<string, unknown>;
+
+// ── Errors ────────────────────────────────────────────────────────────────────
+
+export class ErgoAgentPayError extends Error {
+  constructor(
+    message: string,
+    public readonly code: ErgoAgentPayErrorCode,
+    public readonly cause?: unknown
+  ) {
+    super(message);
+    this.name = "ErgoAgentPayError";
+  }
+}
+
+export type ErgoAgentPayErrorCode =
+  | "INSUFFICIENT_FUNDS"
+  | "POLICY_REJECTED"
+  | "APPROVAL_DENIED"
+  | "NO_SIGNER"
+  | "NETWORK_ERROR"
+  | "INVALID_ADDRESS"
+  | "INVALID_AMOUNT"
+  | "INVALID_HASH"
+  | "INVALID_ENCODING"
+  | "SUBMISSION_FAILED"
+  | "BOX_NOT_FOUND"
+  | "NOTE_EXPIRED"
+  | "NOTE_INVALID"
+  | "INSECURE_MAINNET_MODE"
+  | "UNAUDITED_ERGOTREE";
+
+// ── Reserve ───────────────────────────────────────────────────────────────────
+
+export interface ReserveConfig {
+  /**
+   * Collateral amount in nanoERG (or "N ERG" string).
+   * All Notes issued against this Reserve must total ≤ this value.
+   */
+  collateral: bigint | string | number;
+
+  /**
+   * Optional compiled ErgoScript ergoTree for the Reserve box.
+   * If omitted, collateral is locked in a standard P2PK box at the agent address
+   * (useful for testing — use ChainCash scripts for production).
+   */
+  scriptErgoTree?: string;
+
+  /** Audited predicate name (e.g. `"chaincash_reserve_v0"`). See `NoteOptions.scriptName`. */
+  scriptName?: string;
+
+  /** @deprecated No longer bypasses mainnet safety; rejected on mainnet. */
+  dangerouslyAllowUnauditedErgoTree?: boolean;
+
+  /** Metadata stored on-chain in R4 */
+  memo?: string;
+}
+
+export interface ReserveResult extends PayResult {
+  reserve: {
+    /** The box ID of the created Reserve (available after submission) */
+    boxId?: string;
+    /** Collateral value in nanoERG */
+    value: string;
+    /** Whether a custom script was applied */
+    hasScript: boolean;
+  };
+}
+
+// ── Note lifecycle ────────────────────────────────────────────────────────────
+
+export interface NoteInfo {
+  /** The box ID of the Note */
+  boxId: string;
+
+  /** Face value in nanoERG */
+  value: bigint;
+  ergs: string;
+
+  /** Expiry block height from R5 */
+  expiryBlock: number;
+
+  /** Current chain height at query time */
+  currentBlock: number;
+
+  /** Whether HEIGHT >= expiryBlock (Note no longer redeemable) */
+  isExpired: boolean;
+
+  /** Reserve box ID from R4 (hex) */
+  reserveBoxId?: string;
+
+  /** Task hash from R6 (hex, 32 bytes) — acceptance predicate */
+  taskHash?: string;
+
+  /** Credential key from R7 (hex) — credential-gated predicate */
+  credentialKey?: string;
+
+  /** Raw box object from the API */
+  raw: unknown;
+}
+
+export interface RedeemOptions {
+  /** Box ID of the Note to redeem */
+  noteBoxId: string;
+
+  /**
+   * Task output for acceptance predicate verification.
+   * Provided as context variable 0 in the spending transaction.
+   * Required if the Note has a taskHash in R6.
+   */
+  taskOutput?: Uint8Array | Buffer | string;
+
+  /**
+   * Address to receive the redeemed ERG.
+   * Defaults to the agent's own address.
+   */
+  receiverAddress?: string;
+}
+
+export interface RedeemResult extends PayResult {
+  redeemed: {
+    noteBoxId: string;
+    value: string;
+    receiver: string;
+  };
+}
+
+// ── Batch settlement ──────────────────────────────────────────────────────────
+
+export interface BatchSettleOptions {
+  /**
+   * Box IDs of Notes to redeem in a single transaction.
+   * All Notes must belong to the same Reserve (same R4 value).
+   */
+  noteBoxIds: string[];
+
+  /**
+   * Map from noteBoxId → task output for acceptance predicates.
+   * Only needed for Notes that have task hash predicates (R6 set).
+   */
+  taskOutputs?: Record<string, Uint8Array | Buffer | string>;
+
+  /** Address to receive the total settled ERG. Defaults to agent address. */
+  receiverAddress?: string;
+}
+
+export interface BatchSettleResult extends PayResult {
+  settlement: {
+    noteCount: number;
+    totalValue: string;
+    receiver: string;
+  };
+}
+
+// ── Tracker ───────────────────────────────────────────────────────────────────
+
+export interface TrackerConfig {
+  /**
+   * Compiled ErgoScript ergoTree for the Tracker box.
+   * The script must enforce: !spentSet.contains(noteId) && validUpdate.
+   * Use ChainCash's Tracker script for production.
+   */
+  scriptErgoTree: string;
+
+  /** Audited predicate name. See `NoteOptions.scriptName`. */
+  scriptName?: string;
+
+  /** @deprecated No longer bypasses mainnet safety; rejected on mainnet. */
+  dangerouslyAllowUnauditedErgoTree?: boolean;
+}
+
+export interface TrackerResult extends PayResult {
+  tracker: {
+    boxId?: string;
+    hasScript: boolean;
+  };
+}

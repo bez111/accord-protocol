@@ -1,0 +1,21 @@
+{
+  "type": "accord.provider_well_known.v0",
+  "version": "v0",
+  "provider_id": "provider://example-accord-provider",
+  "display_name": "Example Accord Provider",
+  "profile_uri": "https://provider.example/.well-known/accord",
+  "agreement_template_uri": "https://provider.example/.well-known/accord/agreement-template.json",
+  "receipt_examples": {
+    "agreement": "https://provider.example/evidence/accord/agreement.json",
+    "verification_receipt": "https://provider.example/evidence/accord/verification-receipt.json",
+    "settlement_receipt": "https://provider.example/evidence/accord/settlement-receipt.json"
+  },
+  "conformance": {
+    "level": "L0",
+    "result_uri": "https://provider.example/evidence/accord/conformance-result.signed.json",
+    "public_key_uri": "https://provider.example/evidence/accord/provider-signing-key.json"
+  },
+  "mainnet_status": "not_certified",
+  "audit_status": "not_audited",
+  "notes": "Template endpoint for provider onboarding. Replace every provider.example URL and provider/verifier id before publishing."
+}

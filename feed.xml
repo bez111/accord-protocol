@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Accord Protocol Learn</title>
+    <link>https://accordprotocol.ai/learn/</link>
+    <description>Guides to agent work agreements, verification receipts, settlement receipts and Accord Protocol architecture.</description>
+    <language>en</language>
+    <lastBuildDate>Sun, 24 May 2026 00:00:00 GMT</lastBuildDate>
+    <item>
+      <title>What Are Agent Work Agreements?</title>
+      <link>https://accordprotocol.ai/learn/agent-work-agreements/</link>
+      <guid>https://accordprotocol.ai/learn/agent-work-agreements/</guid>
+      <pubDate>Sun, 24 May 2026 00:00:00 GMT</pubDate>
+      <description>A practical explanation of agent work agreements: terms, authority, verification and settlement records for autonomous software work.</description>
+    </item>
+    <item>
+      <title>Accord Protocol vs x402</title>
+      <link>https://accordprotocol.ai/learn/accord-vs-x402/</link>
+      <guid>https://accordprotocol.ai/learn/accord-vs-x402/</guid>
+      <pubDate>Sun, 24 May 2026 00:00:00 GMT</pubDate>
+      <description>How Accord and x402 fit together: x402 verifies paid HTTP access, while Accord verifies completion of the work around that payment.</description>
+    </item>
+    <item>
+      <title>Verification Receipts for AI Agents</title>
+      <link>https://accordprotocol.ai/learn/verification-receipts/</link>
+      <guid>https://accordprotocol.ai/learn/verification-receipts/</guid>
+      <pubDate>Sun, 24 May 2026 00:00:00 GMT</pubDate>
+      <description>Why verification receipts matter for autonomous agent workflows and how they record accepted, rejected or partially accepted work.</description>
+    </item>
+    <item>
+      <title>Settlement Receipts and Agent Payment Records</title>
+      <link>https://accordprotocol.ai/learn/settlement-receipts/</link>
+      <guid>https://accordprotocol.ai/learn/settlement-receipts/</guid>
+      <pubDate>Sun, 24 May 2026 00:00:00 GMT</pubDate>
+      <description>How Settlement Receipts record the economic closeout of agent work across rails without making Accord a payment processor.</description>
+    </item>
+    <item>
+      <title>Accord/MCP for Paid and Verifiable Tools</title>
+      <link>https://accordprotocol.ai/learn/accord-mcp-paid-tools/</link>
+      <guid>https://accordprotocol.ai/learn/accord-mcp-paid-tools/</guid>
+      <pubDate>Sun, 24 May 2026 00:00:00 GMT</pubDate>
+      <description>How Accord/MCP adds payment and completion semantics around MCP tools used by autonomous agents.</description>
+    </item>
+    <item>
+      <title>Rail Adapters in Accord Protocol</title>
+      <link>https://accordprotocol.ai/learn/rail-adapters/</link>
+      <guid>https://accordprotocol.ai/learn/rail-adapters/</guid>
+      <pubDate>Sun, 24 May 2026 00:00:00 GMT</pubDate>
+      <description>A guide to Accord rail adapters and how they separate agreement semantics from settlement mechanisms.</description>
+    </item>
+    <item>
+      <title>How to Become an Accord-Compatible Provider</title>
+      <link>https://accordprotocol.ai/learn/provider-onboarding/</link>
+      <guid>https://accordprotocol.ai/learn/provider-onboarding/</guid>
+      <pubDate>Sun, 24 May 2026 00:00:00 GMT</pubDate>
+      <description>A practical onboarding path for APIs, MCP tools and agent services that want to emit Accord agreements, verification receipts and settlement receipts.</description>
+    </item>
+    <item>
+      <title>Accord Launch Readiness Gates</title>
+      <link>https://accordprotocol.ai/learn/launch-readiness-gates/</link>
+      <guid>https://accordprotocol.ai/learn/launch-readiness-gates/</guid>
+      <pubDate>Sun, 24 May 2026 00:00:00 GMT</pubDate>
+      <description>Why Accord is holding broad public launch until the evidence, provider onboarding and audit posture are polished.</description>
+    </item>
+    <item>
+      <title>Why Ergo Is the First Accord Reference Rail</title>
+      <link>https://accordprotocol.ai/learn/why-ergo-reference-rail/</link>
+      <guid>https://accordprotocol.ai/learn/why-ergo-reference-rail/</guid>
+      <pubDate>Sun, 24 May 2026 00:00:00 GMT</pubDate>
+      <description>Why Accord uses Ergo as its first reference programmable settlement rail, and what claims should be avoided until audits are complete.</description>
+    </item>
+    <item>
+      <title>Accord Conformance Levels L0-L4</title>
+      <link>https://accordprotocol.ai/learn/conformance-levels/</link>
+      <guid>https://accordprotocol.ai/learn/conformance-levels/</guid>
+      <pubDate>Sun, 24 May 2026 00:00:00 GMT</pubDate>
+      <description>What Accord conformance levels mean, what they test and why conformance is not the same as production certification.</description>
+    </item>
+    <item>
+      <title>Audit-Gated Mainnet Policy for Accord</title>
+      <link>https://accordprotocol.ai/learn/audit-gated-mainnet/</link>
+      <guid>https://accordprotocol.ai/learn/audit-gated-mainnet/</guid>
+      <pubDate>Sun, 24 May 2026 00:00:00 GMT</pubDate>
+      <description>Why Accord keeps mainnet use blocked by default until signed audit manifests explicitly allow relevant scripts or contracts.</description>
+    </item>
+    <item>
+      <title>Accord Protocol vs AP2</title>
+      <link>https://accordprotocol.ai/learn/accord-vs-ap2/</link>
+      <guid>https://accordprotocol.ai/learn/accord-vs-ap2/</guid>
+      <pubDate>Sun, 24 May 2026 00:00:00 GMT</pubDate>
+      <description>How Accord relates to AP2-style authorization: AP2 helps express authority, while Accord records work terms, verification and settlement.</description>
+    </item>
+    <item>
+      <title>Accord Protocol vs MCP</title>
+      <link>https://accordprotocol.ai/learn/accord-vs-mcp/</link>
+      <guid>https://accordprotocol.ai/learn/accord-vs-mcp/</guid>
+      <pubDate>Sun, 24 May 2026 00:00:00 GMT</pubDate>
+      <description>MCP connects agents to tools. Accord adds paid-work terms, verification receipts and settlement records around tool calls.</description>
+    </item>
+    <item>
+      <title>How Accord/402 Works</title>
+      <link>https://accordprotocol.ai/learn/accord-402-flow/</link>
+      <guid>https://accordprotocol.ai/learn/accord-402-flow/</guid>
+      <pubDate>Sun, 24 May 2026 00:00:00 GMT</pubDate>
+      <description>A step-by-step guide to Accord/402, the HTTP paid-resource flow that combines payment proof with agreement and verification receipts.</description>
+    </item>
+    <item>
+      <title>How to Run the Paid MCP Repository Audit Demo</title>
+      <link>https://accordprotocol.ai/learn/paid-mcp-repo-audit-demo/</link>
+      <guid>https://accordprotocol.ai/learn/paid-mcp-repo-audit-demo/</guid>
+      <pubDate>Sun, 24 May 2026 00:00:00 GMT</pubDate>
+      <description>A practical walkthrough of the safest first Accord demo: the mock-rail paid MCP repository audit lifecycle.</description>
+    </item>
+    <item>
+      <title>The Accord Agreement Object Explained</title>
+      <link>https://accordprotocol.ai/learn/agreement-object-explained/</link>
+      <guid>https://accordprotocol.ai/learn/agreement-object-explained/</guid>
+      <pubDate>Sun, 24 May 2026 00:00:00 GMT</pubDate>
+      <description>A plain-language guide to the Accord Agreement Object and the fields that define paid agent work.</description>
+    </item>
+    <item>
+      <title>Buyer Policy for Agent Wallets</title>
+      <link>https://accordprotocol.ai/learn/buyer-policy-agent-wallets/</link>
+      <guid>https://accordprotocol.ai/learn/buyer-policy-agent-wallets/</guid>
+      <pubDate>Sun, 24 May 2026 00:00:00 GMT</pubDate>
+      <description>How buyer-side policy can limit agent spend and connect payment authority to Accord agreements and receipts.</description>
+    </item>
+    <item>
+      <title>What Accord Conformance Does Not Prove</title>
+      <link>https://accordprotocol.ai/learn/what-conformance-does-not-prove/</link>
+      <guid>https://accordprotocol.ai/learn/what-conformance-does-not-prove/</guid>
+      <pubDate>Sun, 24 May 2026 00:00:00 GMT</pubDate>
+      <description>A safety-focused explanation of the limits of conformance testing and why compatibility is not production certification.</description>
+    </item>
+    <item>
+      <title>Live Testnet Evidence: Accord Base Sepolia Contract Rail</title>
+      <link>https://accordprotocol.ai/learn/base-sepolia-contract-rail-live-evidence/</link>
+      <guid>https://accordprotocol.ai/learn/base-sepolia-contract-rail-live-evidence/</guid>
+      <pubDate>Sun, 24 May 2026 00:00:00 GMT</pubDate>
+      <description>Accord completed a live Base Sepolia contract rail pilot with deployed contract evidence, testnet transactions, audit-gate checks and L4 conformance.</description>
+    </item>
+    <item>
+      <title>The Agent Payments Stack: MCP, x402, AP2 and Accord</title>
+      <link>https://accordprotocol.ai/learn/agent-payments-stack/</link>
+      <guid>https://accordprotocol.ai/learn/agent-payments-stack/</guid>
+      <pubDate>Sun, 24 May 2026 00:00:00 GMT</pubDate>
+      <description>A practical map of the agent payments stack: MCP for tool access, x402 for HTTP payment, AP2 for payment authority and Accord for work verification.</description>
+    </item>
+    <item>
+      <title>Payment Verification Is Not Work Verification</title>
+      <link>https://accordprotocol.ai/learn/payment-verification-vs-work-verification/</link>
+      <guid>https://accordprotocol.ai/learn/payment-verification-vs-work-verification/</guid>
+      <pubDate>Sun, 24 May 2026 00:00:00 GMT</pubDate>
+      <description>Why paid AI agent systems need separate records for payment, promised work, verifier decisions and settlement evidence.</description>
+    </item>
+    <item>
+      <title>Production Checklist for Paid MCP Tools</title>
+      <link>https://accordprotocol.ai/learn/paid-mcp-tools-production-checklist/</link>
+      <guid>https://accordprotocol.ai/learn/paid-mcp-tools-production-checklist/</guid>
+      <pubDate>Sun, 24 May 2026 00:00:00 GMT</pubDate>
+      <description>A builder checklist for paid MCP tools covering agreements, pricing, buyer policy, verifier design, receipts, replay protection and audit gates.</description>
+    </item>
+    <item>
+      <title>How to Design Verifiers for Paid Agent Work</title>
+      <link>https://accordprotocol.ai/learn/verifier-design-paid-agent-work/</link>
+      <guid>https://accordprotocol.ai/learn/verifier-design-paid-agent-work/</guid>
+      <pubDate>Sun, 24 May 2026 00:00:00 GMT</pubDate>
+      <description>A practical guide to verifier design for paid AI agent workflows: deterministic tests, human review, model graders, committees and receipt boundaries.</description>
+    </item>
+    <item>
+      <title>Agent Wallet Policy: How to Keep Autonomous Spend Bounded</title>
+      <link>https://accordprotocol.ai/learn/agent-wallet-policy/</link>
+      <guid>https://accordprotocol.ai/learn/agent-wallet-policy/</guid>
+      <pubDate>Sun, 24 May 2026 00:00:00 GMT</pubDate>
+      <description>A guide to buyer-side policy for agent wallets: spend caps, recipient allow-lists, rails, approvals, signer isolation and receipt-aware settlement.</description>
+    </item>
+    <item>
+      <title>Conformance, Audits and Mainnet Gates for Agent Payment Rails</title>
+      <link>https://accordprotocol.ai/learn/conformance-audit-mainnet-checklist/</link>
+      <guid>https://accordprotocol.ai/learn/conformance-audit-mainnet-checklist/</guid>
+      <pubDate>Sun, 24 May 2026 00:00:00 GMT</pubDate>
+      <description>How to separate Accord compatibility, external audits, rail risk, verifier assumptions and mainnet readiness for agent payment systems.</description>
+    </item>
+  </channel>
+</rss>

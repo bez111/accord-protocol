@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ergo-agent-pay"
+version = "0.3.2"
+description = "Python reference SDK for the Ergo rail of Accord Protocol — agent payments, Note operations, LangChain / OpenAI integrations. Mirrors the legacy npm package of the same name; the canonical Python Accord layer will publish later under a different PyPI name."
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.10"
+keywords = [
+  "accord-protocol", "ergo", "blockchain", "agent", "ai-agent", "payments",
+  "autonomous", "langchain", "openai", "eUTXO", "acceptance-predicate",
+  "note", "agent-economy", "bearer-instrument"
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Software Development :: Libraries",
+  "Topic :: Office/Business :: Financial",
+]
+dependencies = []  # zero required dependencies — uses stdlib only
+
+[project.optional-dependencies]
+langchain = ["langchain>=0.1.0", "pydantic>=2.0"]
+openai = ["openai>=1.0.0"]
+all = ["langchain>=0.1.0", "pydantic>=2.0", "openai>=1.0.0"]
+dev = ["pytest>=7.0", "pytest-asyncio>=0.21", "mypy>=1.0", "ruff>=0.1"]
+
+[project.urls]
+Homepage = "https://github.com/accord-protocol/accord-protocol"
+Documentation = "https://github.com/accord-protocol/accord-protocol/blob/main/docs/api-reference.md"
+Repository = "https://github.com/accord-protocol/accord-protocol"
+Issues = "https://github.com/accord-protocol/accord-protocol/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["ergo_agent_pay*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.mypy]
+python_version = "3.10"
+strict = true

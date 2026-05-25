@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>The Agent Payments Stack: MCP, x402, AP2 and Accord | Accord Protocol</title>
+    <meta name="description" content="A practical map of the agent payments stack: MCP for tool access, x402 for HTTP payment, AP2 for payment authority and Accord for work verification.">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <link rel="canonical" href="https://accordprotocol.ai/learn/agent-payments-stack/">
+    <link rel="icon" type="image/svg+xml" href="/assets/logo.svg">
+    <link rel="alternate" type="application/rss+xml" title="Accord Protocol Learn Feed" href="/feed.xml">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="Accord Protocol">
+    <meta property="og:title" content="The Agent Payments Stack: MCP, x402, AP2 and Accord | Accord Protocol">
+    <meta property="og:description" content="A practical map of the agent payments stack: MCP for tool access, x402 for HTTP payment, AP2 for payment authority and Accord for work verification.">
+    <meta property="og:url" content="https://accordprotocol.ai/learn/agent-payments-stack/">
+    <meta property="og:image" content="https://accordprotocol.ai/assets/og-card.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="The Agent Payments Stack: MCP, x402, AP2 and Accord | Accord Protocol">
+    <meta name="twitter:description" content="A practical map of the agent payments stack: MCP for tool access, x402 for HTTP payment, AP2 for payment authority and Accord for work verification.">
+    <meta name="twitter:image" content="https://accordprotocol.ai/assets/og-card.png">
+    <link rel="stylesheet" href="/styles.css">
+    <script type="application/ld+json">{
+      "@context": "https://schema.org",
+      "@graph": [
+            {
+                  "@type": "Organization",
+                  "@id": "https://accordprotocol.ai/#organization",
+                  "name": "Accord Protocol",
+                  "url": "https://accordprotocol.ai/",
+                  "logo": "https://accordprotocol.ai/assets/logo.svg"
+            },
+            {
+                  "@type": "Article",
+                  "@id": "https://accordprotocol.ai/learn/agent-payments-stack/#article",
+                  "headline": "The Agent Payments Stack: MCP, x402, AP2 and Accord",
+                  "description": "A practical map of the agent payments stack: MCP for tool access, x402 for HTTP payment, AP2 for payment authority and Accord for work verification.",
+                  "datePublished": "2026-05-24",
+                  "dateModified": "2026-05-24",
+                  "author": {
+                        "@type": "Organization",
+                        "name": "Accord Protocol"
+                  },
+                  "publisher": {
+                        "@id": "https://accordprotocol.ai/#organization"
+                  },
+                  "mainEntityOfPage": "https://accordprotocol.ai/learn/agent-payments-stack/",
+                  "image": "https://accordprotocol.ai/assets/og-card.png",
+                  "articleSection": "Market map",
+                  "citation": [
+                        "https://github.com/modelcontextprotocol/modelcontextprotocol",
+                        "https://github.com/x402-foundation/x402",
+                        "https://cloud.google.com/blog/products/ai-machine-learning/announcing-agents-to-payments-ap2-protocol"
+                  ]
+            },
+            {
+                  "@type": "BreadcrumbList",
+                  "@id": "https://accordprotocol.ai/learn/agent-payments-stack/#breadcrumbs",
+                  "itemListElement": [
+                        {
+                              "@type": "ListItem",
+                              "position": 1,
+                              "name": "Home",
+                              "item": "https://accordprotocol.ai/"
+                        },
+                        {
+                              "@type": "ListItem",
+                              "position": 2,
+                              "name": "Learn",
+                              "item": "https://accordprotocol.ai/learn/"
+                        },
+                        {
+                              "@type": "ListItem",
+                              "position": 3,
+                              "name": "The Agent Payments Stack: MCP, x402, AP2 and Accord",
+                              "item": "https://accordprotocol.ai/learn/agent-payments-stack/"
+                        }
+                  ]
+            },
+            {
+                  "@type": "FAQPage",
+                  "@id": "https://accordprotocol.ai/learn/agent-payments-stack/#faq",
+                  "mainEntity": [
+                        {
+                              "@type": "Question",
+                              "name": "Is Accord a replacement for MCP, x402 or AP2?",
+                              "acceptedAnswer": {
+                                    "@type": "Answer",
+                                    "text": "No. Accord is designed to compose with tool, payment and authority layers. It records paid-work terms, verification and settlement receipts."
+                              }
+                        },
+                        {
+                              "@type": "Question",
+                              "name": "What is the shortest way to explain the difference?",
+                              "acceptedAnswer": {
+                                    "@type": "Answer",
+                                    "text": "MCP connects tools. x402 verifies payment. AP2-style flows express authority. Accord verifies completion."
+                              }
+                        },
+                        {
+                              "@type": "Question",
+                              "name": "Which layer should a developer start with?",
+                              "acceptedAnswer": {
+                                    "@type": "Answer",
+                                    "text": "Start with the work lifecycle: define what the buyer expects, how the result will be verified and which payment or authority layer will be referenced."
+                              }
+                        }
+                  ]
+            }
+      ]
+}</script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header" data-header>
+      <a class="brand" href="/" aria-label="Accord Protocol home">
+        <img src="/assets/logo.svg" width="36" height="36" alt="">
+        <span>Accord Protocol</span>
+      </a>
+      <nav id="primary-nav" class="site-nav" aria-label="Primary navigation" data-nav>
+        <a href="/#why">Overview</a>
+        <a href="/#protocol">Protocol</a>
+        <a href="/#developers">Build</a>
+        <a href="/learn/">Learn</a>
+        <a href="/status/">Status</a>
+        <a href="/security/">Security</a>
+        <a href="/roadmap/">Roadmap</a>
+        <a href="/#rails">Rails</a>
+        <a href="/#agents">Agents</a>
+      </nav>
+      <a class="header-link" href="https://github.com/accord-protocol/accord-protocol" rel="noopener" target="_blank">GitHub</a>
+      <button class="nav-toggle" type="button" aria-controls="primary-nav" aria-expanded="false" data-nav-toggle>
+        <span>Menu</span>
+        <span class="nav-toggle-lines" aria-hidden="true"></span>
+      </button>
+    </header>
+    <main id="main">
+      <article class="article-page">
+        <header class="article-hero">
+          <a class="breadcrumb" href="/learn/">Learn</a>
+          <p class="eyebrow">Market map</p>
+          <h1>The Agent Payments Stack: MCP, x402, AP2 and Accord</h1>
+          <p class="article-deck">Agent payments are not one protocol. They are a stack of tool access, payment authority, payment execution, work verification, settlement evidence and policy.</p>
+          <div class="article-meta">
+            <span>Updated 2026-05-24</span>
+            <span>11 min read</span>
+            <span>Accord Protocol</span>
+          </div>
+        </header>
+
+        <div class="article-layout">
+          <aside class="article-aside" aria-label="Key takeaways">
+            <h2>Key takeaways</h2>
+            <ul>
+              <li>MCP connects agents to tools, but does not define paid-work acceptance criteria.</li>
+              <li>x402 handles HTTP-native payment flows, but payment success is not the same as work completion.</li>
+              <li>AP2-style authority can prove intent to transact, while Accord records the work agreement and receipts.</li>
+            </ul>
+            <nav class="article-toc" aria-label="Article sections">
+              <h2>On this page</h2>
+              <ol>
+                <li><a href="#the-mistake-is-looking-for-one-protocol">The mistake is looking for one protocol</a></li>
+                <li><a href="#mcp-is-the-tool-interface-not-the-commercial-record">MCP is the tool interface, not the commercial record</a></li>
+                <li><a href="#x402-is-the-payment-mechanism-not-the-completion-mechanism">x402 is the payment mechanism, not the completion mechanism</a></li>
+                <li><a href="#ap2-style-authority-answers-who-allowed-the-payment">AP2-style authority answers who allowed the payment</a></li>
+                <li><a href="#accord-is-the-work-layer">Accord is the work layer</a></li>
+                <li><a href="#a-clean-reference-architecture">A clean reference architecture</a></li>
+                <li><a href="#faq">FAQ</a></li>
+                <li><a href="#sources">Sources</a></li>
+              </ol>
+            </nav>
+          </aside>
+
+          <div class="article-content">
+            <section id="the-mistake-is-looking-for-one-protocol">
+              <h2>The mistake is looking for one protocol</h2>
+              <p>Agent payments sound like a single problem until a real workflow touches money. A buyer agent needs to discover a tool, understand price, receive authority to spend, prove or execute payment, get the work, verify whether the work matched the request and record what happened for audit or settlement.</p>
+              <p>No single layer should own all of that. The healthier architecture is a stack. MCP handles tool connectivity. x402 handles HTTP-native payment mechanics. AP2-style flows help express payment authority and intent. Accord records the work terms, verification result and settlement evidence around the task.</p>
+            </section>
+
+            <section id="mcp-is-the-tool-interface-not-the-commercial-record">
+              <h2>MCP is the tool interface, not the commercial record</h2>
+              <p>The Model Context Protocol gives applications and agents a common way to expose tools, resources and prompts. That is a major step for interoperability because tool calling stops being a private integration for every client and server pair.</p>
+              <p>But a tool interface does not answer the commercial questions: what exactly was purchased, what output counts as complete, what verifier is acceptable, what happens if the output fails and how should settlement evidence be recorded. Those questions need a work-agreement layer.</p>
+            </section>
+
+            <section id="x402-is-the-payment-mechanism-not-the-completion-mechanism">
+              <h2>x402 is the payment mechanism, not the completion mechanism</h2>
+              <p>x402 makes the HTTP 402 Payment Required status useful for programmatic payments. A client requests a resource, receives payment requirements, sends a payment payload and the server or facilitator verifies and settles the payment before returning the resource.</p>
+              <p>That is powerful for paid API calls, content access and machine-to-machine payments. It is still not enough for outcome-oriented work. A repository audit, model evaluation, data cleanup or compliance review can be paid for and still be incomplete, low quality or rejected under the buyer's acceptance criteria.</p>
+            </section>
+
+            <section id="ap2-style-authority-answers-who-allowed-the-payment">
+              <h2>AP2-style authority answers who allowed the payment</h2>
+              <p>Agent-led payments need a way to show that an agent had authority to transact. AP2-style mandates and payment authority records are useful because they move the ecosystem away from vague trust in a chatbot and toward auditable intent.</p>
+              <p>Authority still does not equal completion. A user can authorize an agent to buy a service, and the service can receive payment, while the actual work still needs a task record, verifier verdict and settlement trail.</p>
+            </section>
+
+            <section id="accord-is-the-work-layer">
+              <h2>Accord is the work layer</h2>
+              <p>Accord exists for the space between payment and finished work. The Agreement Object records the task, price, parties, deadline, verifier and rail assumptions. The Verification Receipt records whether the output was accepted, rejected or partially accepted. The Settlement Receipt records the economic closeout and rail evidence.</p>
+              <p>That separation makes the agent payments stack inspectable. A payment protocol can do payment well. A tool protocol can do tool access well. Accord can do work verification and receipt semantics without pretending to be a wallet, facilitator, bank or payment network.</p>
+            </section>
+
+            <section id="a-clean-reference-architecture">
+              <h2>A clean reference architecture</h2>
+              <p>A robust agent payment flow should be assembled in this order: discover the tool, construct the agreement, check buyer policy, grant or reference payment authority, verify or execute payment, run the work, verify the output, then write settlement evidence. Each layer should have a clear artifact that later systems can inspect.</p>
+              <p>The result is not just a successful request. It is an audit trail that says what the agent was allowed to buy, what was promised, what was delivered, who checked it and what settlement evidence exists.</p>
+            </section>
+
+            <section id="faq">
+              <h2>FAQ</h2>
+              <h3>Is Accord a replacement for MCP, x402 or AP2?</h3>
+              <p>No. Accord is designed to compose with tool, payment and authority layers. It records paid-work terms, verification and settlement receipts.</p>
+              <h3>What is the shortest way to explain the difference?</h3>
+              <p>MCP connects tools. x402 verifies payment. AP2-style flows express authority. Accord verifies completion.</p>
+              <h3>Which layer should a developer start with?</h3>
+              <p>Start with the work lifecycle: define what the buyer expects, how the result will be verified and which payment or authority layer will be referenced.</p>
+            </section>
+
+            <section id="sources">
+              <h2>Sources and references</h2>
+              <h3><a href="https://github.com/modelcontextprotocol/modelcontextprotocol" rel="noopener" target="_blank">Model Context Protocol repository</a></h3>
+              <p>Official MCP repository containing the specification, protocol schema and documentation.</p>
+              <h3><a href="https://github.com/x402-foundation/x402" rel="noopener" target="_blank">x402 Foundation repository</a></h3>
+              <p>Open x402 implementation and specification source for HTTP-native payment flows.</p>
+              <h3><a href="https://cloud.google.com/blog/products/ai-machine-learning/announcing-agents-to-payments-ap2-protocol" rel="noopener" target="_blank">Google Cloud AP2 announcement</a></h3>
+              <p>Google's announcement of AP2 as an open protocol for secure agent-led payments across platforms.</p>
+            </section>
+
+            <section class="article-action">
+              <div>
+                <span>Next action</span>
+                <h2>Start with the stack map</h2>
+                <p>Use the stack model before choosing a payment, authority or tool layer.</p>
+              </div>
+              <a class="button button-primary" href="/learn/agent-payments-stack/">Open</a>
+            </section>
+          </div>
+        </div>
+
+        <section class="related-section" aria-label="Related articles">
+          <div class="section-heading">
+            <p class="eyebrow">Read next</p>
+            <h2>Related Accord guides</h2>
+          </div>
+          <div class="learn-grid">
+            <a class="learn-card" href="/learn/payment-verification-vs-work-verification/">
+              <span>Principle</span>
+              <h3>Payment Verification Is Not Work Verification</h3>
+              <p>Why paid AI agent systems need separate records for payment, promised work, verifier decisions and settlement evidence.</p>
+            </a>
+            <a class="learn-card" href="/learn/accord-vs-x402/">
+              <span>Comparison</span>
+              <h3>Accord Protocol vs x402</h3>
+              <p>How Accord and x402 fit together: x402 verifies paid HTTP access, while Accord verifies completion of the work around that payment.</p>
+            </a>
+            <a class="learn-card" href="/learn/accord-vs-ap2/">
+              <span>Comparison</span>
+              <h3>Accord Protocol vs AP2</h3>
+              <p>How Accord relates to AP2-style authorization: AP2 helps express authority, while Accord records work terms, verification and settlement.</p>
+            </a>
+          </div>
+        </section>
+      </article>
+    </main>
+    <footer class="site-footer">
+      <div class="footer-brand">
+        <img src="/assets/logo.svg" width="34" height="34" alt="">
+        <div>
+          <strong>Accord Protocol</strong>
+          <p>Open standard for autonomous agent work agreements.</p>
+        </div>
+      </div>
+      <nav aria-label="Footer navigation">
+        <a href="/learn/">Learn</a>
+        <a href="/status/">Status</a>
+        <a href="/security/">Security</a>
+        <a href="/roadmap/">Roadmap</a>
+        <a href="/llms.txt">llms.txt</a>
+        <a href="/agents.txt">agents.txt</a>
+        <a href="https://github.com/accord-protocol/accord-protocol" rel="noopener" target="_blank">GitHub</a>
+        <a href="https://github.com/accord-protocol/accord-protocol/tree/main/specs" rel="noopener" target="_blank">Specs</a>
+        <a href="/sitemap.xml">Sitemap</a>
+      </nav>
+    </footer>
+    <script src="/script.js" defer></script>
+  </body>
+</html>

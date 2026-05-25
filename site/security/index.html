@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Accord Protocol Security | Accord Protocol</title>
+    <meta name="description" content="Security posture and reporting guidance for Accord Protocol, including audit-gated mainnet policy and threat boundaries.">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <link rel="canonical" href="https://accordprotocol.ai/security/">
+    <link rel="icon" type="image/svg+xml" href="/assets/logo.svg">
+    <link rel="alternate" type="application/rss+xml" title="Accord Protocol Learn Feed" href="/feed.xml">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="Accord Protocol">
+    <meta property="og:title" content="Accord Protocol Security | Accord Protocol">
+    <meta property="og:description" content="Security posture and reporting guidance for Accord Protocol, including audit-gated mainnet policy and threat boundaries.">
+    <meta property="og:url" content="https://accordprotocol.ai/security/">
+    <meta property="og:image" content="https://accordprotocol.ai/assets/og-card.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Accord Protocol Security | Accord Protocol">
+    <meta name="twitter:description" content="Security posture and reporting guidance for Accord Protocol, including audit-gated mainnet policy and threat boundaries.">
+    <meta name="twitter:image" content="https://accordprotocol.ai/assets/og-card.png">
+    <link rel="stylesheet" href="/styles.css">
+    <script type="application/ld+json">{
+      "@context": "https://schema.org",
+      "@graph": [
+            {
+                  "@type": "WebPage",
+                  "@id": "https://accordprotocol.ai/security/#webpage",
+                  "name": "Accord Protocol Security",
+                  "url": "https://accordprotocol.ai/security/",
+                  "description": "Security posture and reporting guidance for Accord Protocol, including audit-gated mainnet policy and threat boundaries.",
+                  "dateModified": "2026-05-24",
+                  "publisher": {
+                        "@type": "Organization",
+                        "name": "Accord Protocol",
+                        "url": "https://accordprotocol.ai/"
+                  }
+            },
+            {
+                  "@type": "BreadcrumbList",
+                  "@id": "https://accordprotocol.ai/security/#breadcrumbs",
+                  "itemListElement": [
+                        {
+                              "@type": "ListItem",
+                              "position": 1,
+                              "name": "Home",
+                              "item": "https://accordprotocol.ai/"
+                        },
+                        {
+                              "@type": "ListItem",
+                              "position": 2,
+                              "name": "Accord Protocol Security",
+                              "item": "https://accordprotocol.ai/security/"
+                        }
+                  ]
+            }
+      ]
+}</script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header" data-header>
+      <a class="brand" href="/" aria-label="Accord Protocol home">
+        <img src="/assets/logo.svg" width="36" height="36" alt="">
+        <span>Accord Protocol</span>
+      </a>
+      <nav id="primary-nav" class="site-nav" aria-label="Primary navigation" data-nav>
+        <a href="/#why">Overview</a>
+        <a href="/#protocol">Protocol</a>
+        <a href="/#developers">Build</a>
+        <a href="/learn/">Learn</a>
+        <a href="/status/">Status</a>
+        <a href="/security/">Security</a>
+        <a href="/roadmap/">Roadmap</a>
+        <a href="/#rails">Rails</a>
+        <a href="/#agents">Agents</a>
+      </nav>
+      <a class="header-link" href="https://github.com/accord-protocol/accord-protocol" rel="noopener" target="_blank">GitHub</a>
+      <button class="nav-toggle" type="button" aria-controls="primary-nav" aria-expanded="false" data-nav-toggle>
+        <span>Menu</span>
+        <span class="nav-toggle-lines" aria-hidden="true"></span>
+      </button>
+    </header>
+    <main id="main">
+      <article class="article-page">
+        <header class="article-hero">
+          <a class="breadcrumb" href="/">Home</a>
+          <p class="eyebrow">Security</p>
+          <h1>Accord Protocol Security</h1>
+          <p class="article-deck">Accord's security posture is intentionally conservative: testnet-first, audit-gated and explicit about trust boundaries.</p>
+          <div class="article-meta">
+            <span>Updated 2026-05-24</span>
+            <span>Accord Protocol</span>
+          </div>
+        </header>
+
+        <div class="article-layout">
+          <aside class="article-aside" aria-label="Page summary">
+            <h2>Summary</h2>
+            <ul>
+              <li>Security posture</li>
+              <li>Threat boundaries</li>
+              <li>Reporting</li>
+            </ul>
+          </aside>
+
+          <div class="article-content">
+            <section>
+              <h2>Security posture</h2>
+              <p>Accord Protocol is not currently certified for mainnet production use. Mainnet writes should remain blocked until relevant scripts or contracts appear in signed audit manifests with mainnetAllowed: true.</p>
+              <p>The website preserves this language so humans and agents do not overstate readiness.</p>
+            </section>
+
+            <section>
+              <h2>Threat boundaries</h2>
+              <p>Verifier design, signer behavior, wallet security, bridge assumptions, facilitator proof, replay protection and rail-specific script correctness are separate trust boundaries.</p>
+              <p>Accord records work agreements and receipts. It does not remove the need for audits, policy caps, operational monitoring or incident response.</p>
+            </section>
+
+            <section>
+              <h2>Reporting</h2>
+              <p>Security-sensitive reports should use GitHub private vulnerability reporting or the channels described in the repository SECURITY.md. Public issues are not appropriate for exploitable vulnerabilities.</p>
+              <p>Reports should include affected components, reproduction steps, expected impact and whether public credit is requested.</p>
+            </section>
+
+            <section class="trust-evidence">
+              <p class="eyebrow">Security operations</p>
+              <h2>Boundaries that must stay explicit</h2>
+              <div class="boundary-grid">
+                <article>
+                  <span>Report</span>
+                  <h3>Private vulnerability path</h3>
+                  <p>Use GitHub private vulnerability reporting or the process in SECURITY.md for exploitable issues.</p>
+                  <a href="https://github.com/accord-protocol/accord-protocol/blob/main/SECURITY.md" rel="noopener" target="_blank">Read SECURITY.md</a>
+                </article>
+                <article>
+                  <span>Scope</span>
+                  <h3>Protocol and reference code</h3>
+                  <p>Schema handling, SDK behavior, rail adapters, signer assumptions and replay protection are in scope.</p>
+                  <a href="https://github.com/accord-protocol/accord-protocol/tree/main/packages" rel="noopener" target="_blank">Browse packages</a>
+                </article>
+                <article>
+                  <span>Gate</span>
+                  <h3>Audit manifests</h3>
+                  <p>Mainnet permission depends on signed manifests, not broad compatibility or marketing claims.</p>
+                  <a href="https://github.com/accord-protocol/accord-protocol/tree/main/docs/audit" rel="noopener" target="_blank">Audit evidence</a>
+                </article>
+                <article>
+                  <span>Boundary</span>
+                  <h3>Verifier and rail risk</h3>
+                  <p>Verifier quality, bridge behavior, facilitator proof and wallet policy remain external trust assumptions.</p>
+                  <a href="/learn/what-conformance-does-not-prove/">Conformance limits</a>
+                </article>
+              </div>
+            </section>
+          </div>
+        </div>
+      </article>
+    </main>
+    <footer class="site-footer">
+      <div class="footer-brand">
+        <img src="/assets/logo.svg" width="34" height="34" alt="">
+        <div>
+          <strong>Accord Protocol</strong>
+          <p>Open standard for autonomous agent work agreements.</p>
+        </div>
+      </div>
+      <nav aria-label="Footer navigation">
+        <a href="/learn/">Learn</a>
+        <a href="/status/">Status</a>
+        <a href="/security/">Security</a>
+        <a href="/roadmap/">Roadmap</a>
+        <a href="/llms.txt">llms.txt</a>
+        <a href="/agents.txt">agents.txt</a>
+        <a href="https://github.com/accord-protocol/accord-protocol" rel="noopener" target="_blank">GitHub</a>
+        <a href="https://github.com/accord-protocol/accord-protocol/tree/main/specs" rel="noopener" target="_blank">Specs</a>
+        <a href="/sitemap.xml">Sitemap</a>
+      </nav>
+    </footer>
+    <script src="/script.js" defer></script>
+  </body>
+</html>

@@ -1,0 +1,65 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// ergo-agent-pay — Public API
+// ─────────────────────────────────────────────────────────────────────────────
+
+export { ErgoAgentPay } from "./ErgoAgentPay.js";
+
+export {
+  computeTaskHash,
+  computeTaskHashAsync,
+  resolveDeadline,
+  validateTaskHash,
+  TASK_HASH_PREDICATE_SCRIPT,
+  CREDENTIAL_PREDICATE_SCRIPT,
+} from "./predicates.js";
+
+export { parseAmount } from "./transactions.js";
+
+export { encodeSigmaCollByte, MAX_TASK_OUTPUT_BYTES } from "./encoding.js";
+
+export { assertProductionSafety } from "./safety.js";
+export type { ProductionSafetyArgs, AuditPolicy, AuditPolicyVerdict } from "./safety.js";
+
+export type {
+  ErgoAgentPayConfig,
+  Network,
+  PayOptions,
+  PayResult,
+  NoteOptions,
+  NoteResult,
+  PolicyConfig,
+  BeforePayHook,
+  AfterPayHook,
+  ApprovalFn,
+  AuditLogEvent,
+  AuditLogFn,
+  PayContext,
+  SignerFn,
+  LangChainToolConfig,
+  OpenAIFunctionConfig,
+  EIP12UnsignedTx,
+  SignedTx,
+} from "./types.js";
+
+export { PolicyEngine } from "./policy.js";
+
+export { ErgoAgentPayError } from "./types.js";
+export type { ErgoAgentPayErrorCode } from "./types.js";
+
+// ── Lifecycle types ────────────────────────────────────────────────────────────
+export type {
+  NoteInfo,
+  ReserveConfig,
+  ReserveResult,
+  RedeemOptions,
+  RedeemResult,
+  BatchSettleOptions,
+  BatchSettleResult,
+  TrackerConfig,
+  TrackerResult,
+} from "./types.js";
+
+// Raw lifecycle builders intentionally are not re-exported from the package
+// root. They bypass high-level safety gates and are kept as internal plumbing
+// for `ErgoAgentPay`. Public integrations should use the high-level methods
+// so mainnet safety checks always run before signing.

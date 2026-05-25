@@ -1,0 +1,28 @@
+{
+  "type": "accord.settlement_receipt.v0",
+  "version": "v0",
+  "settlement_id": "sr_01J0ABCD23456789EFGHJKMNPQ",
+  "agreement_id": "acc_01J0ABCD23456789EFGHJKMNPQ",
+  "agreement_hash": "blake2b256:0x9f3221bd5316c3e7c3eab3ef958d1d1b26fe6e461853ddbc78e6b9517d42750c",
+  "verification_receipts": [
+    "blake2b256:0x3ca0cecaec53f9b301b63fced40dfe8099068bea9fd40393f09dc85bb8be60b8"
+  ],
+  "rail": "x402",
+  "mode": "paid_before_response",
+  "status": "settled",
+  "amount": "0.05",
+  "currency": "USDC",
+  "decimals": 6,
+  "tx": {
+    "network": "base-sepolia",
+    "tx_id": "0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "proof": "https://provider.example/evidence/x402-payment-proof.json"
+  },
+  "created_at": "2026-05-24T00:02:00Z",
+  "signature": {
+    "scheme": "ed25519",
+    "public_key": "0x3333333333333333333333333333333333333333333333333333333333333333",
+    "signature": "0x44444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444",
+    "signer_role": "provider"
+  }
+}

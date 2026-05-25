@@ -1,0 +1,72 @@
+name: CI Accord Conformance
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "packages/accord-conformance/**"
+      - "packages/accord-core/**"
+      - "schemas/**"
+      - "test-vectors/**"
+      - ".github/workflows/ci-accord-conformance.yml"
+      - "package.json"
+      - "package-lock.json"
+  pull_request:
+    branches: [main]
+    paths:
+      - "packages/accord-conformance/**"
+      - "packages/accord-core/**"
+      - "schemas/**"
+      - "test-vectors/**"
+      - ".github/workflows/ci-accord-conformance.yml"
+      - "package.json"
+      - "package-lock.json"
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  build:
+    name: Build, typecheck, test, run CLI
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install workspace
+        run: npm install --include=optional
+
+      - name: Build accord-core
+        run: npm run build -w @accord-protocol/core
+
+      - name: Build accord-* + ergo-agent-* + agentpay-base (conformance L1+L2+L3 run them in-process)
+        run: |
+          npm run build -w @accord-protocol/rails
+          npm run build -w @accord-protocol/mcp
+          npm run build -w @accord-protocol/gateway
+          npm run build -w @accord-protocol/rails-ergo
+          npm run build -w @accord-protocol/rails-rosen
+          npm run build -w @accord-protocol/rails-base
+          npm run build -w @accord-protocol/rails-x402
+          npm run build -w ergo-agent-pay
+          npm run build -w ergo-agent-scripts
+          npm run build -w agentpay-base
+
+      - name: Typecheck
+        run: npm run typecheck -w @accord-protocol/conformance
+
+      - name: Test
+        run: npm test -w @accord-protocol/conformance
+
+      - name: Build
+        run: npm run build -w @accord-protocol/conformance
+
+      # Run the CLI against this repo's own fixtures + reference implementations
+      # — the strongest possible self-conformance check. Fails CI if any L0–L4 check drifts.
+      - name: Run conformance L0 + L1 + L2 + L3 + L4 against this repo
+        run: node packages/accord-conformance/dist/cli.js --levels L0,L1,L2,L3,L4

@@ -1,0 +1,39 @@
+{
+  "type": "accord.provider_profile.v0",
+  "version": "v0",
+  "provider_id": "provider://example-accord-provider",
+  "display_name": "Example Accord Provider",
+  "capabilities": ["repo_audit"],
+  "accepted_transports": ["accord/402", "accord/mcp"],
+  "accepted_rails": ["x402"],
+  "pricing": [
+    {
+      "kind": "repo_audit",
+      "amount": "0.05",
+      "currency": "USDC",
+      "decimals": 6
+    }
+  ],
+  "verification": {
+    "required": true,
+    "supported_verifiers": ["verifier://example-security-v0"]
+  },
+  "endpoints": {
+    "well_known": "https://provider.example/.well-known/accord",
+    "agreement_template": "https://provider.example/.well-known/accord/agreement-template.json",
+    "run": "https://provider.example/api/run"
+  },
+  "evidence": {
+    "sample_agreement": "https://provider.example/evidence/accord/agreement.json",
+    "sample_verification_receipt": "https://provider.example/evidence/accord/verification-receipt.json",
+    "sample_settlement_receipt": "https://provider.example/evidence/accord/settlement-receipt.json"
+  },
+  "conformance": {
+    "level": "L0",
+    "last_run_at": null,
+    "result_uri": "https://provider.example/evidence/accord/conformance-result.signed.json",
+    "public_key_uri": "https://provider.example/evidence/accord/provider-signing-key.json"
+  },
+  "mainnet_status": "not_certified",
+  "audit_status": "not_audited"
+}

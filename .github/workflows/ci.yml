@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "packages/ergo-agent-pay/**"
+      - "test-vectors/**"
+      - ".github/workflows/ci.yml"
+      - "package.json"
+      - "package-lock.json"
+  pull_request:
+    branches: [main]
+    paths:
+      - "packages/ergo-agent-pay/**"
+      - "test-vectors/**"
+      - ".github/workflows/ci.yml"
+      - "package.json"
+      - "package-lock.json"
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  build:
+    name: Build & typecheck
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install workspace
+        run: npm install
+
+      - name: Typecheck
+        run: npm run typecheck -w ergo-agent-pay
+
+      - name: Build
+        run: npm run build -w ergo-agent-pay
+
+      - name: Test
+        run: npm test -w ergo-agent-pay
+
+      - name: Check dist output
+        run: ls -la packages/ergo-agent-pay/dist/

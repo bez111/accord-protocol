@@ -1,0 +1,71 @@
+{
+  "name": "ergo-agent-mcp",
+  "version": "0.3.2",
+  "description": "MCP server exposing Ergo blockchain payment tools to AI agents",
+  "type": "module",
+  "bin": {
+    "ergo-agent-mcp": "./dist/index.js"
+  },
+  "main": "./dist/lib.js",
+  "module": "./dist/lib.js",
+  "types": "./dist/lib.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/lib.d.ts",
+      "import": "./dist/lib.js"
+    },
+    "./paywall": {
+      "types": "./dist/lib.d.ts",
+      "import": "./dist/lib.js"
+    }
+  },
+  "scripts": {
+    "build": "tsup src/index.ts src/lib.ts --format esm --dts --clean",
+    "dev": "tsup src/index.ts src/lib.ts --format esm --watch",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit",
+    "test": "npx tsx --test src/__tests__/*.test.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "@fleet-sdk/core": "^0.7.0",
+    "ergo-agent-pay": "^0.3.2",
+    "ergo-agent-api": "^0.3.2"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0",
+    "@types/node": "^20.0.0"
+  },
+  "keywords": [
+    "mcp",
+    "ergo",
+    "blockchain",
+    "agent",
+    "payments",
+    "ai-agent",
+    "model-context-protocol"
+  ],
+  "author": "bez111",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/accord-protocol/accord-protocol.git",
+    "directory": "packages/ergo-agent-mcp"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "homepage": "https://github.com/accord-protocol/accord-protocol/tree/main/packages/ergo-agent-mcp",
+  "bugs": {
+    "url": "https://github.com/accord-protocol/accord-protocol/issues"
+  }
+}

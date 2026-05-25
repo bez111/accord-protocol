@@ -1,0 +1,637 @@
+name: Publish to npm
+
+on:
+  push:
+    tags:
+      - "v*"          # triggers on: git tag v0.4.2 && git push --tags
+  workflow_dispatch:  # manual re-run from Actions UI (used to verify green CI after fixes)
+
+permissions:
+  contents: read
+  id-token: write # Allows npm Trusted Publishing when packages are configured for this workflow.
+
+# Two scopes published by this workflow:
+#
+#   Legacy `ergo-agent-*` / `agentpay-base` packages (currently at 0.3.2).
+#   Re-publishing the same version is a no-op via the skip-if-already-published
+#   guard at the top of each job, so an accidental v0.3.x tag is safe.
+#
+#   New `@accord-protocol/*` scoped packages (at 0.4.2). These are the
+#   open-standard layer added during the rebrand.
+#
+# Topological ordering:
+#   1. Foundation:  ergo-agent-pay, ergo-agent-scripts, agentpay-base
+#                   @accord-protocol/core
+#   2. Mid:         ergo-agent-cli/api/mcp/server (depend on pay)
+#                   ergo-agent-rosen (depends on pay + scripts)
+#                   @accord-protocol/{rails,mcp,gateway,buyer-policy}
+#                   (depend on core)
+#   3. Rail mid:    @accord-protocol/rails-{ergo,rosen,base,x402}
+#                   (depend on core + rails)
+#   4. Top:         @accord-protocol/conformance
+#                   (depends on Accord rails and legacy foundation packages)
+#
+# `needs:` enforces the order so a foundation failure aborts dependents.
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  NODE_VERSION: "24"
+
+jobs:
+  prepublish-gates:
+    name: Prepublish gates
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: "https://registry.npmjs.org"
+          cache: npm
+      - name: Use npm 11 for trusted publishing
+        run: npm install -g npm@11
+      - name: Install
+        run: npm install --include=optional
+      - name: Build all workspaces
+        run: npm run build
+      - name: CommonJS export smoke
+        run: npm run cjs:check
+      - name: Typecheck all workspaces
+        run: npm run typecheck
+      - name: Test all workspaces
+        run: npm test --workspaces --if-present
+      - name: Release readiness check
+        run: npm run release:check
+      - name: Audit readiness check
+        run: npm run audit:check
+      - name: Pilot result check
+        run: npm run pilots:check
+      - name: Site metadata check
+        run: npm run site:check
+      - name: npm publish status
+        run: npm run npm:publish-status
+
+  # ── Legacy: foundation ──────────────────────────────────────────────────────
+
+  ergo-agent-pay:
+    name: ergo-agent-pay
+    needs: [prepublish-gates]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: "https://registry.npmjs.org"
+      - name: Use npm 11 for trusted publishing
+        run: npm install -g npm@11
+      - name: Install
+        run: npm install --include=optional
+      - name: Build
+        run: npm run build -w ergo-agent-pay
+      - name: Test
+        run: npm test -w ergo-agent-pay
+      - name: Publish if new
+        run: |
+          LOCAL=$(node -p "require('./packages/ergo-agent-pay/package.json').version")
+          if npm view "ergo-agent-pay@$LOCAL" version >/dev/null 2>&1; then
+            echo "ergo-agent-pay@$LOCAL already on npm; skipping."
+          else
+            npm publish --workspace ergo-agent-pay --access public
+          fi
+
+  ergo-agent-scripts:
+    name: ergo-agent-scripts
+    needs: [prepublish-gates]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: "https://registry.npmjs.org"
+      - name: Use npm 11 for trusted publishing
+        run: npm install -g npm@11
+      - name: Install
+        run: npm install --include=optional
+      - name: Build
+        run: npm run build -w ergo-agent-scripts
+      - name: Test
+        run: npm test -w ergo-agent-scripts
+      - name: Verify registry hashes
+        run: npm run verify-predicates -w ergo-agent-scripts
+      - name: Publish if new
+        run: |
+          LOCAL=$(node -p "require('./packages/ergo-agent-scripts/package.json').version")
+          if npm view "ergo-agent-scripts@$LOCAL" version >/dev/null 2>&1; then
+            echo "ergo-agent-scripts@$LOCAL already on npm; skipping."
+          else
+            npm publish --workspace ergo-agent-scripts --access public
+          fi
+
+  agentpay-base:
+    name: agentpay-base
+    needs: [prepublish-gates]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: "https://registry.npmjs.org"
+      - name: Use npm 11 for trusted publishing
+        run: npm install -g npm@11
+      - name: Install
+        run: npm install --include=optional
+      - name: Build
+        run: npm run build -w agentpay-base
+      - name: Test
+        run: npm test -w agentpay-base
+      - name: Publish if new
+        run: |
+          LOCAL=$(node -p "require('./packages/agentpay-base/package.json').version")
+          if npm view "agentpay-base@$LOCAL" version >/dev/null 2>&1; then
+            echo "agentpay-base@$LOCAL already on npm; skipping."
+          else
+            npm publish --workspace agentpay-base --access public
+          fi
+
+  # ── Legacy: dependents ──────────────────────────────────────────────────────
+
+  ergo-agent-cli:
+    name: ergo-agent-cli
+    needs: [ergo-agent-pay]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: "https://registry.npmjs.org"
+      - name: Use npm 11 for trusted publishing
+        run: npm install -g npm@11
+      - name: Install
+        run: npm install --include=optional
+      - name: Build deps
+        run: npm run build -w ergo-agent-pay
+      - name: Build
+        run: npm run build -w ergo-agent-cli
+      - name: Test
+        run: npm test -w ergo-agent-cli
+      - name: Publish if new
+        run: |
+          LOCAL=$(node -p "require('./packages/ergo-agent-cli/package.json').version")
+          if npm view "ergo-agent-cli@$LOCAL" version >/dev/null 2>&1; then
+            echo "ergo-agent-cli@$LOCAL already on npm; skipping."
+          else
+            npm publish --workspace ergo-agent-cli --access public
+          fi
+
+  ergo-agent-api:
+    name: ergo-agent-api
+    needs: [ergo-agent-pay]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: "https://registry.npmjs.org"
+      - name: Use npm 11 for trusted publishing
+        run: npm install -g npm@11
+      - name: Install
+        run: npm install --include=optional
+      - name: Build deps
+        run: npm run build -w ergo-agent-pay
+      - name: Build
+        run: npm run build -w ergo-agent-api
+      - name: Test
+        run: npm test -w ergo-agent-api
+      - name: Publish if new
+        run: |
+          LOCAL=$(node -p "require('./packages/ergo-agent-api/package.json').version")
+          if npm view "ergo-agent-api@$LOCAL" version >/dev/null 2>&1; then
+            echo "ergo-agent-api@$LOCAL already on npm; skipping."
+          else
+            npm publish --workspace ergo-agent-api --access public
+          fi
+
+  ergo-agent-mcp:
+    name: ergo-agent-mcp
+    needs: [ergo-agent-pay, ergo-agent-api]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: "https://registry.npmjs.org"
+      - name: Use npm 11 for trusted publishing
+        run: npm install -g npm@11
+      - name: Install
+        run: npm install --include=optional
+      - name: Build deps
+        run: |
+          npm run build -w ergo-agent-pay
+          npm run build -w ergo-agent-api
+      - name: Build
+        run: npm run build -w ergo-agent-mcp
+      - name: Test
+        run: npm test -w ergo-agent-mcp
+      - name: Publish if new
+        run: |
+          LOCAL=$(node -p "require('./packages/ergo-agent-mcp/package.json').version")
+          if npm view "ergo-agent-mcp@$LOCAL" version >/dev/null 2>&1; then
+            echo "ergo-agent-mcp@$LOCAL already on npm; skipping."
+          else
+            npm publish --workspace ergo-agent-mcp --access public
+          fi
+
+  ergo-agent-server:
+    name: ergo-agent-server
+    needs: [ergo-agent-pay]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: "https://registry.npmjs.org"
+      - name: Use npm 11 for trusted publishing
+        run: npm install -g npm@11
+      - name: Install
+        run: npm install --include=optional
+      - name: Build deps
+        run: npm run build -w ergo-agent-pay
+      - name: Build
+        run: npm run build -w ergo-agent-server
+      - name: Test
+        run: npm test -w ergo-agent-server
+      - name: Publish if new
+        run: |
+          LOCAL=$(node -p "require('./packages/ergo-agent-server/package.json').version")
+          if npm view "ergo-agent-server@$LOCAL" version >/dev/null 2>&1; then
+            echo "ergo-agent-server@$LOCAL already on npm; skipping."
+          else
+            npm publish --workspace ergo-agent-server --access public
+          fi
+
+  ergo-agent-rosen:
+    name: ergo-agent-rosen
+    needs: [ergo-agent-pay, ergo-agent-scripts]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: "https://registry.npmjs.org"
+      - name: Use npm 11 for trusted publishing
+        run: npm install -g npm@11
+      - name: Install
+        run: npm install --include=optional
+      - name: Build deps
+        run: |
+          npm run build -w ergo-agent-pay
+          npm run build -w ergo-agent-scripts
+      - name: Build
+        run: npm run build -w ergo-agent-rosen
+      - name: Test
+        run: npm test -w ergo-agent-rosen
+      - name: Publish if new
+        run: |
+          LOCAL=$(node -p "require('./packages/ergo-agent-rosen/package.json').version")
+          if npm view "ergo-agent-rosen@$LOCAL" version >/dev/null 2>&1; then
+            echo "ergo-agent-rosen@$LOCAL already on npm; skipping."
+          else
+            npm publish --workspace ergo-agent-rosen --access public
+          fi
+
+  # ── Accord Protocol layer: foundation ───────────────────────────────────────
+
+  accord-core:
+    name: "@accord-protocol/core"
+    needs: [prepublish-gates]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: "https://registry.npmjs.org"
+      - name: Use npm 11 for trusted publishing
+        run: npm install -g npm@11
+      - name: Install
+        run: npm install --include=optional
+      - name: Build
+        run: npm run build -w @accord-protocol/core
+      - name: Test
+        run: npm test -w @accord-protocol/core
+      - name: Publish if new
+        run: |
+          LOCAL=$(node -p "require('./packages/accord-core/package.json').version")
+          if npm view "@accord-protocol/core@$LOCAL" version >/dev/null 2>&1; then
+            echo "@accord-protocol/core@$LOCAL already on npm; skipping."
+          else
+            npm publish --workspace @accord-protocol/core --access public
+          fi
+
+  # ── Accord Protocol layer: mid ──────────────────────────────────────────────
+
+  accord-rails:
+    name: "@accord-protocol/rails"
+    needs: [accord-core]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: "https://registry.npmjs.org"
+      - name: Use npm 11 for trusted publishing
+        run: npm install -g npm@11
+      - name: Install
+        run: npm install --include=optional
+      - name: Build
+        run: |
+          npm run build -w @accord-protocol/core
+          npm run build -w @accord-protocol/rails
+      - name: Test
+        run: npm test -w @accord-protocol/rails
+      - name: Publish if new
+        run: |
+          LOCAL=$(node -p "require('./packages/accord-rails/package.json').version")
+          if npm view "@accord-protocol/rails@$LOCAL" version >/dev/null 2>&1; then
+            echo "@accord-protocol/rails@$LOCAL already on npm; skipping."
+          else
+            npm publish --workspace @accord-protocol/rails --access public
+          fi
+
+  accord-mcp:
+    name: "@accord-protocol/mcp"
+    needs: [accord-core]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: "https://registry.npmjs.org"
+      - name: Use npm 11 for trusted publishing
+        run: npm install -g npm@11
+      - name: Install
+        run: npm install --include=optional
+      - name: Build
+        run: |
+          npm run build -w @accord-protocol/core
+          npm run build -w @accord-protocol/mcp
+      - name: Test
+        run: npm test -w @accord-protocol/mcp
+      - name: Publish if new
+        run: |
+          LOCAL=$(node -p "require('./packages/accord-mcp/package.json').version")
+          if npm view "@accord-protocol/mcp@$LOCAL" version >/dev/null 2>&1; then
+            echo "@accord-protocol/mcp@$LOCAL already on npm; skipping."
+          else
+            npm publish --workspace @accord-protocol/mcp --access public
+          fi
+
+  accord-gateway:
+    name: "@accord-protocol/gateway"
+    needs: [accord-core]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: "https://registry.npmjs.org"
+      - name: Use npm 11 for trusted publishing
+        run: npm install -g npm@11
+      - name: Install
+        run: npm install --include=optional
+      - name: Build
+        run: |
+          npm run build -w @accord-protocol/core
+          npm run build -w @accord-protocol/gateway
+      - name: Test
+        run: npm test -w @accord-protocol/gateway
+      - name: Publish if new
+        run: |
+          LOCAL=$(node -p "require('./packages/accord-gateway/package.json').version")
+          if npm view "@accord-protocol/gateway@$LOCAL" version >/dev/null 2>&1; then
+            echo "@accord-protocol/gateway@$LOCAL already on npm; skipping."
+          else
+            npm publish --workspace @accord-protocol/gateway --access public
+          fi
+
+  # ── Accord Protocol layer: rail adapters ────────────────────────────────────
+
+  accord-rails-ergo:
+    name: "@accord-protocol/rails-ergo"
+    needs: [accord-rails]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: "https://registry.npmjs.org"
+      - name: Use npm 11 for trusted publishing
+        run: npm install -g npm@11
+      - name: Install
+        run: npm install --include=optional
+      - name: Build
+        run: |
+          npm run build -w @accord-protocol/core
+          npm run build -w @accord-protocol/rails
+          npm run build -w @accord-protocol/rails-ergo
+      - name: Test
+        run: npm test -w @accord-protocol/rails-ergo
+      - name: Publish if new
+        run: |
+          LOCAL=$(node -p "require('./packages/accord-rails-ergo/package.json').version")
+          if npm view "@accord-protocol/rails-ergo@$LOCAL" version >/dev/null 2>&1; then
+            echo "@accord-protocol/rails-ergo@$LOCAL already on npm; skipping."
+          else
+            npm publish --workspace @accord-protocol/rails-ergo --access public
+          fi
+
+  accord-rails-rosen:
+    name: "@accord-protocol/rails-rosen"
+    needs: [accord-rails]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: "https://registry.npmjs.org"
+      - name: Use npm 11 for trusted publishing
+        run: npm install -g npm@11
+      - name: Install
+        run: npm install --include=optional
+      - name: Build
+        run: |
+          npm run build -w @accord-protocol/core
+          npm run build -w @accord-protocol/rails
+          npm run build -w @accord-protocol/rails-rosen
+      - name: Test
+        run: npm test -w @accord-protocol/rails-rosen
+      - name: Publish if new
+        run: |
+          LOCAL=$(node -p "require('./packages/accord-rails-rosen/package.json').version")
+          if npm view "@accord-protocol/rails-rosen@$LOCAL" version >/dev/null 2>&1; then
+            echo "@accord-protocol/rails-rosen@$LOCAL already on npm; skipping."
+          else
+            npm publish --workspace @accord-protocol/rails-rosen --access public
+          fi
+
+  accord-rails-base:
+    name: "@accord-protocol/rails-base"
+    needs: [accord-rails]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: "https://registry.npmjs.org"
+      - name: Use npm 11 for trusted publishing
+        run: npm install -g npm@11
+      - name: Install
+        run: npm install --include=optional
+      - name: Build
+        run: |
+          npm run build -w @accord-protocol/core
+          npm run build -w @accord-protocol/rails
+          npm run build -w @accord-protocol/rails-base
+      - name: Test
+        run: npm test -w @accord-protocol/rails-base
+      - name: Publish if new
+        run: |
+          LOCAL=$(node -p "require('./packages/accord-rails-base/package.json').version")
+          if npm view "@accord-protocol/rails-base@$LOCAL" version >/dev/null 2>&1; then
+            echo "@accord-protocol/rails-base@$LOCAL already on npm; skipping."
+          else
+            npm publish --workspace @accord-protocol/rails-base --access public
+          fi
+
+  accord-rails-x402:
+    name: "@accord-protocol/rails-x402"
+    needs: [accord-rails]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: "https://registry.npmjs.org"
+      - name: Use npm 11 for trusted publishing
+        run: npm install -g npm@11
+      - name: Install
+        run: npm install --include=optional
+      - name: Build
+        run: |
+          npm run build -w @accord-protocol/core
+          npm run build -w @accord-protocol/rails
+          npm run build -w @accord-protocol/rails-x402
+      - name: Test
+        run: npm test -w @accord-protocol/rails-x402
+      - name: Publish if new
+        run: |
+          LOCAL=$(node -p "require('./packages/accord-rails-x402/package.json').version")
+          if npm view "@accord-protocol/rails-x402@$LOCAL" version >/dev/null 2>&1; then
+            echo "@accord-protocol/rails-x402@$LOCAL already on npm; skipping."
+          else
+            npm publish --workspace @accord-protocol/rails-x402 --access public
+          fi
+
+  # ── Accord Protocol layer: top (depends on everything) ──────────────────────
+
+  accord-conformance:
+    name: "@accord-protocol/conformance"
+    needs:
+      - ergo-agent-pay
+      - ergo-agent-scripts
+      - agentpay-base
+      - accord-core
+      - accord-rails
+      - accord-mcp
+      - accord-gateway
+      - accord-rails-ergo
+      - accord-rails-rosen
+      - accord-rails-base
+      - accord-rails-x402
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: "https://registry.npmjs.org"
+      - name: Use npm 11 for trusted publishing
+        run: npm install -g npm@11
+      - name: Install
+        run: npm install --include=optional
+      - name: Build deps
+        run: |
+          npm run build -w @accord-protocol/core
+          npm run build -w @accord-protocol/rails
+          npm run build -w @accord-protocol/mcp
+          npm run build -w @accord-protocol/gateway
+          npm run build -w @accord-protocol/rails-ergo
+          npm run build -w @accord-protocol/rails-rosen
+          npm run build -w @accord-protocol/rails-base
+          npm run build -w @accord-protocol/rails-x402
+          npm run build -w ergo-agent-pay
+          npm run build -w ergo-agent-scripts
+          npm run build -w agentpay-base
+      - name: Build
+        run: npm run build -w @accord-protocol/conformance
+      - name: Test
+        run: npm test -w @accord-protocol/conformance
+      - name: Self-conformance gate (L0+L1+L2+L3+L4)
+        run: node packages/accord-conformance/dist/cli.js run --levels L0,L1,L2,L3,L4
+      - name: Publish if new
+        run: |
+          LOCAL=$(node -p "require('./packages/accord-conformance/package.json').version")
+          if npm view "@accord-protocol/conformance@$LOCAL" version >/dev/null 2>&1; then
+            echo "@accord-protocol/conformance@$LOCAL already on npm; skipping."
+          else
+            npm publish --workspace @accord-protocol/conformance --access public
+          fi
+
+  # ── Accord Protocol layer: buyer-side policy enforcer ─────────────────────
+
+  accord-buyer-policy:
+    name: "@accord-protocol/buyer-policy"
+    needs:
+      - accord-core
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: "https://registry.npmjs.org"
+      - name: Use npm 11 for trusted publishing
+        run: npm install -g npm@11
+      - name: Install
+        run: npm install --include=optional
+      - name: Build deps
+        run: npm run build -w @accord-protocol/core
+      - name: Build
+        run: npm run build -w @accord-protocol/buyer-policy
+      - name: Typecheck
+        run: npm run typecheck -w @accord-protocol/buyer-policy
+      - name: Test
+        run: npm test -w @accord-protocol/buyer-policy
+      - name: Publish if new
+        run: |
+          LOCAL=$(node -p "require('./packages/accord-buyer-policy/package.json').version")
+          if npm view "@accord-protocol/buyer-policy@$LOCAL" version >/dev/null 2>&1; then
+            echo "@accord-protocol/buyer-policy@$LOCAL already on npm; skipping."
+          else
+            npm publish --workspace @accord-protocol/buyer-policy --access public
+          fi

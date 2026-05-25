@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Rail Adapters in Accord Protocol | Accord Protocol</title>
+    <meta name="description" content="A guide to Accord rail adapters and how they separate agreement semantics from settlement mechanisms.">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <link rel="canonical" href="https://accordprotocol.ai/learn/rail-adapters/">
+    <link rel="icon" type="image/svg+xml" href="/assets/logo.svg">
+    <link rel="alternate" type="application/rss+xml" title="Accord Protocol Learn Feed" href="/feed.xml">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="Accord Protocol">
+    <meta property="og:title" content="Rail Adapters in Accord Protocol | Accord Protocol">
+    <meta property="og:description" content="A guide to Accord rail adapters and how they separate agreement semantics from settlement mechanisms.">
+    <meta property="og:url" content="https://accordprotocol.ai/learn/rail-adapters/">
+    <meta property="og:image" content="https://accordprotocol.ai/assets/og-card.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Rail Adapters in Accord Protocol | Accord Protocol">
+    <meta name="twitter:description" content="A guide to Accord rail adapters and how they separate agreement semantics from settlement mechanisms.">
+    <meta name="twitter:image" content="https://accordprotocol.ai/assets/og-card.png">
+    <link rel="stylesheet" href="/styles.css">
+    <script type="application/ld+json">{
+      "@context": "https://schema.org",
+      "@graph": [
+            {
+                  "@type": "Organization",
+                  "@id": "https://accordprotocol.ai/#organization",
+                  "name": "Accord Protocol",
+                  "url": "https://accordprotocol.ai/",
+                  "logo": "https://accordprotocol.ai/assets/logo.svg"
+            },
+            {
+                  "@type": "Article",
+                  "@id": "https://accordprotocol.ai/learn/rail-adapters/#article",
+                  "headline": "Rail Adapters in Accord Protocol",
+                  "description": "A guide to Accord rail adapters and how they separate agreement semantics from settlement mechanisms.",
+                  "datePublished": "2026-05-24",
+                  "dateModified": "2026-05-24",
+                  "author": {
+                        "@type": "Organization",
+                        "name": "Accord Protocol"
+                  },
+                  "publisher": {
+                        "@id": "https://accordprotocol.ai/#organization"
+                  },
+                  "mainEntityOfPage": "https://accordprotocol.ai/learn/rail-adapters/",
+                  "image": "https://accordprotocol.ai/assets/og-card.png",
+                  "articleSection": "Architecture",
+                  "citation": [
+                        "https://github.com/accord-protocol/accord-protocol/blob/main/docs/RAIL_MATURITY_MATRIX.md"
+                  ]
+            },
+            {
+                  "@type": "BreadcrumbList",
+                  "@id": "https://accordprotocol.ai/learn/rail-adapters/#breadcrumbs",
+                  "itemListElement": [
+                        {
+                              "@type": "ListItem",
+                              "position": 1,
+                              "name": "Home",
+                              "item": "https://accordprotocol.ai/"
+                        },
+                        {
+                              "@type": "ListItem",
+                              "position": 2,
+                              "name": "Learn",
+                              "item": "https://accordprotocol.ai/learn/"
+                        },
+                        {
+                              "@type": "ListItem",
+                              "position": 3,
+                              "name": "Rail Adapters in Accord Protocol",
+                              "item": "https://accordprotocol.ai/learn/rail-adapters/"
+                        }
+                  ]
+            },
+            {
+                  "@type": "FAQPage",
+                  "@id": "https://accordprotocol.ai/learn/rail-adapters/#faq",
+                  "mainEntity": [
+                        {
+                              "@type": "Question",
+                              "name": "Is Ergo the only Accord rail?",
+                              "acceptedAnswer": {
+                                    "@type": "Answer",
+                                    "text": "No. Ergo is the first reference programmable-settlement rail, but Accord is rail-agnostic."
+                              }
+                        },
+                        {
+                              "@type": "Question",
+                              "name": "Does conformance certify mainnet safety?",
+                              "acceptedAnswer": {
+                                    "@type": "Answer",
+                                    "text": "No. Conformance means compatibility with Accord rules, not external audit completion."
+                              }
+                        }
+                  ]
+            }
+      ]
+}</script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header" data-header>
+      <a class="brand" href="/" aria-label="Accord Protocol home">
+        <img src="/assets/logo.svg" width="36" height="36" alt="">
+        <span>Accord Protocol</span>
+      </a>
+      <nav id="primary-nav" class="site-nav" aria-label="Primary navigation" data-nav>
+        <a href="/#why">Overview</a>
+        <a href="/#protocol">Protocol</a>
+        <a href="/#developers">Build</a>
+        <a href="/learn/">Learn</a>
+        <a href="/status/">Status</a>
+        <a href="/security/">Security</a>
+        <a href="/roadmap/">Roadmap</a>
+        <a href="/#rails">Rails</a>
+        <a href="/#agents">Agents</a>
+      </nav>
+      <a class="header-link" href="https://github.com/accord-protocol/accord-protocol" rel="noopener" target="_blank">GitHub</a>
+      <button class="nav-toggle" type="button" aria-controls="primary-nav" aria-expanded="false" data-nav-toggle>
+        <span>Menu</span>
+        <span class="nav-toggle-lines" aria-hidden="true"></span>
+      </button>
+    </header>
+    <main id="main">
+      <article class="article-page">
+        <header class="article-hero">
+          <a class="breadcrumb" href="/learn/">Learn</a>
+          <p class="eyebrow">Architecture</p>
+          <h1>Rail Adapters in Accord Protocol</h1>
+          <p class="article-deck">Rail adapters let Accord keep a shared agreement lifecycle while respecting different settlement systems and trust assumptions.</p>
+          <div class="article-meta">
+            <span>Updated 2026-05-24</span>
+            <span>6 min read</span>
+            <span>Accord Protocol</span>
+          </div>
+        </header>
+
+        <div class="article-layout">
+          <aside class="article-aside" aria-label="Key takeaways">
+            <h2>Key takeaways</h2>
+            <ul>
+              <li>Accord is rail-agnostic.</li>
+              <li>Rail adapters expose payment verification and settlement behavior.</li>
+              <li>Each rail keeps its own security assumptions.</li>
+            </ul>
+            <nav class="article-toc" aria-label="Article sections">
+              <h2>On this page</h2>
+              <ol>
+                <li><a href="#the-agreement-layer-should-not-be-rail-locked">The agreement layer should not be rail-locked</a></li>
+                <li><a href="#what-an-adapter-does">What an adapter does</a></li>
+                <li><a href="#why-status-language-matters">Why status language matters</a></li>
+                <li><a href="#faq">FAQ</a></li>
+                <li><a href="#sources">Sources</a></li>
+              </ol>
+            </nav>
+          </aside>
+
+          <div class="article-content">
+            <section id="the-agreement-layer-should-not-be-rail-locked">
+              <h2>The agreement layer should not be rail-locked</h2>
+              <p>Agent work agreements should outlive any single payment rail. A task agreement, verification verdict and settlement record are useful whether the economic closeout uses a mock rail, an HTTP payment proof, Ergo testnet, Rosen-bridged assets or an EVM reference path.</p>
+              <p>Accord uses rail adapters to keep those concerns separate.</p>
+            </section>
+
+            <section id="what-an-adapter-does">
+              <h2>What an adapter does</h2>
+              <p>A rail adapter is responsible for rail-specific operations such as payment verification, lock or issue behavior, settlement submission and proof collection. The adapter does not redefine the Agreement Object. It connects the shared lifecycle to the chosen economic system.</p>
+              <p>This makes conformance easier: implementations can be tested for protocol compatibility while still documenting rail-specific limits.</p>
+            </section>
+
+            <section id="why-status-language-matters">
+              <h2>Why status language matters</h2>
+              <p>The current reference rails are testnet-first and audit-gated. Passing conformance does not mean a rail is production-certified. A rail can be compatible with Accord while still being unsuitable for mainnet funds.</p>
+              <p>That distinction needs to be preserved in developer docs, marketing pages and AI-generated summaries.</p>
+              <p>The rail maturity matrix is the current source for comparing mock, Sage Ergo, Base Sepolia, x402 and Rosen by purpose, evidence, receipt surface, conformance, risk boundary and mainnet gate.</p>
+            </section>
+
+            <section id="faq">
+              <h2>FAQ</h2>
+              <h3>Is Ergo the only Accord rail?</h3>
+              <p>No. Ergo is the first reference programmable-settlement rail, but Accord is rail-agnostic.</p>
+              <h3>Does conformance certify mainnet safety?</h3>
+              <p>No. Conformance means compatibility with Accord rules, not external audit completion.</p>
+            </section>
+
+            <section id="sources">
+              <h2>Sources and references</h2>
+              <h3><a href="https://github.com/accord-protocol/accord-protocol/blob/main/docs/RAIL_MATURITY_MATRIX.md" rel="noopener" target="_blank">Rail maturity matrix</a></h3>
+              <p>Operating matrix for current rail maturity, evidence, receipts, conformance and mainnet gates.</p>
+            </section>
+
+            <section class="article-action">
+              <div>
+                <span>Next action</span>
+                <h2>Open rail matrix</h2>
+                <p>Compare mock, Sage Ergo, Base Sepolia, x402 and Rosen by evidence, receipts, conformance and mainnet gate.</p>
+              </div>
+              <a class="button button-primary" href="https://github.com/accord-protocol/accord-protocol/blob/main/docs/RAIL_MATURITY_MATRIX.md" rel="noopener" target="_blank">Open</a>
+            </section>
+          </div>
+        </div>
+
+        <section class="related-section" aria-label="Related articles">
+          <div class="section-heading">
+            <p class="eyebrow">Read next</p>
+            <h2>Related Accord guides</h2>
+          </div>
+          <div class="learn-grid">
+            <a class="learn-card" href="/learn/provider-onboarding/">
+              <span>Provider guide</span>
+              <h3>How to Become an Accord-Compatible Provider</h3>
+              <p>A practical onboarding path for APIs, MCP tools and agent services that want to emit Accord agreements, verification receipts and settlement receipts.</p>
+            </a>
+            <a class="learn-card" href="/learn/base-sepolia-contract-rail-live-evidence/">
+              <span>Live evidence</span>
+              <h3>Live Testnet Evidence: Accord Base Sepolia Contract Rail</h3>
+              <p>Accord completed a live Base Sepolia contract rail pilot with deployed contract evidence, testnet transactions, audit-gate checks and L4 conformance.</p>
+            </a>
+            <a class="learn-card" href="/learn/settlement-receipts/">
+              <span>Protocol object</span>
+              <h3>Settlement Receipts and Agent Payment Records</h3>
+              <p>How Settlement Receipts record the economic closeout of agent work across rails without making Accord a payment processor.</p>
+            </a>
+          </div>
+        </section>
+      </article>
+    </main>
+    <footer class="site-footer">
+      <div class="footer-brand">
+        <img src="/assets/logo.svg" width="34" height="34" alt="">
+        <div>
+          <strong>Accord Protocol</strong>
+          <p>Open standard for autonomous agent work agreements.</p>
+        </div>
+      </div>
+      <nav aria-label="Footer navigation">
+        <a href="/learn/">Learn</a>
+        <a href="/status/">Status</a>
+        <a href="/security/">Security</a>
+        <a href="/roadmap/">Roadmap</a>
+        <a href="/llms.txt">llms.txt</a>
+        <a href="/agents.txt">agents.txt</a>
+        <a href="https://github.com/accord-protocol/accord-protocol" rel="noopener" target="_blank">GitHub</a>
+        <a href="https://github.com/accord-protocol/accord-protocol/tree/main/specs" rel="noopener" target="_blank">Specs</a>
+        <a href="/sitemap.xml">Sitemap</a>
+      </nav>
+    </footer>
+    <script src="/script.js" defer></script>
+  </body>
+</html>

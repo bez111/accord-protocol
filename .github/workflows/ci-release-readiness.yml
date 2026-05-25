@@ -1,0 +1,79 @@
+name: Release readiness
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - "examples/**"
+      - "packages/**"
+      - "registry/**"
+      - "scripts/**"
+      - "site/**"
+      - ".github/ISSUE_TEMPLATE/**"
+      - ".github/pull_request_template.md"
+      - ".github/workflows/**"
+      - "package.json"
+      - "package-lock.json"
+      - "SECURITY.md"
+      - "README.md"
+      - "CONTRIBUTING.md"
+      - "CHANGELOG.md"
+  pull_request:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - "examples/**"
+      - "packages/**"
+      - "registry/**"
+      - "scripts/**"
+      - "site/**"
+      - ".github/ISSUE_TEMPLATE/**"
+      - ".github/pull_request_template.md"
+      - ".github/workflows/**"
+      - "package.json"
+      - "package-lock.json"
+      - "SECURITY.md"
+      - "README.md"
+      - "CONTRIBUTING.md"
+      - "CHANGELOG.md"
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  release-readiness:
+    name: Typecheck and release gates
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install workspace
+        run: npm install --include=optional
+
+      - name: Build all workspaces
+        run: npm run build
+
+      - name: CommonJS export smoke
+        run: npm run cjs:check
+
+      - name: Typecheck all workspaces
+        run: npm run typecheck
+
+      - name: Release readiness check
+        run: npm run release:check
+
+      - name: Audit readiness check
+        run: npm run audit:check
+
+      - name: Pilot result check
+        run: npm run pilots:check
+
+      - name: Site metadata check
+        run: npm run site:check

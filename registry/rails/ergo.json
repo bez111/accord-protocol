@@ -1,0 +1,11 @@
+{
+  "type": "accord.rail_adapter.v0",
+  "version": "v0",
+  "rail": "ergo",
+  "package": "@accord-protocol/rails-ergo",
+  "settlement_modes": ["note_redeemed", "reserve_refunded", "batch_settled"],
+  "supported_currencies": ["ERG"],
+  "payment_id_format": "Ergo Note box id (64 hex)",
+  "task_hash_algorithm": "blake2b256",
+  "manifest": "manifests/ergo.json"
+}

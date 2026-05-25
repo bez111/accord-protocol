@@ -1,0 +1,28 @@
+{
+  "type": "accord.provider_agreement_template.v0",
+  "version": "v0",
+  "provider_id": "provider://example-accord-provider",
+  "task_kinds": ["repo_audit"],
+  "accepted_transports": ["accord/402", "accord/mcp"],
+  "accepted_rails": ["x402"],
+  "pricing": [
+    {
+      "kind": "repo_audit",
+      "amount": "0.05",
+      "currency": "USDC",
+      "decimals": 6
+    }
+  ],
+  "verification": {
+    "required": true,
+    "method": "verifier_receipt",
+    "supported_verifiers": ["verifier://example-security-v0"],
+    "evidence_required": ["schema_valid", "work_output_present"]
+  },
+  "settlement": {
+    "mode": "inline",
+    "refund_policy": "none",
+    "dispute_policy": "manual_review"
+  },
+  "mainnet_status": "not_certified"
+}

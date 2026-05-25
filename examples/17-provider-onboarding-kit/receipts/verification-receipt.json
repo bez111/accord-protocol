@@ -1,0 +1,34 @@
+{
+  "type": "accord.verification_receipt.v0",
+  "version": "v0",
+  "receipt_id": "vr_01J0ABCD23456789EFGHJKMNPQ",
+  "agreement_id": "acc_01J0ABCD23456789EFGHJKMNPQ",
+  "agreement_hash": "blake2b256:0x9f3221bd5316c3e7c3eab3ef958d1d1b26fe6e461853ddbc78e6b9517d42750c",
+  "verifier": {
+    "id": "verifier://example-security-v0"
+  },
+  "result": "accepted",
+  "evidence": {
+    "output_hash": "sha256:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "output_ref": "https://provider.example/evidence/repo-audit-summary.json",
+    "schema": "accord.repo_audit_summary.v0"
+  },
+  "checks": [
+    {
+      "name": "schema_valid",
+      "result": "pass",
+      "detail": "Output matches accord.repo_audit_summary.v0."
+    },
+    {
+      "name": "work_output_present",
+      "result": "pass",
+      "detail": "Findings summary and repository reference are present."
+    }
+  ],
+  "created_at": "2026-05-24T00:01:00Z",
+  "signature": {
+    "scheme": "ed25519",
+    "public_key": "0x1111111111111111111111111111111111111111111111111111111111111111",
+    "signature": "0x22222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222"
+  }
+}

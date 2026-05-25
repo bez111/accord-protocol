@@ -1,0 +1,63 @@
+{
+  "name": "accord-protocol-monorepo",
+  "version": "0.4.2",
+  "private": true,
+  "description": "Monorepo root for the Accord Protocol open-source reference implementation. Hosts @accord-protocol/core (canonicalize / hash / validate the v0 protocol objects) plus the existing Ergo / Rosen / Base reference rail packages. The root package.json is private and exists only to configure workspaces.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/accord-protocol/accord-protocol"
+  },
+  "homepage": "https://accordprotocol.ai/",
+  "bugs": {
+    "url": "https://github.com/accord-protocol/accord-protocol/issues"
+  },
+  "workspaces": [
+    "packages/accord-core",
+    "packages/accord-mcp",
+    "packages/accord-gateway",
+    "packages/accord-rails",
+    "packages/accord-rails-base",
+    "packages/accord-rails-ergo",
+    "packages/accord-rails-rosen",
+    "packages/accord-rails-x402",
+    "packages/ergo-agent-pay",
+    "packages/ergo-agent-cli",
+    "packages/ergo-agent-api",
+    "packages/ergo-agent-mcp",
+    "packages/ergo-agent-server",
+    "packages/ergo-agent-scripts",
+    "packages/ergo-agent-rosen",
+    "packages/agentpay-base",
+    "packages/accord-conformance",
+    "packages/accord-buyer-policy",
+    "examples/15-paid-mcp-repo-audit",
+    "examples/16-paid-mcp-ergo-testnet"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run build && npm test --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "cjs:check": "node scripts/check-cjs-exports.mjs",
+    "protocol:check": "node scripts/check-protocol-hardening.mjs",
+    "audit:check": "node scripts/check-audit-readiness.mjs",
+    "audit:handoff": "node scripts/audit-handoff.mjs",
+    "pilots:check": "node scripts/check-pilot-results.mjs",
+    "pilots:todo": "node scripts/list-pilot-blockers.mjs",
+    "pilots:base:live": "node scripts/run-base-sepolia-live-pilot.mjs",
+    "pilots:base:stub": "node scripts/run-base-contract-stub-pilot.mjs",
+    "pilots:sage:live": "node scripts/check-sage-receipt-evidence.mjs",
+    "pilots:rosen:stub": "node scripts/run-rosen-stub-pilot.mjs",
+    "pilots:x402:stub": "node scripts/run-x402-stub-pilot.mjs",
+    "npm:publish-status": "node scripts/check-npm-publish-status.mjs",
+    "release:check": "node scripts/check-release-readiness.mjs",
+    "release:preflight": "node scripts/release-preflight.mjs",
+    "release:preflight:pack": "node scripts/release-preflight.mjs --pack",
+    "site:build-learn": "node scripts/build-learn.mjs",
+    "site:serve": "node site/serve.mjs",
+    "site:check": "node site/check.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://accordprotocol.ai/sitemap.xml
+Sitemap: https://accordprotocol.ai/feed.xml

@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Learn Accord Protocol | Guides for Agent Work Agreements</title>
+    <meta name="description" content="Guides to Accord Protocol, x402, MCP paid tools, verification receipts, settlement receipts, rail adapters and audit-gated mainnet policy.">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <link rel="canonical" href="https://accordprotocol.ai/learn/">
+    <link rel="icon" type="image/svg+xml" href="/assets/logo.svg">
+    <link rel="alternate" type="application/rss+xml" title="Accord Protocol Learn Feed" href="/feed.xml">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="Accord Protocol">
+    <meta property="og:title" content="Learn Accord Protocol | Guides for Agent Work Agreements">
+    <meta property="og:description" content="Guides to Accord Protocol, x402, MCP paid tools, verification receipts, settlement receipts, rail adapters and audit-gated mainnet policy.">
+    <meta property="og:url" content="https://accordprotocol.ai/learn/">
+    <meta property="og:image" content="https://accordprotocol.ai/assets/og-card.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Learn Accord Protocol | Guides for Agent Work Agreements">
+    <meta name="twitter:description" content="Guides to Accord Protocol, x402, MCP paid tools, verification receipts, settlement receipts, rail adapters and audit-gated mainnet policy.">
+    <meta name="twitter:image" content="https://accordprotocol.ai/assets/og-card.png">
+    <link rel="stylesheet" href="/styles.css">
+    <script type="application/ld+json">{
+      "@context": "https://schema.org",
+      "@graph": [
+            {
+                  "@type": "CollectionPage",
+                  "@id": "https://accordprotocol.ai/learn/#collection",
+                  "name": "Accord Protocol Learn",
+                  "url": "https://accordprotocol.ai/learn/",
+                  "description": "Guides to Accord Protocol, agent work agreements, verification receipts, settlement receipts, rail adapters and conformance.",
+                  "hasPart": [
+                        {
+                              "@type": "Article",
+                              "headline": "What Are Agent Work Agreements?",
+                              "url": "https://accordprotocol.ai/learn/agent-work-agreements/",
+                              "description": "A practical explanation of agent work agreements: terms, authority, verification and settlement records for autonomous software work."
+                        },
+                        {
+                              "@type": "Article",
+                              "headline": "Accord Protocol vs x402",
+                              "url": "https://accordprotocol.ai/learn/accord-vs-x402/",
+                              "description": "How Accord and x402 fit together: x402 verifies paid HTTP access, while Accord verifies completion of the work around that payment."
+                        },
+                        {
+                              "@type": "Article",
+                              "headline": "Verification Receipts for AI Agents",
+                              "url": "https://accordprotocol.ai/learn/verification-receipts/",
+                              "description": "Why verification receipts matter for autonomous agent workflows and how they record accepted, rejected or partially accepted work."
+                        },
+                        {
+                              "@type": "Article",
+                              "headline": "Settlement Receipts and Agent Payment Records",
+                              "url": "https://accordprotocol.ai/learn/settlement-receipts/",
+                              "description": "How Settlement Receipts record the economic closeout of agent work across rails without making Accord a payment processor."
+                        },
+                        {
+                              "@type": "Article",
+                              "headline": "Accord/MCP for Paid and Verifiable Tools",
+                              "url": "https://accordprotocol.ai/learn/accord-mcp-paid-tools/",
+                              "description": "How Accord/MCP adds payment and completion semantics around MCP tools used by autonomous agents."
+                        },
+                        {
+                              "@type": "Article",
+                              "headline": "Rail Adapters in Accord Protocol",
+                              "url": "https://accordprotocol.ai/learn/rail-adapters/",
+                              "description": "A guide to Accord rail adapters and how they separate agreement semantics from settlement mechanisms."
+                        },
+                        {
+                              "@type": "Article",
+                              "headline": "How to Become an Accord-Compatible Provider",
+                              "url": "https://accordprotocol.ai/learn/provider-onboarding/",
+                              "description": "A practical onboarding path for APIs, MCP tools and agent services that want to emit Accord agreements, verification receipts and settlement receipts."
+                        },
+                        {
+                              "@type": "Article",
+                              "headline": "Accord Launch Readiness Gates",
+                              "url": "https://accordprotocol.ai/learn/launch-readiness-gates/",
+                              "description": "Why Accord is holding broad public launch until the evidence, provider onboarding and audit posture are polished."
+                        },
+                        {
+                              "@type": "Article",
+                              "headline": "Why Ergo Is the First Accord Reference Rail",
+                              "url": "https://accordprotocol.ai/learn/why-ergo-reference-rail/",
+                              "description": "Why Accord uses Ergo as its first reference programmable settlement rail, and what claims should be avoided until audits are complete."
+                        },
+                        {
+                              "@type": "Article",
+                              "headline": "Accord Conformance Levels L0-L4",
+                              "url": "https://accordprotocol.ai/learn/conformance-levels/",
+                              "description": "What Accord conformance levels mean, what they test and why conformance is not the same as production certification."
+                        },
+                        {
+                              "@type": "Article",
+                              "headline": "Audit-Gated Mainnet Policy for Accord",
+                              "url": "https://accordprotocol.ai/learn/audit-gated-mainnet/",
+                              "description": "Why Accord keeps mainnet use blocked by default until signed audit manifests explicitly allow relevant scripts or contracts."
+                        },
+                        {
+                              "@type": "Article",
+                              "headline": "Accord Protocol vs AP2",
+                              "url": "https://accordprotocol.ai/learn/accord-vs-ap2/",
+                              "description": "How Accord relates to AP2-style authorization: AP2 helps express authority, while Accord records work terms, verification and settlement."
+                        },
+                        {
+                              "@type": "Article",
+                              "headline": "Accord Protocol vs MCP",
+                              "url": "https://accordprotocol.ai/learn/accord-vs-mcp/",
+                              "description": "MCP connects agents to tools. Accord adds paid-work terms, verification receipts and settlement records around tool calls."
+                        },
+                        {
+                              "@type": "Article",
+                              "headline": "How Accord/402 Works",
+                              "url": "https://accordprotocol.ai/learn/accord-402-flow/",
+                              "description": "A step-by-step guide to Accord/402, the HTTP paid-resource flow that combines payment proof with agreement and verification receipts."
+                        },
+                        {
+                              "@type": "Article",
+                              "headline": "How to Run the Paid MCP Repository Audit Demo",
+                              "url": "https://accordprotocol.ai/learn/paid-mcp-repo-audit-demo/",
+                              "description": "A practical walkthrough of the safest first Accord demo: the mock-rail paid MCP repository audit lifecycle."
+                        },
+                        {
+                              "@type": "Article",
+                              "headline": "The Accord Agreement Object Explained",
+                              "url": "https://accordprotocol.ai/learn/agreement-object-explained/",
+                              "description": "A plain-language guide to the Accord Agreement Object and the fields that define paid agent work."
+                        },
+                        {
+                              "@type": "Article",
+                              "headline": "Buyer Policy for Agent Wallets",
+                              "url": "https://accordprotocol.ai/learn/buyer-policy-agent-wallets/",
+                              "description": "How buyer-side policy can limit agent spend and connect payment authority to Accord agreements and receipts."
+                        },
+                        {
+                              "@type": "Article",
+                              "headline": "What Accord Conformance Does Not Prove",
+                              "url": "https://accordprotocol.ai/learn/what-conformance-does-not-prove/",
+                              "description": "A safety-focused explanation of the limits of conformance testing and why compatibility is not production certification."
+                        },
+                        {
+                              "@type": "Article",
+                              "headline": "Live Testnet Evidence: Accord Base Sepolia Contract Rail",
+                              "url": "https://accordprotocol.ai/learn/base-sepolia-contract-rail-live-evidence/",
+                              "description": "Accord completed a live Base Sepolia contract rail pilot with deployed contract evidence, testnet transactions, audit-gate checks and L4 conformance."
+                        },
+                        {
+                              "@type": "Article",
+                              "headline": "The Agent Payments Stack: MCP, x402, AP2 and Accord",
+                              "url": "https://accordprotocol.ai/learn/agent-payments-stack/",
+                              "description": "A practical map of the agent payments stack: MCP for tool access, x402 for HTTP payment, AP2 for payment authority and Accord for work verification."
+                        },
+                        {
+                              "@type": "Article",
+                              "headline": "Payment Verification Is Not Work Verification",
+                              "url": "https://accordprotocol.ai/learn/payment-verification-vs-work-verification/",
+                              "description": "Why paid AI agent systems need separate records for payment, promised work, verifier decisions and settlement evidence."
+                        },
+                        {
+                              "@type": "Article",
+                              "headline": "Production Checklist for Paid MCP Tools",
+                              "url": "https://accordprotocol.ai/learn/paid-mcp-tools-production-checklist/",
+                              "description": "A builder checklist for paid MCP tools covering agreements, pricing, buyer policy, verifier design, receipts, replay protection and audit gates."
+                        },
+                        {
+                              "@type": "Article",
+                              "headline": "How to Design Verifiers for Paid Agent Work",
+                              "url": "https://accordprotocol.ai/learn/verifier-design-paid-agent-work/",
+                              "description": "A practical guide to verifier design for paid AI agent workflows: deterministic tests, human review, model graders, committees and receipt boundaries."
+                        },
+                        {
+                              "@type": "Article",
+                              "headline": "Agent Wallet Policy: How to Keep Autonomous Spend Bounded",
+                              "url": "https://accordprotocol.ai/learn/agent-wallet-policy/",
+                              "description": "A guide to buyer-side policy for agent wallets: spend caps, recipient allow-lists, rails, approvals, signer isolation and receipt-aware settlement."
+                        },
+                        {
+                              "@type": "Article",
+                              "headline": "Conformance, Audits and Mainnet Gates for Agent Payment Rails",
+                              "url": "https://accordprotocol.ai/learn/conformance-audit-mainnet-checklist/",
+                              "description": "How to separate Accord compatibility, external audits, rail risk, verifier assumptions and mainnet readiness for agent payment systems."
+                        }
+                  ]
+            },
+            {
+                  "@type": "BreadcrumbList",
+                  "@id": "https://accordprotocol.ai/learn/#breadcrumbs",
+                  "itemListElement": [
+                        {
+                              "@type": "ListItem",
+                              "position": 1,
+                              "name": "Home",
+                              "item": "https://accordprotocol.ai/"
+                        },
+                        {
+                              "@type": "ListItem",
+                              "position": 2,
+                              "name": "Learn",
+                              "item": "https://accordprotocol.ai/learn/"
+                        }
+                  ]
+            }
+      ]
+}</script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header" data-header>
+      <a class="brand" href="/" aria-label="Accord Protocol home">
+        <img src="/assets/logo.svg" width="36" height="36" alt="">
+        <span>Accord Protocol</span>
+      </a>
+      <nav id="primary-nav" class="site-nav" aria-label="Primary navigation" data-nav>
+        <a href="/#why">Overview</a>
+        <a href="/#protocol">Protocol</a>
+        <a href="/#developers">Build</a>
+        <a href="/learn/">Learn</a>
+        <a href="/status/">Status</a>
+        <a href="/security/">Security</a>
+        <a href="/roadmap/">Roadmap</a>
+        <a href="/#rails">Rails</a>
+        <a href="/#agents">Agents</a>
+      </nav>
+      <a class="header-link" href="https://github.com/accord-protocol/accord-protocol" rel="noopener" target="_blank">GitHub</a>
+      <button class="nav-toggle" type="button" aria-controls="primary-nav" aria-expanded="false" data-nav-toggle>
+        <span>Menu</span>
+        <span class="nav-toggle-lines" aria-hidden="true"></span>
+      </button>
+    </header>
+    <main id="main">
+      <section class="learn-hero">
+        <p class="eyebrow">Accord Learn</p>
+        <h1>Guides for agent work agreements.</h1>
+        <p>Evergreen explainers for developers, researchers and agents learning how Accord records terms, verification and settlement.</p>
+        <div class="learn-path-summary" aria-label="Recommended learning paths">
+          <a href="#start-here">
+            <span>Start here</span>
+            <strong>4 guides</strong>
+          </a>
+          <a href="#build">
+            <span>Build</span>
+            <strong>5 guides</strong>
+          </a>
+          <a href="#compare">
+            <span>Compare</span>
+            <strong>3 guides</strong>
+          </a>
+          <a href="#trust-and-safety">
+            <span>Trust and safety</span>
+            <strong>8 guides</strong>
+          </a>
+          <a href="#reference-rails">
+            <span>Reference rails</span>
+            <strong>4 guides</strong>
+          </a>
+        </div>
+      </section>
+
+      <section class="learn-index">
+        <section class="learn-group" id="start-here">
+          <div class="learn-group-heading">
+            <div>
+              <p class="eyebrow">Start here</p>
+              <h2>The fastest path from the agent payments stack to a runnable Accord lifecycle.</h2>
+            </div>
+          </div>
+          <div class="learn-grid">
+            <a class="learn-card" href="/learn/agent-payments-stack/">
+              <span>Market map</span>
+              <h3>The Agent Payments Stack: MCP, x402, AP2 and Accord</h3>
+              <p>A practical map of the agent payments stack: MCP for tool access, x402 for HTTP payment, AP2 for payment authority and Accord for work verification.</p>
+              <small>11 min read</small>
+            </a>
+            <a class="learn-card" href="/learn/payment-verification-vs-work-verification/">
+              <span>Principle</span>
+              <h3>Payment Verification Is Not Work Verification</h3>
+              <p>Why paid AI agent systems need separate records for payment, promised work, verifier decisions and settlement evidence.</p>
+              <small>10 min read</small>
+            </a>
+            <a class="learn-card" href="/learn/agent-work-agreements/">
+              <span>Foundation</span>
+              <h3>What Are Agent Work Agreements?</h3>
+              <p>A practical explanation of agent work agreements: terms, authority, verification and settlement records for autonomous software work.</p>
+              <small>7 min read</small>
+            </a>
+            <a class="learn-card" href="/learn/paid-mcp-repo-audit-demo/">
+              <span>Tutorial</span>
+              <h3>How to Run the Paid MCP Repository Audit Demo</h3>
+              <p>A practical walkthrough of the safest first Accord demo: the mock-rail paid MCP repository audit lifecycle.</p>
+              <small>7 min read</small>
+            </a>
+          </div>
+        </section>
+
+        <section class="learn-group" id="build">
+          <div class="learn-group-heading">
+            <div>
+              <p class="eyebrow">Build</p>
+              <h2>Implementation guides for paid tools, HTTP flows, verifiers and rail adapters.</h2>
+            </div>
+          </div>
+          <div class="learn-grid">
+            <a class="learn-card" href="/learn/paid-mcp-tools-production-checklist/">
+              <span>Checklist</span>
+              <h3>Production Checklist for Paid MCP Tools</h3>
+              <p>A builder checklist for paid MCP tools covering agreements, pricing, buyer policy, verifier design, receipts, replay protection and audit gates.</p>
+              <small>12 min read</small>
+            </a>
+            <a class="learn-card" href="/learn/accord-mcp-paid-tools/">
+              <span>Transport</span>
+              <h3>Accord/MCP for Paid and Verifiable Tools</h3>
+              <p>How Accord/MCP adds payment and completion semantics around MCP tools used by autonomous agents.</p>
+              <small>7 min read</small>
+            </a>
+            <a class="learn-card" href="/learn/accord-402-flow/">
+              <span>Transport</span>
+              <h3>How Accord/402 Works</h3>
+              <p>A step-by-step guide to Accord/402, the HTTP paid-resource flow that combines payment proof with agreement and verification receipts.</p>
+              <small>7 min read</small>
+            </a>
+            <a class="learn-card" href="/learn/rail-adapters/">
+              <span>Architecture</span>
+              <h3>Rail Adapters in Accord Protocol</h3>
+              <p>A guide to Accord rail adapters and how they separate agreement semantics from settlement mechanisms.</p>
+              <small>6 min read</small>
+            </a>
+            <a class="learn-card" href="/learn/provider-onboarding/">
+              <span>Provider guide</span>
+              <h3>How to Become an Accord-Compatible Provider</h3>
+              <p>A practical onboarding path for APIs, MCP tools and agent services that want to emit Accord agreements, verification receipts and settlement receipts.</p>
+              <small>8 min read</small>
+            </a>
+          </div>
+        </section>
+
+        <section class="learn-group" id="compare">
+          <div class="learn-group-heading">
+            <div>
+              <p class="eyebrow">Compare</p>
+              <h2>How Accord relates to adjacent payment, authorization and tool layers.</h2>
+            </div>
+          </div>
+          <div class="learn-grid">
+            <a class="learn-card" href="/learn/accord-vs-x402/">
+              <span>Comparison</span>
+              <h3>Accord Protocol vs x402</h3>
+              <p>How Accord and x402 fit together: x402 verifies paid HTTP access, while Accord verifies completion of the work around that payment.</p>
+              <small>6 min read</small>
+            </a>
+            <a class="learn-card" href="/learn/accord-vs-mcp/">
+              <span>Comparison</span>
+              <h3>Accord Protocol vs MCP</h3>
+              <p>MCP connects agents to tools. Accord adds paid-work terms, verification receipts and settlement records around tool calls.</p>
+              <small>6 min read</small>
+            </a>
+            <a class="learn-card" href="/learn/accord-vs-ap2/">
+              <span>Comparison</span>
+              <h3>Accord Protocol vs AP2</h3>
+              <p>How Accord relates to AP2-style authorization: AP2 helps express authority, while Accord records work terms, verification and settlement.</p>
+              <small>6 min read</small>
+            </a>
+          </div>
+        </section>
+
+        <section class="learn-group" id="trust-and-safety">
+          <div class="learn-group-heading">
+            <div>
+              <p class="eyebrow">Trust and safety</p>
+              <h2>Verifier design, wallet policy, conformance and audit gates for safer agent payments.</h2>
+            </div>
+          </div>
+          <div class="learn-grid">
+            <a class="learn-card" href="/learn/launch-readiness-gates/">
+              <span>Pre-launch</span>
+              <h3>Accord Launch Readiness Gates</h3>
+              <p>Why Accord is holding broad public launch until the evidence, provider onboarding and audit posture are polished.</p>
+              <small>6 min read</small>
+            </a>
+            <a class="learn-card" href="/learn/verifier-design-paid-agent-work/">
+              <span>Verifier design</span>
+              <h3>How to Design Verifiers for Paid Agent Work</h3>
+              <p>A practical guide to verifier design for paid AI agent workflows: deterministic tests, human review, model graders, committees and receipt boundaries.</p>
+              <small>12 min read</small>
+            </a>
+            <a class="learn-card" href="/learn/agent-wallet-policy/">
+              <span>Policy</span>
+              <h3>Agent Wallet Policy: How to Keep Autonomous Spend Bounded</h3>
+              <p>A guide to buyer-side policy for agent wallets: spend caps, recipient allow-lists, rails, approvals, signer isolation and receipt-aware settlement.</p>
+              <small>11 min read</small>
+            </a>
+            <a class="learn-card" href="/learn/conformance-audit-mainnet-checklist/">
+              <span>Safety</span>
+              <h3>Conformance, Audits and Mainnet Gates for Agent Payment Rails</h3>
+              <p>How to separate Accord compatibility, external audits, rail risk, verifier assumptions and mainnet readiness for agent payment systems.</p>
+              <small>11 min read</small>
+            </a>
+            <a class="learn-card" href="/learn/conformance-levels/">
+              <span>Conformance</span>
+              <h3>Accord Conformance Levels L0-L4</h3>
+              <p>What Accord conformance levels mean, what they test and why conformance is not the same as production certification.</p>
+              <small>6 min read</small>
+            </a>
+            <a class="learn-card" href="/learn/audit-gated-mainnet/">
+              <span>Safety</span>
+              <h3>Audit-Gated Mainnet Policy for Accord</h3>
+              <p>Why Accord keeps mainnet use blocked by default until signed audit manifests explicitly allow relevant scripts or contracts.</p>
+              <small>6 min read</small>
+            </a>
+            <a class="learn-card" href="/learn/what-conformance-does-not-prove/">
+              <span>Safety</span>
+              <h3>What Accord Conformance Does Not Prove</h3>
+              <p>A safety-focused explanation of the limits of conformance testing and why compatibility is not production certification.</p>
+              <small>6 min read</small>
+            </a>
+            <a class="learn-card" href="/learn/buyer-policy-agent-wallets/">
+              <span>Policy</span>
+              <h3>Buyer Policy for Agent Wallets</h3>
+              <p>How buyer-side policy can limit agent spend and connect payment authority to Accord agreements and receipts.</p>
+              <small>7 min read</small>
+            </a>
+          </div>
+        </section>
+
+        <section class="learn-group" id="reference-rails">
+          <div class="learn-group-heading">
+            <div>
+              <p class="eyebrow">Reference rails</p>
+              <h2>Settlement receipt design, Ergo and the rail-agnostic Accord model.</h2>
+            </div>
+          </div>
+          <div class="learn-grid">
+            <a class="learn-card" href="/learn/base-sepolia-contract-rail-live-evidence/">
+              <span>Live evidence</span>
+              <h3>Live Testnet Evidence: Accord Base Sepolia Contract Rail</h3>
+              <p>Accord completed a live Base Sepolia contract rail pilot with deployed contract evidence, testnet transactions, audit-gate checks and L4 conformance.</p>
+              <small>8 min read</small>
+            </a>
+            <a class="learn-card" href="/learn/settlement-receipts/">
+              <span>Protocol object</span>
+              <h3>Settlement Receipts and Agent Payment Records</h3>
+              <p>How Settlement Receipts record the economic closeout of agent work across rails without making Accord a payment processor.</p>
+              <small>6 min read</small>
+            </a>
+            <a class="learn-card" href="/learn/verification-receipts/">
+              <span>Protocol object</span>
+              <h3>Verification Receipts for AI Agents</h3>
+              <p>Why verification receipts matter for autonomous agent workflows and how they record accepted, rejected or partially accepted work.</p>
+              <small>7 min read</small>
+            </a>
+            <a class="learn-card" href="/learn/why-ergo-reference-rail/">
+              <span>Reference rail</span>
+              <h3>Why Ergo Is the First Accord Reference Rail</h3>
+              <p>Why Accord uses Ergo as its first reference programmable settlement rail, and what claims should be avoided until audits are complete.</p>
+              <small>7 min read</small>
+            </a>
+          </div>
+        </section>
+      </section>
+    </main>
+    <footer class="site-footer">
+      <div class="footer-brand">
+        <img src="/assets/logo.svg" width="34" height="34" alt="">
+        <div>
+          <strong>Accord Protocol</strong>
+          <p>Open standard for autonomous agent work agreements.</p>
+        </div>
+      </div>
+      <nav aria-label="Footer navigation">
+        <a href="/learn/">Learn</a>
+        <a href="/status/">Status</a>
+        <a href="/security/">Security</a>
+        <a href="/roadmap/">Roadmap</a>
+        <a href="/llms.txt">llms.txt</a>
+        <a href="/agents.txt">agents.txt</a>
+        <a href="https://github.com/accord-protocol/accord-protocol" rel="noopener" target="_blank">GitHub</a>
+        <a href="https://github.com/accord-protocol/accord-protocol/tree/main/specs" rel="noopener" target="_blank">Specs</a>
+        <a href="/sitemap.xml">Sitemap</a>
+      </nav>
+    </footer>
+    <script src="/script.js" defer></script>
+  </body>
+</html>

@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Settlement Receipts and Agent Payment Records | Accord Protocol</title>
+    <meta name="description" content="How Settlement Receipts record the economic closeout of agent work across rails without making Accord a payment processor.">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <link rel="canonical" href="https://accordprotocol.ai/learn/settlement-receipts/">
+    <link rel="icon" type="image/svg+xml" href="/assets/logo.svg">
+    <link rel="alternate" type="application/rss+xml" title="Accord Protocol Learn Feed" href="/feed.xml">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="Accord Protocol">
+    <meta property="og:title" content="Settlement Receipts and Agent Payment Records | Accord Protocol">
+    <meta property="og:description" content="How Settlement Receipts record the economic closeout of agent work across rails without making Accord a payment processor.">
+    <meta property="og:url" content="https://accordprotocol.ai/learn/settlement-receipts/">
+    <meta property="og:image" content="https://accordprotocol.ai/assets/og-card.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Settlement Receipts and Agent Payment Records | Accord Protocol">
+    <meta name="twitter:description" content="How Settlement Receipts record the economic closeout of agent work across rails without making Accord a payment processor.">
+    <meta name="twitter:image" content="https://accordprotocol.ai/assets/og-card.png">
+    <link rel="stylesheet" href="/styles.css">
+    <script type="application/ld+json">{
+      "@context": "https://schema.org",
+      "@graph": [
+            {
+                  "@type": "Organization",
+                  "@id": "https://accordprotocol.ai/#organization",
+                  "name": "Accord Protocol",
+                  "url": "https://accordprotocol.ai/",
+                  "logo": "https://accordprotocol.ai/assets/logo.svg"
+            },
+            {
+                  "@type": "Article",
+                  "@id": "https://accordprotocol.ai/learn/settlement-receipts/#article",
+                  "headline": "Settlement Receipts and Agent Payment Records",
+                  "description": "How Settlement Receipts record the economic closeout of agent work across rails without making Accord a payment processor.",
+                  "datePublished": "2026-05-24",
+                  "dateModified": "2026-05-24",
+                  "author": {
+                        "@type": "Organization",
+                        "name": "Accord Protocol"
+                  },
+                  "publisher": {
+                        "@id": "https://accordprotocol.ai/#organization"
+                  },
+                  "mainEntityOfPage": "https://accordprotocol.ai/learn/settlement-receipts/",
+                  "image": "https://accordprotocol.ai/assets/og-card.png",
+                  "articleSection": "Protocol object"
+            },
+            {
+                  "@type": "BreadcrumbList",
+                  "@id": "https://accordprotocol.ai/learn/settlement-receipts/#breadcrumbs",
+                  "itemListElement": [
+                        {
+                              "@type": "ListItem",
+                              "position": 1,
+                              "name": "Home",
+                              "item": "https://accordprotocol.ai/"
+                        },
+                        {
+                              "@type": "ListItem",
+                              "position": 2,
+                              "name": "Learn",
+                              "item": "https://accordprotocol.ai/learn/"
+                        },
+                        {
+                              "@type": "ListItem",
+                              "position": 3,
+                              "name": "Settlement Receipts and Agent Payment Records",
+                              "item": "https://accordprotocol.ai/learn/settlement-receipts/"
+                        }
+                  ]
+            },
+            {
+                  "@type": "FAQPage",
+                  "@id": "https://accordprotocol.ai/learn/settlement-receipts/#faq",
+                  "mainEntity": [
+                        {
+                              "@type": "Question",
+                              "name": "Does Accord custody funds?",
+                              "acceptedAnswer": {
+                                    "@type": "Answer",
+                                    "text": "No. Accord defines protocol objects and reference adapters; settlement happens on external rails."
+                              }
+                        },
+                        {
+                              "@type": "Question",
+                              "name": "Can the same agreement settle on different rails?",
+                              "acceptedAnswer": {
+                                    "@type": "Answer",
+                                    "text": "The model is rail-agnostic, but each implementation must document its rail assumptions and policy."
+                              }
+                        }
+                  ]
+            }
+      ]
+}</script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header" data-header>
+      <a class="brand" href="/" aria-label="Accord Protocol home">
+        <img src="/assets/logo.svg" width="36" height="36" alt="">
+        <span>Accord Protocol</span>
+      </a>
+      <nav id="primary-nav" class="site-nav" aria-label="Primary navigation" data-nav>
+        <a href="/#why">Overview</a>
+        <a href="/#protocol">Protocol</a>
+        <a href="/#developers">Build</a>
+        <a href="/learn/">Learn</a>
+        <a href="/status/">Status</a>
+        <a href="/security/">Security</a>
+        <a href="/roadmap/">Roadmap</a>
+        <a href="/#rails">Rails</a>
+        <a href="/#agents">Agents</a>
+      </nav>
+      <a class="header-link" href="https://github.com/accord-protocol/accord-protocol" rel="noopener" target="_blank">GitHub</a>
+      <button class="nav-toggle" type="button" aria-controls="primary-nav" aria-expanded="false" data-nav-toggle>
+        <span>Menu</span>
+        <span class="nav-toggle-lines" aria-hidden="true"></span>
+      </button>
+    </header>
+    <main id="main">
+      <article class="article-page">
+        <header class="article-hero">
+          <a class="breadcrumb" href="/learn/">Learn</a>
+          <p class="eyebrow">Protocol object</p>
+          <h1>Settlement Receipts and Agent Payment Records</h1>
+          <p class="article-deck">Settlement Receipts make the economic closeout inspectable without turning Accord into a bank, wallet or custodian.</p>
+          <div class="article-meta">
+            <span>Updated 2026-05-24</span>
+            <span>6 min read</span>
+            <span>Accord Protocol</span>
+          </div>
+        </header>
+
+        <div class="article-layout">
+          <aside class="article-aside" aria-label="Key takeaways">
+            <h2>Key takeaways</h2>
+            <ul>
+              <li>Settlement is rail-specific, but the receipt shape can be shared.</li>
+              <li>A Settlement Receipt records proof or transaction references.</li>
+              <li>Accord is not a payment processor or custodian.</li>
+            </ul>
+            <nav class="article-toc" aria-label="Article sections">
+              <h2>On this page</h2>
+              <ol>
+                <li><a href="#why-settlement-needs-a-receipt">Why settlement needs a receipt</a></li>
+                <li><a href="#rail-specific-proof-shared-lifecycle">Rail-specific proof, shared lifecycle</a></li>
+                <li><a href="#what-accord-is-not">What Accord is not</a></li>
+                <li><a href="#faq">FAQ</a></li>
+              </ol>
+            </nav>
+          </aside>
+
+          <div class="article-content">
+            <section id="why-settlement-needs-a-receipt">
+              <h2>Why settlement needs a receipt</h2>
+              <p>In agent workflows, settlement can happen through different rails: a mock rail in local demos, an HTTP payment proof, an Ergo testnet transaction, a bridged asset path or an EVM reference rail. Each rail has its own assumptions and proof format.</p>
+              <p>A Settlement Receipt gives the broader Accord lifecycle a common record that settlement happened, where it happened and what evidence supports that claim.</p>
+            </section>
+
+            <section id="rail-specific-proof-shared-lifecycle">
+              <h2>Rail-specific proof, shared lifecycle</h2>
+              <p>Accord does not flatten every rail into the same trust model. Instead, it records the rail, the settlement status and the relevant proof or transaction reference. That lets integrations keep their rail-specific security assumptions while preserving a shared work-agreement lifecycle.</p>
+              <p>This is important for agents because settlement policy can differ by asset, chain, facilitator, bridge, verifier or spending threshold.</p>
+            </section>
+
+            <section id="what-accord-is-not">
+              <h2>What Accord is not</h2>
+              <p>Accord is not a bank, broker, custodian, wallet or money transmitter. It does not move funds by itself. It records why and whether value should move, and it links settlement evidence back to the work agreement and verification result.</p>
+              <p>That boundary should stay clear in product copy, documentation and agent-facing summaries.</p>
+            </section>
+
+            <section id="faq">
+              <h2>FAQ</h2>
+              <h3>Does Accord custody funds?</h3>
+              <p>No. Accord defines protocol objects and reference adapters; settlement happens on external rails.</p>
+              <h3>Can the same agreement settle on different rails?</h3>
+              <p>The model is rail-agnostic, but each implementation must document its rail assumptions and policy.</p>
+            </section>
+
+            <section class="article-action">
+              <div>
+                <span>Next action</span>
+                <h2>Open the Settlement Receipt schema</h2>
+                <p>Inspect how rail evidence is recorded without custody claims.</p>
+              </div>
+              <a class="button button-primary" href="/schemas/settlement-receipt.v0.schema.json">Open</a>
+            </section>
+          </div>
+        </div>
+
+        <section class="related-section" aria-label="Related articles">
+          <div class="section-heading">
+            <p class="eyebrow">Read next</p>
+            <h2>Related Accord guides</h2>
+          </div>
+          <div class="learn-grid">
+            <a class="learn-card" href="/learn/rail-adapters/">
+              <span>Architecture</span>
+              <h3>Rail Adapters in Accord Protocol</h3>
+              <p>A guide to Accord rail adapters and how they separate agreement semantics from settlement mechanisms.</p>
+            </a>
+            <a class="learn-card" href="/learn/accord-402-flow/">
+              <span>Transport</span>
+              <h3>How Accord/402 Works</h3>
+              <p>A step-by-step guide to Accord/402, the HTTP paid-resource flow that combines payment proof with agreement and verification receipts.</p>
+            </a>
+            <a class="learn-card" href="/learn/audit-gated-mainnet/">
+              <span>Safety</span>
+              <h3>Audit-Gated Mainnet Policy for Accord</h3>
+              <p>Why Accord keeps mainnet use blocked by default until signed audit manifests explicitly allow relevant scripts or contracts.</p>
+            </a>
+          </div>
+        </section>
+      </article>
+    </main>
+    <footer class="site-footer">
+      <div class="footer-brand">
+        <img src="/assets/logo.svg" width="34" height="34" alt="">
+        <div>
+          <strong>Accord Protocol</strong>
+          <p>Open standard for autonomous agent work agreements.</p>
+        </div>
+      </div>
+      <nav aria-label="Footer navigation">
+        <a href="/learn/">Learn</a>
+        <a href="/status/">Status</a>
+        <a href="/security/">Security</a>
+        <a href="/roadmap/">Roadmap</a>
+        <a href="/llms.txt">llms.txt</a>
+        <a href="/agents.txt">agents.txt</a>
+        <a href="https://github.com/accord-protocol/accord-protocol" rel="noopener" target="_blank">GitHub</a>
+        <a href="https://github.com/accord-protocol/accord-protocol/tree/main/specs" rel="noopener" target="_blank">Specs</a>
+        <a href="/sitemap.xml">Sitemap</a>
+      </nav>
+    </footer>
+    <script src="/script.js" defer></script>
+  </body>
+</html>

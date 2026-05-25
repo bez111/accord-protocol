@@ -1,0 +1,61 @@
+{
+  "name": "@accord-protocol/gateway",
+  "version": "0.4.2",
+  "description": "Accord/402 HTTP middleware. Express/Connect-compatible. Turn any HTTP endpoint into a paid, verifiable Accord engagement: 402 challenge with agreement template, replay-protected payment verification, structured error envelope. Rail-agnostic. See specs/ACCORD-004-accord-402.md.",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts --clean",
+    "typecheck": "tsc --noEmit",
+    "test": "npx tsx --test src/__tests__/*.test.ts"
+  },
+  "keywords": [
+    "accord-protocol",
+    "accord-402",
+    "http-402",
+    "agent-payments",
+    "paid-api",
+    "x402-compatible",
+    "express-middleware",
+    "connect-middleware"
+  ],
+  "author": "bez111",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/accord-protocol/accord-protocol.git",
+    "directory": "packages/accord-gateway"
+  },
+  "homepage": "https://accordprotocol.ai/learn/accord-402-flow/",
+  "bugs": {
+    "url": "https://github.com/accord-protocol/accord-protocol/issues"
+  },
+  "dependencies": {
+    "@accord-protocol/core": "^0.4.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsup": "^8.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

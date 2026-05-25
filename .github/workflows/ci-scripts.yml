@@ -1,0 +1,78 @@
+name: CI Scripts
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "packages/ergo-agent-scripts/**"
+      - ".github/workflows/ci-scripts.yml"
+      - "package.json"
+      - "package-lock.json"
+  pull_request:
+    branches: [main]
+    paths:
+      - "packages/ergo-agent-scripts/**"
+      - ".github/workflows/ci-scripts.yml"
+      - "package.json"
+      - "package-lock.json"
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  build:
+    name: Build, typecheck, test, verify
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install workspace
+        run: npm install
+
+      - name: Typecheck
+        run: npm run typecheck -w ergo-agent-scripts
+
+      - name: Test
+        run: npm test -w ergo-agent-scripts
+
+      - name: Verify registry hashes (no compiler required)
+        run: npm run verify-predicates -w ergo-agent-scripts
+
+      - name: Re-compile predicates (determinism check)
+        working-directory: packages/ergo-agent-scripts
+        run: |
+          npm install --no-save @fleet-sdk/compiler
+          # Snapshot the committed ergoTreeHex values, then re-run the compiler
+          # and compare. Compilation must be deterministic; bytes diverging
+          # means either the source was edited without re-compiling or a
+          # compiler version changed the output.
+          node -e "
+            const fs = require('node:fs');
+            const reg = JSON.parse(fs.readFileSync('data/predicates.json', 'utf-8'));
+            const snapshot = Object.fromEntries(reg.predicates.map(p => [p.name, p.ergoTreeHex]));
+            fs.writeFileSync('/tmp/before.json', JSON.stringify(snapshot));
+          "
+          node scripts/compile.mjs
+          node -e "
+            const fs = require('node:fs');
+            const reg = JSON.parse(fs.readFileSync('data/predicates.json', 'utf-8'));
+            const before = JSON.parse(fs.readFileSync('/tmp/before.json', 'utf-8'));
+            for (const p of reg.predicates) {
+              if (before[p.name] !== p.ergoTreeHex) {
+                console.error('non-deterministic: ' + p.name + ' changed');
+                console.error('  before: ' + before[p.name]);
+                console.error('  after:  ' + p.ergoTreeHex);
+                process.exit(1);
+              }
+            }
+            console.log('compilation is deterministic across all entries.');
+          "
+
+      - name: Build
+        run: npm run build -w ergo-agent-scripts

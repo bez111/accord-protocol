@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>How to Design Verifiers for Paid Agent Work | Accord Protocol</title>
+    <meta name="description" content="A practical guide to verifier design for paid AI agent workflows: deterministic tests, human review, model graders, committees and receipt boundaries.">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <link rel="canonical" href="https://accordprotocol.ai/learn/verifier-design-paid-agent-work/">
+    <link rel="icon" type="image/svg+xml" href="/assets/logo.svg">
+    <link rel="alternate" type="application/rss+xml" title="Accord Protocol Learn Feed" href="/feed.xml">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="Accord Protocol">
+    <meta property="og:title" content="How to Design Verifiers for Paid Agent Work | Accord Protocol">
+    <meta property="og:description" content="A practical guide to verifier design for paid AI agent workflows: deterministic tests, human review, model graders, committees and receipt boundaries.">
+    <meta property="og:url" content="https://accordprotocol.ai/learn/verifier-design-paid-agent-work/">
+    <meta property="og:image" content="https://accordprotocol.ai/assets/og-card.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="How to Design Verifiers for Paid Agent Work | Accord Protocol">
+    <meta name="twitter:description" content="A practical guide to verifier design for paid AI agent workflows: deterministic tests, human review, model graders, committees and receipt boundaries.">
+    <meta name="twitter:image" content="https://accordprotocol.ai/assets/og-card.png">
+    <link rel="stylesheet" href="/styles.css">
+    <script type="application/ld+json">{
+      "@context": "https://schema.org",
+      "@graph": [
+            {
+                  "@type": "Organization",
+                  "@id": "https://accordprotocol.ai/#organization",
+                  "name": "Accord Protocol",
+                  "url": "https://accordprotocol.ai/",
+                  "logo": "https://accordprotocol.ai/assets/logo.svg"
+            },
+            {
+                  "@type": "Article",
+                  "@id": "https://accordprotocol.ai/learn/verifier-design-paid-agent-work/#article",
+                  "headline": "How to Design Verifiers for Paid Agent Work",
+                  "description": "A practical guide to verifier design for paid AI agent workflows: deterministic tests, human review, model graders, committees and receipt boundaries.",
+                  "datePublished": "2026-05-24",
+                  "dateModified": "2026-05-24",
+                  "author": {
+                        "@type": "Organization",
+                        "name": "Accord Protocol"
+                  },
+                  "publisher": {
+                        "@id": "https://accordprotocol.ai/#organization"
+                  },
+                  "mainEntityOfPage": "https://accordprotocol.ai/learn/verifier-design-paid-agent-work/",
+                  "image": "https://accordprotocol.ai/assets/og-card.png",
+                  "articleSection": "Verifier design",
+                  "citation": [
+                        "https://accordprotocol.ai/schemas/verification-receipt.v0.schema.json",
+                        "https://accordprotocol.ai/learn/what-conformance-does-not-prove/",
+                        "https://github.com/accord-protocol/accord-protocol/tree/main/packages/accord-conformance"
+                  ]
+            },
+            {
+                  "@type": "BreadcrumbList",
+                  "@id": "https://accordprotocol.ai/learn/verifier-design-paid-agent-work/#breadcrumbs",
+                  "itemListElement": [
+                        {
+                              "@type": "ListItem",
+                              "position": 1,
+                              "name": "Home",
+                              "item": "https://accordprotocol.ai/"
+                        },
+                        {
+                              "@type": "ListItem",
+                              "position": 2,
+                              "name": "Learn",
+                              "item": "https://accordprotocol.ai/learn/"
+                        },
+                        {
+                              "@type": "ListItem",
+                              "position": 3,
+                              "name": "How to Design Verifiers for Paid Agent Work",
+                              "item": "https://accordprotocol.ai/learn/verifier-design-paid-agent-work/"
+                        }
+                  ]
+            },
+            {
+                  "@type": "FAQPage",
+                  "@id": "https://accordprotocol.ai/learn/verifier-design-paid-agent-work/#faq",
+                  "mainEntity": [
+                        {
+                              "@type": "Question",
+                              "name": "Can an LLM be a verifier?",
+                              "acceptedAnswer": {
+                                    "@type": "Answer",
+                                    "text": "Yes, but only when its limits are documented and the workflow accepts model-judgment risk. High-value work may need human or deterministic review."
+                              }
+                        },
+                        {
+                              "@type": "Question",
+                              "name": "Is a verifier the same as an auditor?",
+                              "acceptedAnswer": {
+                                    "@type": "Answer",
+                                    "text": "No. A verifier judges a specific work output under a specific agreement. An auditor evaluates broader system safety or correctness."
+                              }
+                        },
+                        {
+                              "@type": "Question",
+                              "name": "Why does Accord allow partial acceptance?",
+                              "acceptedAnswer": {
+                                    "@type": "Answer",
+                                    "text": "Because many agent tasks produce mixed outcomes, and settlement policy may need more nuance than accepted or rejected."
+                              }
+                        }
+                  ]
+            }
+      ]
+}</script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header" data-header>
+      <a class="brand" href="/" aria-label="Accord Protocol home">
+        <img src="/assets/logo.svg" width="36" height="36" alt="">
+        <span>Accord Protocol</span>
+      </a>
+      <nav id="primary-nav" class="site-nav" aria-label="Primary navigation" data-nav>
+        <a href="/#why">Overview</a>
+        <a href="/#protocol">Protocol</a>
+        <a href="/#developers">Build</a>
+        <a href="/learn/">Learn</a>
+        <a href="/status/">Status</a>
+        <a href="/security/">Security</a>
+        <a href="/roadmap/">Roadmap</a>
+        <a href="/#rails">Rails</a>
+        <a href="/#agents">Agents</a>
+      </nav>
+      <a class="header-link" href="https://github.com/accord-protocol/accord-protocol" rel="noopener" target="_blank">GitHub</a>
+      <button class="nav-toggle" type="button" aria-controls="primary-nav" aria-expanded="false" data-nav-toggle>
+        <span>Menu</span>
+        <span class="nav-toggle-lines" aria-hidden="true"></span>
+      </button>
+    </header>
+    <main id="main">
+      <article class="article-page">
+        <header class="article-hero">
+          <a class="breadcrumb" href="/learn/">Learn</a>
+          <p class="eyebrow">Verifier design</p>
+          <h1>How to Design Verifiers for Paid Agent Work</h1>
+          <p class="article-deck">The verifier is the trust boundary between delivered work and settlement. Good verifier design is explicit, scoped and honest about what it can prove.</p>
+          <div class="article-meta">
+            <span>Updated 2026-05-24</span>
+            <span>12 min read</span>
+            <span>Accord Protocol</span>
+          </div>
+        </header>
+
+        <div class="article-layout">
+          <aside class="article-aside" aria-label="Key takeaways">
+            <h2>Key takeaways</h2>
+            <ul>
+              <li>A verifier should be chosen from the task's acceptance criteria, not from convenience.</li>
+              <li>Verification Receipts record verdicts; they do not magically make a verifier trustworthy.</li>
+              <li>High-value workflows need documented verifier assumptions and fallback paths.</li>
+            </ul>
+            <nav class="article-toc" aria-label="Article sections">
+              <h2>On this page</h2>
+              <ol>
+                <li><a href="#verification-is-where-product-quality-meets-protocol-design">Verification is where product quality meets protocol design</a></li>
+                <li><a href="#match-the-verifier-to-the-task">Match the verifier to the task</a></li>
+                <li><a href="#record-verdicts-not-vibes">Record verdicts, not vibes</a></li>
+                <li><a href="#partial-acceptance-is-not-a-corner-case">Partial acceptance is not a corner case</a></li>
+                <li><a href="#verifier-risk-should-be-visible">Verifier risk should be visible</a></li>
+                <li><a href="#a-useful-minimum-standard">A useful minimum standard</a></li>
+                <li><a href="#faq">FAQ</a></li>
+                <li><a href="#sources">Sources</a></li>
+              </ol>
+            </nav>
+          </aside>
+
+          <div class="article-content">
+            <section id="verification-is-where-product-quality-meets-protocol-design">
+              <h2>Verification is where product quality meets protocol design</h2>
+              <p>A paid agent system can have elegant payment plumbing and still fail if verification is weak. The verifier decides whether the output matched the agreement. That decision drives settlement, reputation, retries, refunds and dispute paths.</p>
+              <p>Treat verifier design as a first-class product surface. Buyers should be able to understand who or what judged the work, what evidence was used and what the verdict means.</p>
+            </section>
+
+            <section id="match-the-verifier-to-the-task">
+              <h2>Match the verifier to the task</h2>
+              <p>Deterministic tasks should use deterministic checks whenever possible: schema validation, unit tests, snapshot comparison, hash checks, static analysis or reproducible scoring. Subjective tasks need a different approach: rubrics, human review, model-assisted review or a committee.</p>
+              <p>Do not use a model grader where a test suite would be stronger. Do not use a single brittle test where a human or committee is required. The verifier should fit the risk and ambiguity of the work.</p>
+            </section>
+
+            <section id="record-verdicts-not-vibes">
+              <h2>Record verdicts, not vibes</h2>
+              <p>A professional Verification Receipt should identify the agreement, verifier, verdict, time, relevant output references and signature material. The receipt should say accepted, rejected or partially accepted in a way that downstream systems can parse.</p>
+              <p>Free-form commentary can help humans, but policy engines need structured verdicts and stable references.</p>
+            </section>
+
+            <section id="partial-acceptance-is-not-a-corner-case">
+              <h2>Partial acceptance is not a corner case</h2>
+              <p>Many agent tasks are divisible. A repository audit may complete dependency review but not threat modeling. A data transformation may convert most rows but reject a malformed subset. A research job may produce the primary report but miss a required appendix.</p>
+              <p>Partial acceptance lets the protocol preserve nuance. It avoids pretending every job is binary while still giving settlement policy something concrete to evaluate.</p>
+            </section>
+
+            <section id="verifier-risk-should-be-visible">
+              <h2>Verifier risk should be visible</h2>
+              <p>Verifier compromise, biased scoring, prompt injection, missing context, weak tests and conflicts of interest are real risks. Accord can record the verifier's claim, but it cannot make that verifier honest.</p>
+              <p>Production systems should document verifier assumptions, approval thresholds, appeal paths and when a human review is required. The higher the payment or downstream consequence, the stronger that process should be.</p>
+            </section>
+
+            <section id="a-useful-minimum-standard">
+              <h2>A useful minimum standard</h2>
+              <p>For each paid workflow, define the verifier identity, input evidence, output reference, verdict vocabulary, signature method, timeout behavior and dispute route. Then test rejected and partially accepted paths, not only the happy path.</p>
+              <p>The goal is not to eliminate every dispute. The goal is to make disputes inspectable.</p>
+            </section>
+
+            <section id="faq">
+              <h2>FAQ</h2>
+              <h3>Can an LLM be a verifier?</h3>
+              <p>Yes, but only when its limits are documented and the workflow accepts model-judgment risk. High-value work may need human or deterministic review.</p>
+              <h3>Is a verifier the same as an auditor?</h3>
+              <p>No. A verifier judges a specific work output under a specific agreement. An auditor evaluates broader system safety or correctness.</p>
+              <h3>Why does Accord allow partial acceptance?</h3>
+              <p>Because many agent tasks produce mixed outcomes, and settlement policy may need more nuance than accepted or rejected.</p>
+            </section>
+
+            <section id="sources">
+              <h2>Sources and references</h2>
+              <h3><a href="https://accordprotocol.ai/schemas/verification-receipt.v0.schema.json" rel="noopener" target="_blank">Accord Verification Receipt schema</a></h3>
+              <p>Public schema for the Accord v0 verifier verdict object.</p>
+              <h3><a href="https://accordprotocol.ai/learn/what-conformance-does-not-prove/" rel="noopener" target="_blank">What Accord Conformance Does Not Prove</a></h3>
+              <p>Explains why compatibility checks do not prove verifier honesty or production safety.</p>
+              <h3><a href="https://github.com/accord-protocol/accord-protocol/tree/main/packages/accord-conformance" rel="noopener" target="_blank">Accord conformance package</a></h3>
+              <p>Reference package for testing Accord compatibility levels.</p>
+            </section>
+
+            <section class="article-action">
+              <div>
+                <span>Next action</span>
+                <h2>Open the Verification Receipt schema</h2>
+                <p>Design verifier output around a structured, signed verdict.</p>
+              </div>
+              <a class="button button-primary" href="/schemas/verification-receipt.v0.schema.json">Open</a>
+            </section>
+          </div>
+        </div>
+
+        <section class="related-section" aria-label="Related articles">
+          <div class="section-heading">
+            <p class="eyebrow">Read next</p>
+            <h2>Related Accord guides</h2>
+          </div>
+          <div class="learn-grid">
+            <a class="learn-card" href="/learn/verification-receipts/">
+              <span>Protocol object</span>
+              <h3>Verification Receipts for AI Agents</h3>
+              <p>Why verification receipts matter for autonomous agent workflows and how they record accepted, rejected or partially accepted work.</p>
+            </a>
+            <a class="learn-card" href="/learn/what-conformance-does-not-prove/">
+              <span>Safety</span>
+              <h3>What Accord Conformance Does Not Prove</h3>
+              <p>A safety-focused explanation of the limits of conformance testing and why compatibility is not production certification.</p>
+            </a>
+            <a class="learn-card" href="/learn/paid-mcp-tools-production-checklist/">
+              <span>Checklist</span>
+              <h3>Production Checklist for Paid MCP Tools</h3>
+              <p>A builder checklist for paid MCP tools covering agreements, pricing, buyer policy, verifier design, receipts, replay protection and audit gates.</p>
+            </a>
+          </div>
+        </section>
+      </article>
+    </main>
+    <footer class="site-footer">
+      <div class="footer-brand">
+        <img src="/assets/logo.svg" width="34" height="34" alt="">
+        <div>
+          <strong>Accord Protocol</strong>
+          <p>Open standard for autonomous agent work agreements.</p>
+        </div>
+      </div>
+      <nav aria-label="Footer navigation">
+        <a href="/learn/">Learn</a>
+        <a href="/status/">Status</a>
+        <a href="/security/">Security</a>
+        <a href="/roadmap/">Roadmap</a>
+        <a href="/llms.txt">llms.txt</a>
+        <a href="/agents.txt">agents.txt</a>
+        <a href="https://github.com/accord-protocol/accord-protocol" rel="noopener" target="_blank">GitHub</a>
+        <a href="https://github.com/accord-protocol/accord-protocol/tree/main/specs" rel="noopener" target="_blank">Specs</a>
+        <a href="/sitemap.xml">Sitemap</a>
+      </nav>
+    </footer>
+    <script src="/script.js" defer></script>
+  </body>
+</html>

@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Conformance, Audits and Mainnet Gates for Agent Payment Rails | Accord Protocol</title>
+    <meta name="description" content="How to separate Accord compatibility, external audits, rail risk, verifier assumptions and mainnet readiness for agent payment systems.">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <link rel="canonical" href="https://accordprotocol.ai/learn/conformance-audit-mainnet-checklist/">
+    <link rel="icon" type="image/svg+xml" href="/assets/logo.svg">
+    <link rel="alternate" type="application/rss+xml" title="Accord Protocol Learn Feed" href="/feed.xml">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="Accord Protocol">
+    <meta property="og:title" content="Conformance, Audits and Mainnet Gates for Agent Payment Rails | Accord Protocol">
+    <meta property="og:description" content="How to separate Accord compatibility, external audits, rail risk, verifier assumptions and mainnet readiness for agent payment systems.">
+    <meta property="og:url" content="https://accordprotocol.ai/learn/conformance-audit-mainnet-checklist/">
+    <meta property="og:image" content="https://accordprotocol.ai/assets/og-card.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Conformance, Audits and Mainnet Gates for Agent Payment Rails | Accord Protocol">
+    <meta name="twitter:description" content="How to separate Accord compatibility, external audits, rail risk, verifier assumptions and mainnet readiness for agent payment systems.">
+    <meta name="twitter:image" content="https://accordprotocol.ai/assets/og-card.png">
+    <link rel="stylesheet" href="/styles.css">
+    <script type="application/ld+json">{
+      "@context": "https://schema.org",
+      "@graph": [
+            {
+                  "@type": "Organization",
+                  "@id": "https://accordprotocol.ai/#organization",
+                  "name": "Accord Protocol",
+                  "url": "https://accordprotocol.ai/",
+                  "logo": "https://accordprotocol.ai/assets/logo.svg"
+            },
+            {
+                  "@type": "Article",
+                  "@id": "https://accordprotocol.ai/learn/conformance-audit-mainnet-checklist/#article",
+                  "headline": "Conformance, Audits and Mainnet Gates for Agent Payment Rails",
+                  "description": "How to separate Accord compatibility, external audits, rail risk, verifier assumptions and mainnet readiness for agent payment systems.",
+                  "datePublished": "2026-05-24",
+                  "dateModified": "2026-05-24",
+                  "author": {
+                        "@type": "Organization",
+                        "name": "Accord Protocol"
+                  },
+                  "publisher": {
+                        "@id": "https://accordprotocol.ai/#organization"
+                  },
+                  "mainEntityOfPage": "https://accordprotocol.ai/learn/conformance-audit-mainnet-checklist/",
+                  "image": "https://accordprotocol.ai/assets/og-card.png",
+                  "articleSection": "Safety",
+                  "citation": [
+                        "https://github.com/accord-protocol/accord-protocol/tree/main/packages/accord-conformance",
+                        "https://github.com/accord-protocol/accord-protocol/tree/main/docs/audit",
+                        "https://docs.ergoplatform.com/dev/scs/ergoscript/"
+                  ]
+            },
+            {
+                  "@type": "BreadcrumbList",
+                  "@id": "https://accordprotocol.ai/learn/conformance-audit-mainnet-checklist/#breadcrumbs",
+                  "itemListElement": [
+                        {
+                              "@type": "ListItem",
+                              "position": 1,
+                              "name": "Home",
+                              "item": "https://accordprotocol.ai/"
+                        },
+                        {
+                              "@type": "ListItem",
+                              "position": 2,
+                              "name": "Learn",
+                              "item": "https://accordprotocol.ai/learn/"
+                        },
+                        {
+                              "@type": "ListItem",
+                              "position": 3,
+                              "name": "Conformance, Audits and Mainnet Gates for Agent Payment Rails",
+                              "item": "https://accordprotocol.ai/learn/conformance-audit-mainnet-checklist/"
+                        }
+                  ]
+            },
+            {
+                  "@type": "FAQPage",
+                  "@id": "https://accordprotocol.ai/learn/conformance-audit-mainnet-checklist/#faq",
+                  "mainEntity": [
+                        {
+                              "@type": "Question",
+                              "name": "Does passing L4 conformance mean production-ready?",
+                              "acceptedAnswer": {
+                                    "@type": "Answer",
+                                    "text": "No. It means registry and compatibility checks pass. Production readiness requires separate audit and operational evidence."
+                              }
+                        },
+                        {
+                              "@type": "Question",
+                              "name": "Why use signed audit manifests?",
+                              "acceptedAnswer": {
+                                    "@type": "Answer",
+                                    "text": "They let software and operators check exact covered artifacts instead of relying on broad claims."
+                              }
+                        },
+                        {
+                              "@type": "Question",
+                              "name": "Can testnet evidence support a future audit?",
+                              "acceptedAnswer": {
+                                    "@type": "Answer",
+                                    "text": "Yes. Testnet evidence is useful, but it does not replace external review or mainnet-specific risk assessment."
+                              }
+                        }
+                  ]
+            }
+      ]
+}</script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header" data-header>
+      <a class="brand" href="/" aria-label="Accord Protocol home">
+        <img src="/assets/logo.svg" width="36" height="36" alt="">
+        <span>Accord Protocol</span>
+      </a>
+      <nav id="primary-nav" class="site-nav" aria-label="Primary navigation" data-nav>
+        <a href="/#why">Overview</a>
+        <a href="/#protocol">Protocol</a>
+        <a href="/#developers">Build</a>
+        <a href="/learn/">Learn</a>
+        <a href="/status/">Status</a>
+        <a href="/security/">Security</a>
+        <a href="/roadmap/">Roadmap</a>
+        <a href="/#rails">Rails</a>
+        <a href="/#agents">Agents</a>
+      </nav>
+      <a class="header-link" href="https://github.com/accord-protocol/accord-protocol" rel="noopener" target="_blank">GitHub</a>
+      <button class="nav-toggle" type="button" aria-controls="primary-nav" aria-expanded="false" data-nav-toggle>
+        <span>Menu</span>
+        <span class="nav-toggle-lines" aria-hidden="true"></span>
+      </button>
+    </header>
+    <main id="main">
+      <article class="article-page">
+        <header class="article-hero">
+          <a class="breadcrumb" href="/learn/">Learn</a>
+          <p class="eyebrow">Safety</p>
+          <h1>Conformance, Audits and Mainnet Gates for Agent Payment Rails</h1>
+          <p class="article-deck">Conformance is necessary for interoperability, but mainnet readiness requires separate audit evidence, rail review, verifier review and operational controls.</p>
+          <div class="article-meta">
+            <span>Updated 2026-05-24</span>
+            <span>11 min read</span>
+            <span>Accord Protocol</span>
+          </div>
+        </header>
+
+        <div class="article-layout">
+          <aside class="article-aside" aria-label="Key takeaways">
+            <h2>Key takeaways</h2>
+            <ul>
+              <li>Conformance means the implementation matches protocol expectations.</li>
+              <li>Audit evidence evaluates broader safety, rail and contract assumptions.</li>
+              <li>Mainnet permission should remain deny-by-default until signed evidence allows it.</li>
+            </ul>
+            <nav class="article-toc" aria-label="Article sections">
+              <h2>On this page</h2>
+              <ol>
+                <li><a href="#compatibility-is-the-first-gate-not-the-last-gate">Compatibility is the first gate, not the last gate</a></li>
+                <li><a href="#what-conformance-should-prove">What conformance should prove</a></li>
+                <li><a href="#what-audits-must-cover-separately">What audits must cover separately</a></li>
+                <li><a href="#why-signed-manifests-are-better-than-vibes">Why signed manifests are better than vibes</a></li>
+                <li><a href="#a-mainnet-readiness-checklist">A mainnet readiness checklist</a></li>
+                <li><a href="#the-current-accord-posture">The current Accord posture</a></li>
+                <li><a href="#faq">FAQ</a></li>
+                <li><a href="#sources">Sources</a></li>
+              </ol>
+            </nav>
+          </aside>
+
+          <div class="article-content">
+            <section id="compatibility-is-the-first-gate-not-the-last-gate">
+              <h2>Compatibility is the first gate, not the last gate</h2>
+              <p>Conformance tells builders whether their objects, transports, rails, security checks and registry metadata match Accord's current v0 expectations. That is essential for interoperability. It is also easy to overstate.</p>
+              <p>A compatible implementation can still have a vulnerable contract, weak signer operations, bad verifier incentives, bridge risk, replay gaps or poor incident response.</p>
+            </section>
+
+            <section id="what-conformance-should-prove">
+              <h2>What conformance should prove</h2>
+              <p>Conformance should prove that an implementation speaks the protocol correctly. Agreement objects should validate. Receipts should bind to the correct agreement. Rail adapters should expose the expected behavior. Registry metadata should be coherent. Security guardrails should exist where the protocol expects them.</p>
+              <p>That is a strong claim, but it is not the same as saying real funds are safe.</p>
+            </section>
+
+            <section id="what-audits-must-cover-separately">
+              <h2>What audits must cover separately</h2>
+              <p>External audits should evaluate code paths and assumptions that conformance cannot prove: smart contracts, ErgoScript or EVM behavior, facilitator trust, bridge assumptions, signer isolation, private-key handling, verifier incentives and operational recovery.</p>
+              <p>The audit scope should name exact artifacts. A vague audit badge is not enough for a rail that can move value.</p>
+            </section>
+
+            <section id="why-signed-manifests-are-better-than-vibes">
+              <h2>Why signed manifests are better than vibes</h2>
+              <p>A signed audit manifest gives software and operators something concrete to check. It can say which script hash, bytecode, package version or deployment is covered and whether mainnet use is allowed.</p>
+              <p>Without that explicit evidence, the safer default is denial. This is especially important for agent systems because agents can act quickly, repeatedly and without the judgment a human would apply to every transaction.</p>
+            </section>
+
+            <section id="a-mainnet-readiness-checklist">
+              <h2>A mainnet readiness checklist</h2>
+              <p>Before a real-fund rail launch, require passing conformance, signed audit evidence, documented verifier assumptions, buyer policy caps, signer isolation, replay protection, incident response, monitoring, rollback paths and public status language that does not overclaim.</p>
+              <p>The checklist should include negative tests and failure drills. Happy-path settlement evidence is useful, but production credibility comes from knowing what happens when something fails.</p>
+            </section>
+
+            <section id="the-current-accord-posture">
+              <h2>The current Accord posture</h2>
+              <p>Accord v0 is alpha / testnet-first and NOT CERTIFIED FOR MAINNET. That is not weak positioning; it is professional positioning. It tells developers where the system is useful today and where stronger evidence is still required.</p>
+              <p>The right path is to make local demos, conformance and testnet work excellent while keeping production claims gated by signed evidence.</p>
+            </section>
+
+            <section id="faq">
+              <h2>FAQ</h2>
+              <h3>Does passing L4 conformance mean production-ready?</h3>
+              <p>No. It means registry and compatibility checks pass. Production readiness requires separate audit and operational evidence.</p>
+              <h3>Why use signed audit manifests?</h3>
+              <p>They let software and operators check exact covered artifacts instead of relying on broad claims.</p>
+              <h3>Can testnet evidence support a future audit?</h3>
+              <p>Yes. Testnet evidence is useful, but it does not replace external review or mainnet-specific risk assessment.</p>
+            </section>
+
+            <section id="sources">
+              <h2>Sources and references</h2>
+              <h3><a href="https://github.com/accord-protocol/accord-protocol/tree/main/packages/accord-conformance" rel="noopener" target="_blank">Accord conformance package</a></h3>
+              <p>Reference L0-L4 conformance tooling for Accord implementations.</p>
+              <h3><a href="https://github.com/accord-protocol/accord-protocol/tree/main/docs/audit" rel="noopener" target="_blank">Accord audit docs</a></h3>
+              <p>Repository audit-gate materials and manifest format documentation.</p>
+              <h3><a href="https://docs.ergoplatform.com/dev/scs/ergoscript/" rel="noopener" target="_blank">ErgoScript documentation</a></h3>
+              <p>Official ErgoScript documentation for understanding Ergo's contract model and eUTXO assumptions.</p>
+            </section>
+
+            <section class="article-action">
+              <div>
+                <span>Next action</span>
+                <h2>Check public status</h2>
+                <p>Keep production claims audit-gated and deny-by-default until signed evidence exists.</p>
+              </div>
+              <a class="button button-primary" href="/status/">Open</a>
+            </section>
+          </div>
+        </div>
+
+        <section class="related-section" aria-label="Related articles">
+          <div class="section-heading">
+            <p class="eyebrow">Read next</p>
+            <h2>Related Accord guides</h2>
+          </div>
+          <div class="learn-grid">
+            <a class="learn-card" href="/learn/conformance-levels/">
+              <span>Conformance</span>
+              <h3>Accord Conformance Levels L0-L4</h3>
+              <p>What Accord conformance levels mean, what they test and why conformance is not the same as production certification.</p>
+            </a>
+            <a class="learn-card" href="/learn/audit-gated-mainnet/">
+              <span>Safety</span>
+              <h3>Audit-Gated Mainnet Policy for Accord</h3>
+              <p>Why Accord keeps mainnet use blocked by default until signed audit manifests explicitly allow relevant scripts or contracts.</p>
+            </a>
+            <a class="learn-card" href="/learn/what-conformance-does-not-prove/">
+              <span>Safety</span>
+              <h3>What Accord Conformance Does Not Prove</h3>
+              <p>A safety-focused explanation of the limits of conformance testing and why compatibility is not production certification.</p>
+            </a>
+          </div>
+        </section>
+      </article>
+    </main>
+    <footer class="site-footer">
+      <div class="footer-brand">
+        <img src="/assets/logo.svg" width="34" height="34" alt="">
+        <div>
+          <strong>Accord Protocol</strong>
+          <p>Open standard for autonomous agent work agreements.</p>
+        </div>
+      </div>
+      <nav aria-label="Footer navigation">
+        <a href="/learn/">Learn</a>
+        <a href="/status/">Status</a>
+        <a href="/security/">Security</a>
+        <a href="/roadmap/">Roadmap</a>
+        <a href="/llms.txt">llms.txt</a>
+        <a href="/agents.txt">agents.txt</a>
+        <a href="https://github.com/accord-protocol/accord-protocol" rel="noopener" target="_blank">GitHub</a>
+        <a href="https://github.com/accord-protocol/accord-protocol/tree/main/specs" rel="noopener" target="_blank">Specs</a>
+        <a href="/sitemap.xml">Sitemap</a>
+      </nav>
+    </footer>
+    <script src="/script.js" defer></script>
+  </body>
+</html>

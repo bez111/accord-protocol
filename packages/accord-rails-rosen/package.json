@@ -1,0 +1,76 @@
+{
+  "name": "@accord-protocol/rails-rosen",
+  "version": "0.4.2",
+  "description": "Accord rail adapter for Rosen-bridged stablecoins on Ergo (rsUSDT, rsUSDC, rsBTC). Wraps the Ergo Note primitive with token-aware value lookups against a configurable token registry.",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts --clean",
+    "typecheck": "tsc --noEmit",
+    "test": "npx tsx --test src/__tests__/*.test.ts"
+  },
+  "keywords": [
+    "accord-protocol",
+    "rails",
+    "rosen",
+    "rosen-bridge",
+    "rsusdt",
+    "rsusdc",
+    "rsbtc",
+    "agent-payments",
+    "rail-adapter"
+  ],
+  "author": "bez111",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/accord-protocol/accord-protocol.git",
+    "directory": "packages/accord-rails-rosen"
+  },
+  "homepage": "https://accordprotocol.ai/learn/rail-adapters/",
+  "bugs": {
+    "url": "https://github.com/accord-protocol/accord-protocol/issues"
+  },
+  "dependencies": {
+    "@accord-protocol/core": "^0.4.2",
+    "@accord-protocol/rails": "^0.4.2",
+    "@noble/hashes": "^1.8.0"
+  },
+  "peerDependencies": {
+    "ergo-agent-pay": "^0.3.2",
+    "ergo-agent-rosen": "^0.3.2"
+  },
+  "peerDependenciesMeta": {
+    "ergo-agent-pay": {
+      "optional": true
+    },
+    "ergo-agent-rosen": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsup": "^8.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

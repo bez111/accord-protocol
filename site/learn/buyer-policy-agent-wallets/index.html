@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Buyer Policy for Agent Wallets | Accord Protocol</title>
+    <meta name="description" content="How buyer-side policy can limit agent spend and connect payment authority to Accord agreements and receipts.">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <link rel="canonical" href="https://accordprotocol.ai/learn/buyer-policy-agent-wallets/">
+    <link rel="icon" type="image/svg+xml" href="/assets/logo.svg">
+    <link rel="alternate" type="application/rss+xml" title="Accord Protocol Learn Feed" href="/feed.xml">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="Accord Protocol">
+    <meta property="og:title" content="Buyer Policy for Agent Wallets | Accord Protocol">
+    <meta property="og:description" content="How buyer-side policy can limit agent spend and connect payment authority to Accord agreements and receipts.">
+    <meta property="og:url" content="https://accordprotocol.ai/learn/buyer-policy-agent-wallets/">
+    <meta property="og:image" content="https://accordprotocol.ai/assets/og-card.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Buyer Policy for Agent Wallets | Accord Protocol">
+    <meta name="twitter:description" content="How buyer-side policy can limit agent spend and connect payment authority to Accord agreements and receipts.">
+    <meta name="twitter:image" content="https://accordprotocol.ai/assets/og-card.png">
+    <link rel="stylesheet" href="/styles.css">
+    <script type="application/ld+json">{
+      "@context": "https://schema.org",
+      "@graph": [
+            {
+                  "@type": "Organization",
+                  "@id": "https://accordprotocol.ai/#organization",
+                  "name": "Accord Protocol",
+                  "url": "https://accordprotocol.ai/",
+                  "logo": "https://accordprotocol.ai/assets/logo.svg"
+            },
+            {
+                  "@type": "Article",
+                  "@id": "https://accordprotocol.ai/learn/buyer-policy-agent-wallets/#article",
+                  "headline": "Buyer Policy for Agent Wallets",
+                  "description": "How buyer-side policy can limit agent spend and connect payment authority to Accord agreements and receipts.",
+                  "datePublished": "2026-05-24",
+                  "dateModified": "2026-05-24",
+                  "author": {
+                        "@type": "Organization",
+                        "name": "Accord Protocol"
+                  },
+                  "publisher": {
+                        "@id": "https://accordprotocol.ai/#organization"
+                  },
+                  "mainEntityOfPage": "https://accordprotocol.ai/learn/buyer-policy-agent-wallets/",
+                  "image": "https://accordprotocol.ai/assets/og-card.png",
+                  "articleSection": "Policy"
+            },
+            {
+                  "@type": "BreadcrumbList",
+                  "@id": "https://accordprotocol.ai/learn/buyer-policy-agent-wallets/#breadcrumbs",
+                  "itemListElement": [
+                        {
+                              "@type": "ListItem",
+                              "position": 1,
+                              "name": "Home",
+                              "item": "https://accordprotocol.ai/"
+                        },
+                        {
+                              "@type": "ListItem",
+                              "position": 2,
+                              "name": "Learn",
+                              "item": "https://accordprotocol.ai/learn/"
+                        },
+                        {
+                              "@type": "ListItem",
+                              "position": 3,
+                              "name": "Buyer Policy for Agent Wallets",
+                              "item": "https://accordprotocol.ai/learn/buyer-policy-agent-wallets/"
+                        }
+                  ]
+            },
+            {
+                  "@type": "FAQPage",
+                  "@id": "https://accordprotocol.ai/learn/buyer-policy-agent-wallets/#faq",
+                  "mainEntity": [
+                        {
+                              "@type": "Question",
+                              "name": "Does Accord provide a buyer policy package?",
+                              "acceptedAnswer": {
+                                    "@type": "Answer",
+                                    "text": "The monorepo includes @accord-protocol/buyer-policy for buyer-side policy experiments."
+                              }
+                        },
+                        {
+                              "@type": "Question",
+                              "name": "Can policy make mainnet safe today?",
+                              "acceptedAnswer": {
+                                    "@type": "Answer",
+                                    "text": "No. Policy helps control spend, but current mainnet status is still not certified."
+                              }
+                        }
+                  ]
+            }
+      ]
+}</script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header" data-header>
+      <a class="brand" href="/" aria-label="Accord Protocol home">
+        <img src="/assets/logo.svg" width="36" height="36" alt="">
+        <span>Accord Protocol</span>
+      </a>
+      <nav id="primary-nav" class="site-nav" aria-label="Primary navigation" data-nav>
+        <a href="/#why">Overview</a>
+        <a href="/#protocol">Protocol</a>
+        <a href="/#developers">Build</a>
+        <a href="/learn/">Learn</a>
+        <a href="/status/">Status</a>
+        <a href="/security/">Security</a>
+        <a href="/roadmap/">Roadmap</a>
+        <a href="/#rails">Rails</a>
+        <a href="/#agents">Agents</a>
+      </nav>
+      <a class="header-link" href="https://github.com/accord-protocol/accord-protocol" rel="noopener" target="_blank">GitHub</a>
+      <button class="nav-toggle" type="button" aria-controls="primary-nav" aria-expanded="false" data-nav-toggle>
+        <span>Menu</span>
+        <span class="nav-toggle-lines" aria-hidden="true"></span>
+      </button>
+    </header>
+    <main id="main">
+      <article class="article-page">
+        <header class="article-hero">
+          <a class="breadcrumb" href="/learn/">Learn</a>
+          <p class="eyebrow">Policy</p>
+          <h1>Buyer Policy for Agent Wallets</h1>
+          <p class="article-deck">Buyer policy is the control layer that keeps agent spending bounded by agreement terms, limits and verifier outcomes.</p>
+          <div class="article-meta">
+            <span>Updated 2026-05-24</span>
+            <span>7 min read</span>
+            <span>Accord Protocol</span>
+          </div>
+        </header>
+
+        <div class="article-layout">
+          <aside class="article-aside" aria-label="Key takeaways">
+            <h2>Key takeaways</h2>
+            <ul>
+              <li>Agents need spending constraints before payment authority is granted.</li>
+              <li>Policies can reference agreement hashes, recipients, rails and limits.</li>
+              <li>Verification receipts can feed post-work decisions.</li>
+            </ul>
+            <nav class="article-toc" aria-label="Article sections">
+              <h2>On this page</h2>
+              <ol>
+                <li><a href="#autonomy-needs-limits">Autonomy needs limits</a></li>
+                <li><a href="#what-policy-can-check">What policy can check</a></li>
+                <li><a href="#why-policy-is-not-optional">Why policy is not optional</a></li>
+                <li><a href="#faq">FAQ</a></li>
+              </ol>
+            </nav>
+          </aside>
+
+          <div class="article-content">
+            <section id="autonomy-needs-limits">
+              <h2>Autonomy needs limits</h2>
+              <p>Agent wallets should not treat every tool call as equally safe. Buyers need policy caps for single payments, sessions, recipients, rails, assets, approval thresholds and daily exposure.</p>
+              <p>Accord helps because payment authority can be scoped to a concrete work agreement rather than an unstructured prompt.</p>
+            </section>
+
+            <section id="what-policy-can-check">
+              <h2>What policy can check</h2>
+              <p>A buyer policy engine can check whether the agreement hash is known, whether the seller is allowed, whether the rail is permitted, whether the amount is within limits and whether the verifier is acceptable.</p>
+              <p>After work completes, the Verification Receipt can inform settlement, reputation or dispute behavior.</p>
+            </section>
+
+            <section id="why-policy-is-not-optional">
+              <h2>Why policy is not optional</h2>
+              <p>Any agent capable of initiating payments or settlement needs guardrails. Protocol objects improve auditability, but they do not replace spending policy, signer controls or operational review.</p>
+              <p>The safest systems combine Accord records with strict buyer-side policy.</p>
+            </section>
+
+            <section id="faq">
+              <h2>FAQ</h2>
+              <h3>Does Accord provide a buyer policy package?</h3>
+              <p>The monorepo includes @accord-protocol/buyer-policy for buyer-side policy experiments.</p>
+              <h3>Can policy make mainnet safe today?</h3>
+              <p>No. Policy helps control spend, but current mainnet status is still not certified.</p>
+            </section>
+
+            <section class="article-action">
+              <div>
+                <span>Next action</span>
+                <h2>Open buyer policy package</h2>
+                <p>Review spending caps and authority checks for agent wallets.</p>
+              </div>
+              <a class="button button-primary" href="https://github.com/accord-protocol/accord-protocol/tree/main/packages/accord-buyer-policy" rel="noopener" target="_blank">Open</a>
+            </section>
+          </div>
+        </div>
+
+        <section class="related-section" aria-label="Related articles">
+          <div class="section-heading">
+            <p class="eyebrow">Read next</p>
+            <h2>Related Accord guides</h2>
+          </div>
+          <div class="learn-grid">
+            <a class="learn-card" href="/learn/accord-vs-ap2/">
+              <span>Comparison</span>
+              <h3>Accord Protocol vs AP2</h3>
+              <p>How Accord relates to AP2-style authorization: AP2 helps express authority, while Accord records work terms, verification and settlement.</p>
+            </a>
+            <a class="learn-card" href="/learn/agreement-object-explained/">
+              <span>Protocol object</span>
+              <h3>The Accord Agreement Object Explained</h3>
+              <p>A plain-language guide to the Accord Agreement Object and the fields that define paid agent work.</p>
+            </a>
+            <a class="learn-card" href="/learn/audit-gated-mainnet/">
+              <span>Safety</span>
+              <h3>Audit-Gated Mainnet Policy for Accord</h3>
+              <p>Why Accord keeps mainnet use blocked by default until signed audit manifests explicitly allow relevant scripts or contracts.</p>
+            </a>
+          </div>
+        </section>
+      </article>
+    </main>
+    <footer class="site-footer">
+      <div class="footer-brand">
+        <img src="/assets/logo.svg" width="34" height="34" alt="">
+        <div>
+          <strong>Accord Protocol</strong>
+          <p>Open standard for autonomous agent work agreements.</p>
+        </div>
+      </div>
+      <nav aria-label="Footer navigation">
+        <a href="/learn/">Learn</a>
+        <a href="/status/">Status</a>
+        <a href="/security/">Security</a>
+        <a href="/roadmap/">Roadmap</a>
+        <a href="/llms.txt">llms.txt</a>
+        <a href="/agents.txt">agents.txt</a>
+        <a href="https://github.com/accord-protocol/accord-protocol" rel="noopener" target="_blank">GitHub</a>
+        <a href="https://github.com/accord-protocol/accord-protocol/tree/main/specs" rel="noopener" target="_blank">Specs</a>
+        <a href="/sitemap.xml">Sitemap</a>
+      </nav>
+    </footer>
+    <script src="/script.js" defer></script>
+  </body>
+</html>
