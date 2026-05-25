@@ -38,8 +38,9 @@ agent.issueNote({ recipient, value, reserveBoxId, deadline, taskHash?, scriptErg
 agent.deployTracker({ scriptErgoTree })
 ```
 
-`scriptErgoTree` is the compiled output of an ErgoScript program — typically
-the ChainCash / Basis Reserve, Note, or Tracker contract built with
+`scriptErgoTree` is the compiled output of an ErgoScript program — for example
+an Accord acceptance predicate, a ChainCash on-chain contract, or a Basis
+`basis.es` / `basis-token.es` reserve contract built with
 [`ergo-lib-wasm`](https://github.com/ergoplatform/sigma-rust) or the
 [Ergo AppKit](https://github.com/ergoplatform/ergo-appkit).
 
@@ -156,8 +157,12 @@ use of that Reserve.
 The recommended path looks like this:
 
 1. Build everything on testnet with the SDK's defaults (no `scriptErgoTree`).
-2. Compile the ChainCash / Basis Reserve, Note, and Tracker scripts you want
-   to use. Pin the ergoTree hex in your repo and back-link the source.
+2. Compile the exact Reserve, Note, Tracker, or acceptance-predicate scripts
+   you want to use. For current Basis offchain reserves, that means the exact
+   `basis.es` or `basis-token.es` source plus the external tracker
+   assumptions; it does not mean inventing separate `noteScript.es` or
+   `trackerScript.es` files from the offchain folder. Pin the ergoTree hex in
+   your repo and back-link the source.
 3. Add a small wrapper around the SDK that loads your pinned ergoTrees and
    passes them to `createReserve` / `issueNote` / `deployTracker`. Wire
    `auditPolicy: verifyAuditedErgoTree(...)` from `ergo-agent-scripts`

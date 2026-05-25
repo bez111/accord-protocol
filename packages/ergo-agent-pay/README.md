@@ -366,7 +366,7 @@ Error codes: `INSUFFICIENT_FUNDS` | `POLICY_REJECTED` | `APPROVAL_DENIED` |
 - [Ergo Agent Economy Hub](https://ergoblockchain.org/agent-economy)
 - [Technical Architecture](https://ergoblockchain.org/build/agent-payments)
 - [10-Minute Quickstart](https://ergoblockchain.org/build/quickstart)
-- [ChainCash Reference Implementation](https://github.com/ChainCashLabs/chaincash)
+- [ChainCash Reference Implementation](https://github.com/BetterMoneyLabs/chaincash)
 - [Fleet SDK Docs](https://fleet-sdk.github.io/docs)
 
 ---

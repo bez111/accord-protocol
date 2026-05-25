@@ -6,11 +6,11 @@ export type PredicateName =
   // Acceptance predicates the SDK ships with
   | "task_hash_v0"
   | "credential_v0"
-  // ChainCash on-chain contracts (vendored from kushti/ChainCash)
+  // ChainCash on-chain contracts (vendored from BetterMoneyLabs/chaincash)
   | "chaincash_reserve_v0"
   | "chaincash_note_v0"
   | "chaincash_receipt_v0"
-  // Basis offchain-credit reserves (vendored from kushti/ChainCash/offchain)
+  // Basis offchain-credit reserves (vendored from BetterMoneyLabs/chaincash/offchain)
   | "basis_reserve_v0"
   | "basis_token_reserve_v0";
 

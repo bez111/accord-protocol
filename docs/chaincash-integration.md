@@ -1,147 +1,139 @@
-# ChainCash Integration Guide
+# ChainCash / Basis Integration Guide
 
-[ChainCash](https://github.com/ChainCashLabs/chaincash) is an external
-implementation of the Reserve + Note + Tracker design space that informed the
-Ergo reference rail.
+[ChainCash / Basis](https://github.com/BetterMoneyLabs/chaincash) is the
+external reference work that informed Accord's Ergo credit and reserve design.
+This page is an Accord-local integration note; it is not a mainnet launch
+guide and it does not override [`docs/status.md`](./status.md) or
+[`SECURITY.md`](../SECURITY.md).
 
-This guide is a legacy integration note for `ergo-agent-pay`. It is not a
-mainnet launch guide and does not override [`docs/status.md`](./status.md) or
-[`SECURITY.md`](../SECURITY.md). In this repository, ChainCash/Basis scripts and
-related Accord rail adapters remain reference / research / draft-pre-audit
-material until signed audit manifests explicitly allow a mainnet artifact.
+Accord treats ChainCash/Basis sources, compiled trees, and related rail
+adapters as **reference / research / draft-pre-audit** material until a signed
+audit manifest marks the exact artifact `mainnetAllowed: true`.
 
-Use testnet or local development flows by default. Do not use real funds unless
-the exact script hash you are using is externally audited, signed in the
-relevant manifest, and marked `mainnetAllowed: true`.
+Use local or testnet flows by default. Do not use real funds unless the exact
+script or runtime bytecode hash you are using is externally audited, present in
+the relevant signed manifest, and explicitly allowed for mainnet.
 
 ---
 
-## What ChainCash provides
+## Upstream sources checked
 
-| Component | ChainCash provides | ergo-agent-pay default |
+| Source | What it contributes |
+|---|---|
+| [`docs/basis/abstract.md`](https://github.com/BetterMoneyLabs/chaincash/blob/master/docs/basis/abstract.md) | Basis model: local IOU credit, optional on-chain reserves, offchain payments, tracker transparency. |
+| [`docs/basis/basis.tex`](https://github.com/BetterMoneyLabs/chaincash/blob/master/docs/basis/basis.tex) | Paper-level description of IOU notes, debt transfer, tracker commitments, emergency exit, and tracker trust limits. |
+| [`contracts/offchain`](https://github.com/BetterMoneyLabs/chaincash/tree/master/contracts/offchain) | Current offchain reserve contracts and operational docs: `basis.es`, `basis-token.es`, `basis.md`, `tracker.md`. |
+
+The executable contract files are the source of truth for register layout,
+context extension variables, and spend conditions. Some prose in upstream docs
+is older than the contracts, so Accord docs should not repeat stale `nonce` or
+one-week-maturity wording when describing `basis.es` / `basis-token.es`.
+
+---
+
+## Current Basis offchain model
+
+Basis is not "three separate offchain scripts called
+`reserveScript.es`, `noteScript.es`, and `trackerScript.es`". The current
+`contracts/offchain` surface is:
+
+| Component | Current Basis shape | Accord-local reference |
 |---|---|---|
-| Reserve script | `reserveScript.es` — enforces collateral limits | P2PK (dev only) |
-| Note script | `noteScript.es` — enforces bearer redemption | P2PK (dev only) |
-| Tracker script | `trackerScript.es` — prevents double-spend | Required (no fallback) |
-| Compiled ergoTree | Pre-compiled hex for each script | Must compile yourself |
+| ERG reserve | On-chain reserve contract in `basis.es`. | `packages/ergo-agent-scripts/data/sources/basis.es` as `basis_reserve_v0`. |
+| Token reserve | On-chain reserve contract in `basis-token.es`. Notes are denominated in the same token held by the reserve. | `packages/ergo-agent-scripts/data/sources/basis-token.es` as `basis_token_reserve_v0`. |
+| IOU note | Offchain record witnessed by tracker and signed by issuer; not a separate `contracts/offchain/noteScript.es` file. | Accord receipts and rail adapters reference the settlement evidence; they do not make the note production-certified. |
+| Tracker | Offchain service that witnesses notes, tracks debt state, publishes status/events, and commits a digest on-chain. | External service / data-input assumption; no custody and no unilateral redemption power. |
+
+The tracker cannot steal reserve funds by itself because redemption still needs
+the reserve owner's signature. It can, however, censor, go offline, publish
+stale state, reorder undercollateralized redemptions, or collude in ways the
+audit must analyze.
 
 ---
 
-## Compiling ChainCash scripts
+## Debt and redemption semantics
 
-You need the compiled `ergoTree` hex for each script. Two options:
+For a debt relationship `A -> B`, Basis tracks cumulative debt:
 
-### Option A — ergo-lib-wasm (browser/Node.js)
+- Key: `Blake2b256(A_pubkey || B_pubkey)`.
+- Total debt: an ever-increasing `Long` amount.
+- Timestamp: milliseconds since Unix epoch, bound into issuer and tracker
+  signatures and used by the reserve's redemption tree.
+- Signature message in the current contracts:
+  `key || totalDebt || timestamp`.
 
-```bash
-npm install ergo-lib-wasm-nodejs
-```
+The reserve UTXO stores:
 
-```typescript
-import { Address, ErgoTree } from "ergo-lib-wasm-nodejs"
+- `R4`: reserve owner public key.
+- `R5`: AVL tree keyed by `hash(ownerKey || receiverKey)`.
+- `R5` value: `timestamp (8 bytes) || cumulativeRedeemedAmount (8 bytes)`.
+- `R6`: tracker NFT id.
 
-// ChainCash Reserve script (simplified — use actual from ChainCash repo)
-const RESERVE_SCRIPT = `{
-  val reserveId    = SELF.id
-  val issuedNotes  = OUTPUTS.filter(o => o.R4[Coll[Byte]].isDefined && o.R4[Coll[Byte]].get == reserveId)
-  val totalIssued  = issuedNotes.fold(0L, (acc, o) => acc + o.value)
-  sigmaProp(totalIssued <= SELF.value && PK("${issuerPubKey}"))
-}`
+Normal redemption requires:
 
-// Compile using ergo-lib-wasm (requires ergo-devtools or Sigma compiler)
-// const ergoTree = Address.from_ergo_tree(ErgoTree.from_base16_bytes(compiledHex))
-```
+- receiver public key;
+- reserve owner signature on `key || totalDebt || timestamp`;
+- tracker signature on the same message;
+- tracker AVL proof that the current `totalDebt` is committed;
+- reserve AVL proof/update for `(timestamp, cumulativeRedeemedAmount)`;
+- receiver signature on the transaction.
 
-### Option B — AppKit (JVM)
+The replay guard is cumulative: a redemption must have
+`timestamp > storedTimestamp` and must not redeem more than
+`totalDebt - cumulativeRedeemedAmount`.
 
-```kotlin
-// In a Kotlin/Scala project:
-val ctx = RestApiErgoClient.create(nodeUrl, NetworkType.TESTNET, "", explorerUrl)
-ctx.execute { blockchainContext ->
-  val contract = blockchainContext.compileContract(
-    ConstantsBuilder.create().item("issuerKey", issuerGroupElement).build(),
-    RESERVE_SCRIPT
-  )
-  val ergoTree = contract.getErgoTree()
-  // save ergoTree.bytesHex() as your scriptErgoTree parameter
-}
-```
+Emergency redemption is contract-level, not a separate prose-only policy:
+after roughly 3 days / 2160 Ergo blocks from the tracker box creation, the
+tracker signature may be omitted, while the reserve owner signature and tracker
+state proof remain part of the model.
 
 ---
 
-## Using compiled scripts with ergo-agent-pay
+## Debt transfer
 
-Once you have compiled `ergoTree` hex from ChainCash for a testnet or audited
-environment:
+Basis supports debtor-consent novation. If A owes B and B wants to pay C with
+part of that debt, A signs two updated notes:
 
-```typescript
-import { ErgoAgentPay } from "ergo-agent-pay"
+- a reduced A -> B note for the remaining amount;
+- a new A -> C note for the transferred amount.
 
-const agent = new ErgoAgentPay({ address, network: "testnet", signer })
+The tracker witnesses both updates. After that, A owes C directly for the
+transferred amount. This is not bearer transfer without debtor consent.
 
-// Deploy Reserve with ChainCash script
-const reserve = await agent.createReserve({
-  collateral: "10 ERG",
-  scriptErgoTree: "0008cd...", // compiled ChainCash reserve ergoTree hex
-  memo: "agent-treasury-v1",
-})
+---
 
-// Deploy Tracker with ChainCash script
-const tracker = await agent.deployTracker({
-  scriptErgoTree: "0008cd...", // compiled ChainCash tracker ergoTree hex
-})
+## Using Basis trees in Accord
 
-// Issue Note — recipient's address encodes the note spending conditions
-const note = await agent.issueNote({
-  recipient:    receiverAddress,
-  value:        "0.005 ERG",
-  reserveBoxId: reserve.reserve.boxId!,
-  deadline:     "+200 blocks",
-  taskHash:     computedHash,
-})
+The local registry names are:
+
+```ts
+import { tryGetErgoTree } from "ergo-agent-scripts"
+
+const ergReserveTree = tryGetErgoTree("basis_reserve_v0")
+const tokenReserveTree = tryGetErgoTree("basis_token_reserve_v0")
 ```
 
----
+These values are manifest-gated references. `tryGetErgoTree(...)` returning a
+tree does **not** mean it is production-audited. Mainnet use still requires the
+relevant signed audit manifest entry with `mainnetAllowed: true`.
 
-## ChainCash scripts reference
-
-All scripts are in the ChainCash repo at `contracts/`:
-- `reserveScript.ergotree` — Reserve spending guard
-- `noteScript.ergotree` — Note bearer instrument
-- `trackerScript.ergotree` — Anti-double-spend registry
-
-GitHub: https://github.com/ChainCashLabs/chaincash/tree/master/contracts
+Do not invent or paste a simplified reserve script into production docs. Use
+the exact audited source, exact compiled tree, exact tree hash, and exact
+manifest entry.
 
 ---
 
-## Mainnet ChainCash box IDs
+## Development vs production
 
-Mainnet references are intentionally omitted from this guide. Treat any
-mainnet box id, tree, or tracker reference as out of scope for Accord until the
-audit manifests in this repository contain signed evidence for that exact
-artifact.
-
-For testnet experiments, query the relevant testnet explorer or your own node
-for the current Tracker box before issuing Notes.
-
-```typescript
-// Find current testnet tracker
-const trackerBoxes = await fetch(
-  TESTNET_EXPLORER_URL + "/api/v1/boxes/unspent/byErgoTree/" + CHAINCASH_TRACKER_ERGOTREE
-).then(r => r.json())
-const trackerBoxId = trackerBoxes.items[0].boxId
-```
-
----
-
-## Development vs Production
-
-| | Development | Production |
+| | Development / testnet | Production candidate |
 |---|---|---|
-| Reserve | P2PK (omit `scriptErgoTree`) | ChainCash `reserveScript.ergotree` |
-| Note | P2PK | ChainCash `noteScript.ergotree` |
-| Tracker | Not required | Required — use ChainCash tracker |
-| On-chain enforcement | Off-chain only | Miners enforce all conditions |
-| Double-spend prevention | Not enforced | Tracker enforces |
+| Reserve | P2PK dev boxes or draft Basis trees | Exact audited `basis.es` / `basis-token.es` tree hash |
+| Note evidence | Local/testnet note or Accord receipt evidence | Agreement + verification + settlement receipt with rail proof |
+| Tracker | Local/test tracker acceptable | Audited tracker operations, keys, state commitments, monitoring |
+| ChainCash/Basis status | Reference / research | Only exact artifacts signed by external auditor |
+| Mainnet | Blocked by default | Allowed only when manifests say `mainnetAllowed: true` |
 
-**Never use P2PK mode in production** — it provides no on-chain guarantees.
+The right production story is not "ChainCash exists, therefore Accord is
+mainnet-ready." The right story is: exact Basis artifact, exact tracker
+assumptions, exact compiled bytes, exact audit scope, signed manifest, and a
+capped launch plan.

@@ -38,7 +38,7 @@
     },
     {
       "name": "chaincash_reserve_v0",
-      "purpose": "ChainCash Reserve guard — owner-keyed collateral box. Three actions: redeem note (#0), top up (#1), mint note (#2). Verifies oracle-pegged redemption against AVL+ history, 2% fee + 0.2% buyback. Vendored from kushti/ChainCash/contracts/onchain/reserve.es.",
+      "purpose": "ChainCash Reserve guard — owner-keyed collateral box. Three actions: redeem note (#0), top up (#1), mint note (#2). Verifies oracle-pegged redemption against AVL+ history, 2% fee + 0.2% buyback. Vendored from BetterMoneyLabs/chaincash/contracts/onchain/reserve.es.",
       "sourceFile": "sources/reserve.es",
       "registers": {
         "R4": "reserve owner key (GroupElement)",
@@ -54,7 +54,7 @@
     },
     {
       "name": "chaincash_receipt_v0",
-      "purpose": "ChainCash Receipt — ephemeral box created by note redemption. Allows re-redemption against earlier reserves (chained debt) and self-burns 3 years after creation to dodge storage rent. Vendored from kushti/ChainCash/contracts/onchain/receipt.es.",
+      "purpose": "ChainCash Receipt — ephemeral box created by note redemption. Allows re-redemption against earlier reserves (chained debt) and self-burns 3 years after creation to dodge storage rent. Vendored from BetterMoneyLabs/chaincash/contracts/onchain/receipt.es.",
       "sourceFile": "sources/receipt.es",
       "registers": {
         "R4": "ownership history for the redeemed note (AvlTree)",
@@ -75,7 +75,7 @@
     },
     {
       "name": "chaincash_note_v0",
-      "purpose": "ChainCash Note — bearer IOU with two paths: spend (with optional change) and redeem. Schnorr signature in R4 history tree, AvlTree-tracked ownership chain. Redemption requires the Reserve and Receipt boxes to appear in the spending TX. Vendored from kushti/ChainCash/contracts/onchain/note.es.",
+      "purpose": "ChainCash Note — bearer IOU with two paths: spend (with optional change) and redeem. Schnorr signature in R4 history tree, AvlTree-tracked ownership chain. Redemption requires the Reserve and Receipt boxes to appear in the spending TX. Vendored from BetterMoneyLabs/chaincash/contracts/onchain/note.es.",
       "sourceFile": "sources/note.es",
       "registers": {
         "R4": "history of ownership (AvlTree, reserveId → signature)",
@@ -100,7 +100,7 @@
     },
     {
       "name": "basis_reserve_v0",
-      "purpose": "Basis offchain-credit reserve — ERG-only. Holds owner key + AVL tree of (owner, receiver) → (timestamp, cumulativeRedeemed). Redemption requires owner sig + tracker sig (or 3-day emergency exit). Vendored from kushti/ChainCash/contracts/offchain/basis.es. The Basis whitepaper variant for the agent-economy use case.",
+      "purpose": "Basis offchain-credit reserve — ERG-only. Holds owner key + AVL tree of (owner, receiver) → (timestamp, cumulativeRedeemed). Redemption requires owner sig + tracker sig (or 3-day emergency exit). Vendored from BetterMoneyLabs/chaincash/contracts/offchain/basis.es. The Basis whitepaper variant for the agent-economy use case.",
       "sourceFile": "sources/basis.es",
       "registers": {
         "R4": "reserve owner key (GroupElement)",
@@ -114,7 +114,7 @@
     },
     {
       "name": "basis_token_reserve_v0",
-      "purpose": "Token-collateralised Basis reserve — same scheme as basis_reserve_v0 but backed by an arbitrary token rather than ERG. Vendored from kushti/ChainCash/contracts/offchain/basis-token.es.",
+      "purpose": "Token-collateralised Basis reserve — same scheme as basis_reserve_v0 but backed by an arbitrary token rather than ERG. Vendored from BetterMoneyLabs/chaincash/contracts/offchain/basis-token.es.",
       "sourceFile": "sources/basis-token.es",
       "ergoTreeHex": "199a051f0414041404020404040004000402040004000410042005000402040004420400040004000410050004420500040004420442010104e0210402040205020100d80ad6017ee4e3000204d6029d72017300d603b2a59e7201730100d604db63087203d605db6308a7d606b27205730200d607eded93b172047303938cb27204730400018cb2720573050001938cb27204730600018c720601d608e4c6a70407d609eded93c27203c2a793e4c672030407720893e4c67203060ee4c6a7060ed60a8c720602959372027307d815d60bb2db6501fe730800d60cdb07027208d60de4e30107d60ecbb3720cdb0702720dd60fe4e30305d610e4e30405d611e3070ed612e67211d6137a7210d6149572127cb4e4dc640ae4c6a7056402720ee472117309730a730bd61599720a8cb27204730c0002d6168602720eb372137a9a72147215d617e4e3050ed618db6a01ddd619e4e3020ed61ab47219730d730ed61bb3b3720e7a720f7213d61ce4e3060ed61db1721cd61e91721d730fd61fe4c6720b0407ea02d1ededededededed72097207938cb2db6308720b73100001e4c6a7060e937ce4dc640ae4c6720b056402720ee4e3080e720f9172109572127cb4e4dc640ae4c6a7056402720ee4721173117312731393957212e4dc640de4c6a705640283013c0e0e72167217e4dc640ce4c6a705640283013c0e0e72167217e4c672030564939f72187bb472197314b17219a0ee721a9f72087bcbb3b3721a721b720ceded917215731590721599720f721495721e95721ed801d620b4721c73167317939f72187bb4721c7318721da0ee72209f721f7bcbb3b37220721bdb0702721f73199199a38cc7720b01731acd720d95937202731bd1ededed7209720793e4c672030564e4c6a7056492998cb27204731c0002720a731dd1731e",
       "treeHashBlake2b256": "16b54c8c7fb4113f41b7049bad0cb20f0f58ab298d9b18002f3e4b784a17277b",

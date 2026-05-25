@@ -2,13 +2,13 @@
 // ergo-agent-rosen — Reserve / Note helpers for Rosen-bridged tokens
 //
 // Wraps `agent.createReserve` and `agent.issueNote` so an integrator can say
-// "issue a Note for 5 rsUSDT" without manually wiring tokenIds, the audited
-// `basis_token_reserve_v0` ergoTree, or the audit-policy hooks.
+// "issue a Note for 5 rsUSDT" without manually wiring tokenIds, the
+// manifest-gated `basis_token_reserve_v0` ergoTree, or the audit-policy hooks.
 //
 // The compiled tree is the same `basis_token_reserve_v0` shipped in
 // `ergo-agent-scripts` — only the bound tokenId differs per asset. The
 // audit gate sees `scriptName: "basis_token_reserve_v0"` and consults the
-// audited manifest as usual.
+// manifest as usual.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import type { ErgoAgentPay, ReserveConfig, NoteOptions } from "ergo-agent-pay";
@@ -16,7 +16,7 @@ import { tryGetErgoTree } from "ergo-agent-scripts";
 import type { TokenLookupResult } from "./types.js";
 import { RosenIntegrationError } from "./types.js";
 
-/** The audited predicate name used for token-collateralised Reserves. */
+/** The manifest predicate name used for token-collateralised Reserves. */
 export const RS_RESERVE_SCRIPT_NAME = "basis_token_reserve_v0" as const;
 
 /**

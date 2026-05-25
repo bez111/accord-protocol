@@ -10,9 +10,10 @@ the migration path to a future native multi-chain implementation.
 * **Buyer holds USDT/USDC** on Ethereum (or BTC, ADA, BNB, …).
 * **One-time bridge** via Rosen UI deposits `rsUSDT` (or rsBTC, rsADA, …)
   on Ergo at the buyer's address. Watcher confirmation ~30 min.
-* **Notes are issued in `rsUSDT`** using the audited
-  `basis_token_reserve_v0` ergoTree from `ergo-agent-scripts`. No new
-  on-chain code is introduced; the audit gate is unchanged.
+* **Notes are issued in `rsUSDT`** using the manifest-gated,
+  draft-pre-audit `basis_token_reserve_v0` ergoTree from
+  `ergo-agent-scripts`. No new on-chain code is introduced; the mainnet
+  audit gate is unchanged.
 * **Sellers settle in `rsUSDT`** and batch-bridge out to USDT on
   Ethereum at their convenience (one bridge TX per day, hour, etc.).
 * **No custodial intermediary** — bridges are signed in the user's
@@ -24,14 +25,16 @@ the migration path to a future native multi-chain implementation.
 | Property | Native to Ergo? | Source |
 |---|---|---|
 | BLAKE2b-256 task-hash | ✅ | ergo-agent-pay |
-| Audit gate (`UNAUDITED_ERGOTREE`) | ✅ | ergo-agent-pay safety |
-| `basis_token_reserve_v0` ergoTree | ✅ | ergo-agent-scripts |
+| Audit gate (`UNAUDITED_ERGOTREE`) | ✅ | ergo-agent-pay safety, default-deny for mainnet |
+| `basis_token_reserve_v0` ergoTree | ✅ | ergo-agent-scripts manifest-gated draft |
 | Audit-manifest binding by name | ✅ | ergo-agent-scripts |
-| ChainCash / Basis on-chain semantics | ✅ | vendored sources |
+| ChainCash / Basis on-chain semantics | ✅ | vendored executable sources; external audit still required |
 
-The Rosen integration is **metadata-only** on top of the audited
-contract. The same `mainnetAllowed: false` gate from the manifest
-still applies, the same `verifyAuditedErgoTree` still runs.
+The Rosen integration is **metadata-only** on top of the same
+manifest-gated reserve contract surface. It does not make the contract
+audited or mainnet-ready. The same `mainnetAllowed: false` gate from
+the manifest still applies, and the same `verifyAuditedErgoTree`
+still runs.
 
 ## What's bridge-trust
 
@@ -65,7 +68,7 @@ What the SDK does:
   TokenMap.
 * Generate a one-click bridge URL prefilled with from / to / amount /
   recipient.
-* Pass the canonical audited tree to `agent.createReserve` /
+* Pass the canonical manifest-gated tree to `agent.createReserve` /
   `agent.issueNote` so audit policies see the correct manifest entry.
 * Convenience wrappers so an integrator does not need to learn the
   Rosen TokenMap internals.
@@ -73,7 +76,7 @@ What the SDK does:
 ## Migration path to native multi-chain
 
 The Rosen integration buys us **stablecoin-denominated agent
-payments today**, with the existing audited contract surface. It does
+payments today**, with the existing manifest-gated contract surface. It does
 not yet remove all the friction of "bridge first, pay later":
 
 * Buyer must complete one bridge before their first payment.

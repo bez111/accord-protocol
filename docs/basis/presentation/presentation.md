@@ -267,6 +267,6 @@ More users → More reserves → More ERG demand → Higher security
 ---
 
 ### 📚 Resources
-- Whitepaper: `github.com/ChainCashLabs/chaincash/docs/conf/conf.pdf`
-- Code: `github.com/ChainCashLabs/chaincash`
+- Whitepaper: `github.com/BetterMoneyLabs/chaincash/blob/master/docs/basis/basis.tex`
+- Code: `github.com/BetterMoneyLabs/chaincash`
 - Chat: `t.me/chaincashtalks`

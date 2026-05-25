@@ -85,7 +85,7 @@ const hash = hashErgoTree(suspiciousTree);
 | `task_hash_v0` | Note redemption requires `HEIGHT < R5` and `blake2b256(getVar[0]) == R6`. | R5 expiry (Int), R6 task hash (Coll[Byte]) |
 | `credential_v0` | As above, plus `proveDlog(R7)`. | R5, R6, R7 group element |
 
-### ChainCash on-chain contracts (vendored from [kushti/ChainCash](https://github.com/kushti/ChainCash))
+### ChainCash on-chain contracts (vendored from [BetterMoneyLabs/chaincash](https://github.com/BetterMoneyLabs/chaincash))
 
 | name | purpose |
 |---|---|
@@ -97,7 +97,7 @@ const hash = hashErgoTree(suspiciousTree);
 contract by hash — the registry's `dependsOn` field makes the compiler
 resolve the chain in topological order.
 
-### Basis offchain-credit reserves (vendored from [kushti/ChainCash/contracts/offchain](https://github.com/kushti/ChainCash/tree/main/contracts/offchain))
+### Basis offchain-credit reserves (vendored from [BetterMoneyLabs/chaincash/contracts/offchain](https://github.com/BetterMoneyLabs/chaincash/tree/master/contracts/offchain))
 
 | name | purpose |
 |---|---|

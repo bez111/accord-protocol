@@ -1,170 +1,176 @@
-# Basis - offchain IOU money for digital economies and communities
+# Basis offchain IOU money - Accord reading note
 
-In this writing, we propose Basis, efficient offchain cash system, backed by on-chain reserves but also allowing for 
-creating credit (unbacked IOU money). Its use cases are now thought as follows:
+This page summarizes the ChainCash / Basis material Accord depends on. The
+upstream sources are:
 
-* micropayments, such as payments for content, services, resources usage in p2p and distributed systems. Notable 
-difference from Lightning / FediMint / Cashu etc is that here a service can be provided on credit (within certain limits),
-which would boost growth for many services, allow for globally working alternative to free trial, and so on. 
+- [`docs/basis/abstract.md`](https://github.com/BetterMoneyLabs/chaincash/blob/master/docs/basis/abstract.md)
+- [`docs/basis/basis.tex`](https://github.com/BetterMoneyLabs/chaincash/blob/master/docs/basis/basis.tex)
+- [`contracts/offchain`](https://github.com/BetterMoneyLabs/chaincash/tree/master/contracts/offchain)
 
-* community currencies, which can be about small circles where there is trust to each other, using fully unbacked offchain cash,
- more complex environments using fully or partially backed cash, potentially with tokenized local reserves (such as gold and silver) 
- etc
+Accord's local vendored Basis trees are draft-pre-audit references. They are
+not a production certification and they do not authorize mainnet value until a
+signed audit manifest marks the exact artifact `mainnetAllowed: true`.
 
-Such use cases would definitely win from simple but secure design, no on-chain fees, and no need to work with blockchain 
-at all before need to back issued cash or redeem cash for blockchain asssets. 
+---
 
-But there can be more use cases discovered with time!
+## What Basis is
 
-## Basis Design
+Basis is an offchain IOU credit system with optional on-chain reserves. Local
+trust relationships can create credit without forcing every payment to be
+fully collateralized. When trust is not enough, a reserve contract can back
+redemption on Ergo.
 
-As we have offchain cash with possibility to create credit (unbacked money), we have need to track all the money in form 
-of IOU (I Owe You) notes issued by an issuer, for all the issuers. In comparison with fully on-chain ChainCash design,
-we have to deal with some security relaxation in the case of offchain notes.
+Payments and debt transfers are offchain. Blockchain coordination is needed
+when a creditor redeems a witnessed debt note against a reserve, or when a
+tracker commits state for emergency exit.
 
-As a simple but pretty secure solution, the following design is proposed, which can then be improved in many directions 
-(see "Future Extensions" section):
+Compared with Lightning, Cashu, or Fedimint, Basis does not require every
+offchain payment unit to be fully backed at the protocol level. That is the
+point of the design, but it also makes tracker policy, collateralization
+visibility, and audit scope much more important.
 
-* every participant has a public key over elliptic curve supported by Ergo blockchain (Secp256k1, the same curve is used
- in Bitcoin)
-* only reserves are on-chain. A reserve can be created at any time. A reserve is bound to public key of its owner. 
-Anyone (presumably, owner in most cases) can top the reserve up.
-* for keeping offchain cash ledgers, we have trackers. Anyone can launch a tracker service (just running open-source
- software on top of powerful enough hardware is needed for that). With time a tracker is getting trust and userbase if 
- behaves honestly. The design is trying to minimize trust in tracker. For example, a tracker cant redeem IOU notes made 
- to other parties, as they are signed, and the signature is check in redemption on-chain contract. If tracker is 
- disappearing, after some period last tracker state snapshot committed on-chain becomes redeemable without it. If tracker
-  is starting censoring notes associated with a public key, by not including them into on-chain update, it is still
-  possible to redeem them. There could be different improvements to the tracker design, see "Future Extensions" section.
-* IOU note from A to B is represented as (B_pubkey, amount, timestamp, sig_A) record, where amount is the **total** amount of
- A's debt before B, timestamp is timestamp of latest payment from A to B, and sig_A is a signature for (B_pubkey, amount, 
- nonce). Only one updateable note is stored by a tracker, and redeemable onchain. Thus a tracker is storing 
- (amount, timestamp) pairs for all A->B debt relationships. The tracker commits on-chain to the data by storing a digest 
- of a tree where hash(A ++ B) acts as a key, and (amount, timestamp) acts as a value. 
- 
-* If A has on-chain reserve, B may redeem offchain from A->B note, by providing proof of (amount, timestamp). Reserve
- contract UTXO is storing tree of hash(AB) -> timestamp pairs. It is impossible to withdraw a note with timestamp <= 
-redeemed again. After on-chain redemption, A and B should contact offchain to deduct before next payment from A to B done. 
-A note may be redeemed only one week after creation (timestamp of last block is one week ahead of timestamp in the note,
- at least), thus for services it makes sense to have a lot of rotating keys.
+---
 
-## Basis Contract
+## Components
 
-A basic contract corresponding to the design outlined in the previous section, is available @ [basis.es](basis.es).
+| Component | Role |
+|---|---|
+| IOU note | Offchain record for `A -> B` debt. It is signed by issuer A and witnessed by a tracker. |
+| Reserve contract | On-chain ErgoScript that releases ERG or a token when signatures, AVL proofs, and replay guards pass. |
+| Tracker | Offchain witness/state service. It tracks debt, signs witnessed notes, publishes status, and commits a digest on-chain. |
+| Tracker commitment | AVL digest proving the current debt state for emergency redemption and public verification. |
 
-## Offchain Logic
+The current `contracts/offchain` implementation has reserve contracts
+(`basis.es` and `basis-token.es`) plus tracker/offchain docs. It is not a
+directory of separate `reserveScript.es`, `noteScript.es`, and
+`trackerScript.es` files.
 
-### Tracker
+---
 
-Tracker is publishing following events via NOSTR protocol as relay:
+## IOU data model
 
-* note - new or updated note, along with proof of tracker state transformation and digest after operation
-* redemption - redemption done from a reserve
-* reserve top-up
-* commitment - posting data for on-chain tracker state commitment update (header, proof of UTXO against header, UTXO with commitment)
-* 80% alert - tracker is posting it when debt level of some pubkey reaching 80% of collateral 
-* 100% alert - tracker is posting it when debt level of some pubkey reaching 100% of collateral
+For an issuer A paying receiver B:
 
-Then it also supports following API requests which can be run separately from relay potentially:
+- Pair key: `Blake2b256(A_pubkey || B_pubkey)`.
+- Amount: cumulative total debt A owes B, not just the latest delta.
+- Timestamp: latest payment timestamp in milliseconds since Unix epoch.
+- Signature message in the current contracts:
+  `key || totalDebt || timestamp`.
 
-* getNotesForKey - returns all the notes sssociated with a pubkey
-* getProof - get proof for a note against latest digest published by the tracker (not necessarily committed on-chain)
-* getKeyStatus - returns current collateralization of a pubkey along with other important information. Useful for light
-wallets and clients which are ready 
-* POST noteUpdate - create or update a note
+The paper describes the tracker model as
+`hash(payerKey || payeeKey) -> (totalDebt, timestamp)`. The current
+`basis.es` / `basis-token.es` contract lookup binds `totalDebt` through the
+tracker AVL proof, while `timestamp` is bound by the issuer/tracker signatures
+and enforced through the reserve redemption tree.
 
-## Security Assumptions
+---
 
-We assume that tracker is honestly collecting and announcing notes it has. However, malicious trackers may deviate from
-honest behaviour.
+## Reserve contract state
 
-Tracker can simply go offline, but then the latest state committed on-chain is still redeemable,
+Current Basis reserve scripts use:
 
-Tracker may remove debt notes of protocol participants. This problem can be tackled with the anti-censorship protection
-from "Future Extensions" section.
+- `R4`: reserve owner public key.
+- `R5`: AVL tree tracking redemption state per `(owner, receiver)`.
+- `R6`: tracker NFT id.
 
-Tracker may collude with a reserve holder to inject a note with fake timestamp in the past to redeem immediately. 
-Tracker would be caught in this case. For making this case impossible with contract, technique similar to anti-censorship 
-protection can be used.
+`R5` maps:
 
-## Wallet
+```text
+hash(ownerKey || receiverKey) -> timestamp || cumulativeRedeemedAmount
+```
 
-## Future Extensions
+Both values are 8-byte big-endian `Long`s, so the stored value is 16 bytes.
+This is stronger than an older "timestamp only" description because it also
+tracks how much of the cumulative debt has already been redeemed.
 
-* Anti-Collusion Protection
+---
 
-Let's suppose that, at time t1, we have:
+## Redemption
 
-(Bob -> Alice, 2, 9), with the 9th note signed by Bob.
+A normal redemption presents:
 
-And, at time t2, we have:
+- receiver public key;
+- reserve owner signature on `key || totalDebt || timestamp`;
+- tracker signature on the same message;
+- current `totalDebt`;
+- timestamp;
+- proof/update for the reserve redemption AVL tree;
+- tracker AVL proof that `key -> totalDebt` is committed;
+- receiver transaction signature.
 
-(Bob -> Alice, 3, 10), with the 10th note signed by Bob.
+The reserve releases only the delta:
 
-Bob (at least, he incentivized to) informing tracker, and the tracker commits on-chain 
-the latest nonce seen. Also, tracker's signature is required for normal redemption.
+```text
+redeemable <= totalDebt - cumulativeRedeemedAmount
+```
 
-So at the moment t2:
+It also requires:
 
-1) if committed state is (Bob -> Alice, 3, 10) , Alice can't withdraw (Bob -> Alice, 2, 9)
-2) if committed state is (Bob -> Alice, 3, 9) , Alice can withdraw by colluding with the tracker , 
-    and the misbehavior has onchain footprint
+```text
+timestamp > storedTimestamp
+```
 
-Possible to introduce protection from the collusion by making debt amount ever increasing (so then it is amount of 
-offchain debt of Bob before Alice, including redeemed), and  storing redeemed amount in Bob's reserve contract as well.
+This prevents replaying an older note after a newer note has been redeemed.
 
-* Anti-Censorship Protection
+---
 
-If tracker is starting censoring notes associated with a public key, by not including them into on-chain update, it is still
-possible to redeem them with anti-censorship protection. For that, tracker box should be protected with a contract which
-has condition to include spent tracker input's id into a tree stored in a register. Then tracker is storing commitment to
-all it previous states, basically, and we can use that to add a condition to the reserve contract to allow redemption of 
-a note which was tracked before but not tracked now, and also not withdrawn. 
+## Emergency exit
 
-* Federated trackers
+If the tracker becomes unavailable, the current contracts allow redemption
+without a tracker signature after roughly 3 days / 2160 Ergo blocks from the
+tracker box creation. The reserve owner signature is still required, and the
+redemption still uses the committed tracker state/proof model.
 
-Instead of a single tracker, we may have federation, like done in Oracle Pools, or double layered federation like done
-in Rosen bridge.
+Do not describe the current contract as having a generic "one week after note
+creation" redemption delay. That wording appears in older prose, but it is not
+the executable behavior of the current `basis.es` / `basis-token.es` files.
 
-* Tracking sidechains
+---
 
-As a continuation of federation tracker idea, we may have tracking sidechains, for example, merged-mined sidechains, to
-reduce multisig security to majority-of-Ergo-hashrate-following-sidechain security.
+## Debt transfer
 
-* Programmable cash
+Basis debt transfer is debtor-consent novation:
 
-We may store redeeming condition script hash instead of recipient pubkey just in IOU notes, and add the condition to 
-other redeeming conditions in onchain redemption action.
+1. A owes B.
+2. B wants to pay C using part of A's debt.
+3. A signs an updated A -> B note for the remaining debt.
+4. A signs a new A -> C note for the transferred amount.
+5. The tracker witnesses both updates.
 
-* Multi-tracker reserve
+After the update, A owes C directly. B cannot unilaterally transfer A's debt
+without A's fresh signatures.
 
-Possible to have reserve contract with support for multiple reserves, put under AVL+ tree or just in collection if there
- are few of them.
+---
 
-For most reserves that does not make sense probably, but multi-tracker reserves can be used as gateways between 
-different trackers, to rebalance liquidity etc. 
+## Tracker trust limits
 
-* Privacy 
+The tracker cannot redeem funds alone because reserve owner signatures are
+required. It can still create operational and economic risk:
 
-Not hard to do redemptions to stealth addresses. 
+- going offline;
+- censoring new notes or omitting notes from committed state;
+- publishing stale or delayed commitments;
+- reordering redemption flow for undercollateralized reserves;
+- colluding with an issuer around timestamps or collateralization policy;
+- becoming a single point of liveness unless federated or replaced by a
+  sidechain/rollup-style design.
 
-## Economy
+Those are audit and operations questions, not marketing footnotes.
 
-## Implementation Roadmap
+---
 
-The following implementation plan is targeting catching micropayments in P2P networks, agentic networks, etc ASAP and then 
-develop tools for community trading:
+## Accord integration notes
 
-* Do tests for Basis contract, like ChainCashSpec or Dexy contracts (Scala)
-* Do a token-based variant of reserve contract (ErgoScript)
-* Do tracker service (Rust), which is collecting offchain notes and also tracking on-chain reserves, writing 
-periodically commitments on chain, informing clients about state of notes / reserves (collateralization etc)
-* Do Celaut payment module, where peers can set credit limits and pay each other. Add support for agentic layer, so AI agents can buy computations 
-over Celaut, then requests to other APIs as well.
-* Do showcase for agent-to-agent payments
-* Do a wallet for community trading (maybe in form of telegram bots? like one wallet bot for one community)
-* Do alternative for NOSTR zaps
+Accord currently exposes the Basis reserve trees as:
 
-and so on
+- `basis_reserve_v0`
+- `basis_token_reserve_v0`
 
-## References
+They live under
+[`packages/ergo-agent-scripts/data/sources`](../../packages/ergo-agent-scripts/data/sources)
+and the manifest scaffold lives in
+[`packages/ergo-agent-scripts/data/AUDITED_ERGOTREES.json`](../../packages/ergo-agent-scripts/data/AUDITED_ERGOTREES.json).
+
+The manifest is still default-deny. Treat these trees as testnet/reference
+inputs until an external audit signs exact source hashes, exact compiled tree
+hashes, tracker assumptions, and `mainnetAllowed: true`.
