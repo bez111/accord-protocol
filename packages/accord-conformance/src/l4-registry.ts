@@ -9,8 +9,8 @@
 //   * registry/{providers,verifiers,rails,manifests}/*.json are well-formed
 //   * each record carries the expected `type` literal and `version: "v0"`
 //   * `registry/revocations.json` is an array (possibly empty)
-//   * rail records' `manifest` field points at a manifest file that exists
-//     under registry/manifests/
+//   * rail records' `manifest` field is null or points at a manifest file
+//     that exists under registry/manifests/
 //   * provider records' `accepted_rails[]` only name rails that have a
 //     matching record in registry/rails/
 //   * conformance.level (when present) is one of L0–L4
@@ -166,8 +166,45 @@ function validateRails(
         : `type=${rec.type}, version=${rec.version}, rail=${rec.rail}`,
     });
     if (allOk && typeof rec.rail === "string") names.add(rec.rail);
+    if (allOk) {
+      validateRailManifestPointer(registryDir, id, rec, checks);
+    }
   }
   return names;
+}
+
+function validateRailManifestPointer(
+  registryDir: string,
+  id: string,
+  rec: Record<string, unknown>,
+  checks: ConformanceCheck[],
+): void {
+  const manifest = rec.manifest;
+  let ok = manifest === null;
+  let detail: string | undefined;
+  if (manifest === null) {
+    detail = undefined;
+  } else if (typeof manifest !== "string" || manifest.length === 0) {
+    detail = "manifest must be null or a non-empty string";
+  } else {
+    const normalized = path.normalize(manifest);
+    const manifestsDir = path.join(registryDir, "manifests");
+    const target = path.resolve(registryDir, normalized);
+    ok =
+      normalized.startsWith("manifests" + path.sep) &&
+      target.startsWith(manifestsDir + path.sep) &&
+      fs.existsSync(target);
+    detail = ok
+      ? undefined
+      : `manifest pointer ${manifest} must resolve under registry/manifests/`;
+  }
+  checks.push({
+    id: `${id}.manifest-pointer-valid`,
+    level: "L4",
+    description: "rail manifest pointer is null or resolves under registry/manifests/",
+    result: ok ? "pass" : "fail",
+    detail,
+  });
 }
 
 function validateManifests(registryDir: string, checks: ConformanceCheck[]): void {

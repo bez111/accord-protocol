@@ -85,6 +85,24 @@ describe("conformance L4 — registry-certified", () => {
     }
   });
 
+  it("rail records must point manifests under registry/manifests or use null", async () => {
+    const root = makeRegistryFixture((fixtureRoot) => {
+      writeJson(path.join(fixtureRoot, "registry", "rails", "ergo.json"), {
+        type: "accord.rail_adapter.v0",
+        version: "v0",
+        rail: "ergo",
+        manifest: "../dummy-manifest.json",
+      });
+    });
+    const result = await runL4({ repoRoot: root });
+    const check = result.checks.find((c) =>
+      c.id.endsWith(".manifest-pointer-valid"),
+    );
+    assert.equal(result.passed, false);
+    assert.equal(check?.result, "fail");
+    assert.match(check?.detail ?? "", /registry\/manifests/);
+  });
+
   it("resolves packaged monorepo-style manifest paths through installed package dependencies", async () => {
     const root = makeRegistryFixture((fixtureRoot) => {
       writeJson(path.join(fixtureRoot, "registry", "manifests", "ergo.json"), {

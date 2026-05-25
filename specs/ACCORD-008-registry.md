@@ -141,7 +141,8 @@ L4 conformance ([ACCORD-009](./ACCORD-009-conformance.md)) static-validates the 
 - Each record's `type` literal matches its directory (`accord.provider_profile.v0`, etc.)
 - Each record's `version` is `"v0"`
 - `revocations.json` is an array (possibly empty)
-- Rail records' `manifest_path` resolves to a file that exists from the repo root
+- Rail records' `manifest` is either `null` or a safe relative path resolving under `registry/manifests/`
+- Manifest records' `manifest_path` resolves to a file that exists from the repo root
 - Provider records' `accepted_rails ⊆ registered rails`
 - Provider records' `conformance.level` (when present) is one of L0–L4
 

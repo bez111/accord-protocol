@@ -5,7 +5,7 @@
   "package": "@accord-protocol/rails-x402",
   "settlement_modes": ["paid_before_response"],
   "supported_currencies": ["USDC", "USDT"],
-  "payment_id_format": "facilitator-issued payment proof id (typically the EVM tx hash)",
+  "payment_id_format": "Accord-stable x402_<64 hex> id derived from the opaque payment payload, scheme, and facilitator network",
   "task_hash_algorithm": null,
   "manifest": null,
   "notes": "Wraps any x402 facilitator (Coinbase, self-hosted) into the AccordRailAdapter shape. No on-chain manifest — payment trust derives from the facilitator's signature."
