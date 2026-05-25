@@ -57,7 +57,7 @@ export const demoRail: AccordRailAdapter = {
   },
 
   async settle(input: SettleInput): Promise<AccordSettlementReceipt> {
-    return demoSettle(input.agreement, "settled", "note_redeemed");
+    return demoSettle(input.agreement, "settled", "note_redeemed", input.verification);
   },
 };
 
@@ -65,9 +65,10 @@ function demoSettle(
   agreement: AccordAgreement,
   status: "settled" | "refunded",
   mode: "note_redeemed" | "reserve_refunded",
+  verification?: SettleInput["verification"],
 ): AccordSettlementReceipt {
   const seed = `${agreement.agreement_id}:${status}`;
-  return {
+  const receipt: AccordSettlementReceipt = {
     type: "accord.settlement_receipt.v0",
     version: "v0",
     settlement_id:
@@ -88,6 +89,10 @@ function demoSettle(
     },
     created_at: nowIsoUtc(),
   };
+  if (agreement.verification.required && verification) {
+    receipt.verification_receipts = ["blake2b256:0x" + accordHashV0(verification)];
+  }
+  return receipt;
 }
 
 // ── helpers ──────────────────────────────────────────────────────────────────

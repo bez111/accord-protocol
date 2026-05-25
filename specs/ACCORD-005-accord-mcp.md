@@ -50,7 +50,8 @@ Tools with their own argument schema add these alongside; the wrapper merges the
     "accord_agreement_id": "acc_…",
     "accord_agreement_hash": "blake2b256:0x…",
     "accord_verification_receipt": { … },     // present when verification.required
-    "accord_settlement_receipt": { … }         // present when rail.settle was attempted
+    "accord_settlement_receipt": { … },        // present when rail.settle returned a valid receipt
+    "accord_settlement_error": "…"             // present when best-effort settlement failed or was invalid
   }
 }
 ```
@@ -78,12 +79,16 @@ For each tool call, a conformant Accord/MCP wrapper:
 1. Pulls `accord_agreement_id` / `accord_payment` / `accord_task_output` from the args.
 2. Resolves the agreement via the seller-supplied `resolveAgreement(id)` callback.
 3. Runs `validateAgreement` (cross-field rules from ACCORD-001 §7).
-4. Calls `rail.verifyPayment({ agreement, payment })`.
+4. Binds the configured rail to `agreement.payment.rail`, then calls `rail.verifyPayment({ agreement, payment })`.
 5. (Optional) Hashes `accord_task_output` and compares against `agreement.task.output_hash`.
 6. Runs the seller's handler with the **non-Accord** args + the resolved Agreement.
 7. (If `agreement.verification.required`) calls the configured verifier; runs `validateVerificationReceipt(receipt, { agreement })`; rejects if `result == "rejected"`.
-8. (Best-effort) calls `rail.settle(...)`. Failure here does NOT reject the call — the buyer already got the work; receipts are reconciled out of band.
+8. (Best-effort) calls `rail.settle(...)`, then validates the Settlement Receipt against the Agreement before emitting it. Failure or an invalid receipt here does NOT reject the call — the buyer already got the work; receipts are reconciled out of band.
 9. Returns the handler's output with `_meta.accord_*` annotations.
+
+The configured rail adapter, `agreement.payment.rail`, and the rail reported by payment verification MUST all match. If they do not match, the wrapper MUST reject the call with `PAYMENT_RAIL_MISMATCH`.
+
+When the wrapper emits `accord_settlement_receipt`, the receipt MUST validate against the Agreement under ACCORD-003. Invalid settlement receipts MUST NOT be emitted in result metadata.
 
 ## 5. Error taxonomy
 
@@ -96,6 +101,7 @@ The wrapper surfaces errors via `_meta.accord_error_code`. Conformant implementa
 | `UNKNOWN_AGREEMENT` | `resolveAgreement(id)` returned undefined or threw |
 | `AGREEMENT_INVALID` | `validateAgreement` rejected (cross-field rules) |
 | `PAYMENT_VERIFICATION_FAILED` | Rail returned `{ ok: false }` |
+| `PAYMENT_RAIL_MISMATCH` | Configured adapter, Agreement rail, or verified payment rail disagree |
 | `RAIL_UNAVAILABLE` | Rail's `verifyPayment` threw |
 | `TASK_OUTPUT_HASH_MISMATCH` | `accord_task_output` hash ≠ `agreement.task.output_hash` |
 | `HANDLER_THREW` | Seller's handler threw |
@@ -113,7 +119,7 @@ The conformance suite probes Accord/MCP via stdio JSON-RPC ([ACCORD-009](./ACCOR
 
 ## 7. Reference implementation
 
-[`@accord-protocol/mcp`](../packages/accord-mcp/) — `wrapAccordMcp` factory. 18 unit tests covering every error code + happy paths. Framework-agnostic: returns a callable, plug into any MCP server runtime (`@modelcontextprotocol/sdk`, custom, etc.).
+[`@accord-protocol/mcp`](../packages/accord-mcp/) — `wrapAccordMcp` factory. Unit tests cover every error code, rail binding, settlement receipt validation and happy paths. Framework-agnostic: returns a callable, plug into any MCP server runtime (`@modelcontextprotocol/sdk`, custom, etc.).
 
 ## 8. Open questions (v1 candidates)
 

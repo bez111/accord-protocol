@@ -61,4 +61,14 @@ describe("conformance L1 — transport-compatibility", () => {
     assert.equal(rail?.result, "pass", rail?.detail);
     assert.equal(settlement?.result, "pass", settlement?.detail);
   });
+
+  it("L1 includes MCP rail-binding and settlement-omission checks", async () => {
+    const result = await runL1();
+    const rail = result.checks.find((c) => c.id === "L1.mcp.rail-mismatch-rejected");
+    const settlement = result.checks.find(
+      (c) => c.id === "L1.mcp.invalid-settlement-omitted",
+    );
+    assert.equal(rail?.result, "pass", rail?.detail);
+    assert.equal(settlement?.result, "pass", settlement?.detail);
+  });
 });

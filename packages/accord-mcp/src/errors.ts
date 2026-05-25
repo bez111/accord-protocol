@@ -15,6 +15,7 @@ export const ACCORD_MCP_ERROR_CODES = {
 
   // --- Rail-side payment errors
   PAYMENT_VERIFICATION_FAILED: "PAYMENT_VERIFICATION_FAILED",
+  PAYMENT_RAIL_MISMATCH: "PAYMENT_RAIL_MISMATCH",
   RAIL_UNAVAILABLE: "RAIL_UNAVAILABLE",
 
   // --- Output / verification errors

@@ -60,11 +60,13 @@ function runChecks(
       typeof output === "object" &&
       output !== null &&
       (output as { schema?: string }).schema === "accord.audit_report.v0";
-    checks.push({
-      name: "schema_valid",
-      result: ok ? "pass" : "fail",
-      detail: ok ? undefined : "output.schema != accord.audit_report.v0",
-    });
+    checks.push(ok
+      ? { name: "schema_valid", result: "pass" }
+      : {
+          name: "schema_valid",
+          result: "fail",
+          detail: "output.schema != accord.audit_report.v0",
+        });
   }
   if (required.includes("severity_present")) {
     const findings = (output as { findings?: { severity?: string }[] }).findings ?? [];

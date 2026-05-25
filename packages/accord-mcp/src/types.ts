@@ -128,6 +128,7 @@ export interface AccordMcpSuccessResult<TOut> {
     accord_agreement_hash: string;
     accord_verification_receipt?: AccordVerificationReceipt;
     accord_settlement_receipt?: AccordSettlementReceipt;
+    accord_settlement_error?: string;
   };
 }
 

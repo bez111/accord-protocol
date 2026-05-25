@@ -35,8 +35,8 @@ function minimalAgreement(overrides: Partial<AccordAgreement> = {}): AccordAgree
 
 function makeRail(stub: Partial<AccordRailAdapter> = {}): AccordRailAdapter {
   return {
-    rail: "test",
-    verifyPayment: async () => ({ ok: true, rail: "test" }),
+    rail: "ergo",
+    verifyPayment: async () => ({ ok: true, rail: "ergo" }),
     ...stub,
   } as AccordRailAdapter;
 }
@@ -174,6 +174,38 @@ describe("wrapAccordMcp — error paths", () => {
       assert.equal(r._meta.accord_error_code, ACCORD_MCP_ERROR_CODES.PAYMENT_VERIFICATION_FAILED);
       assert.equal(r._meta.rail_error_code, "INSUFFICIENT_VALUE");
     }
+  });
+
+  it("returns PAYMENT_RAIL_MISMATCH when configured rail does not match agreement rail", async () => {
+    const call = wrapAccordMcp({
+      rail: makeRail({ rail: "x402" }),
+      handler: async () => "ok",
+      resolveAgreement: async () => minimalAgreement(),
+    });
+    const r = await call({
+      accord_agreement_id: "acc_01HX0000000000000000000000",
+      accord_payment: { proof: "x" },
+    } as never);
+    assert.equal(r.isError, true);
+    if (r.isError)
+      assert.equal(r._meta.accord_error_code, ACCORD_MCP_ERROR_CODES.PAYMENT_RAIL_MISMATCH);
+  });
+
+  it("returns PAYMENT_RAIL_MISMATCH when verifyPayment reports a different rail", async () => {
+    const call = wrapAccordMcp({
+      rail: makeRail({
+        verifyPayment: async () => ({ ok: true, rail: "x402" }),
+      }),
+      handler: async () => "ok",
+      resolveAgreement: async () => minimalAgreement(),
+    });
+    const r = await call({
+      accord_agreement_id: "acc_01HX0000000000000000000000",
+      accord_payment: { proof: "x" },
+    } as never);
+    assert.equal(r.isError, true);
+    if (r.isError)
+      assert.equal(r._meta.accord_error_code, ACCORD_MCP_ERROR_CODES.PAYMENT_RAIL_MISMATCH);
   });
 
   it("returns RAIL_UNAVAILABLE when the rail throws", async () => {
@@ -359,6 +391,7 @@ describe("wrapAccordMcp — happy paths", () => {
       amount: "1",
       currency: "ERG" as const,
       decimals: 9,
+      verification_receipts: ["vr_01HX0000000000000000000000"],
       tx: {
         network: "testnet" as const,
         tx_id: "0x" + "a".repeat(64),
@@ -387,8 +420,8 @@ describe("wrapAccordMcp — happy paths", () => {
     const ag = minimalAgreement();
     const call = wrapAccordMcp({
       rail: {
-        rail: "test",
-        verifyPayment: async () => ({ ok: true, rail: "test" }),
+        rail: "ergo",
+        verifyPayment: async () => ({ ok: true, rail: "ergo" }),
         settle: async () => {
           throw new Error("rail down");
         },
@@ -403,6 +436,46 @@ describe("wrapAccordMcp — happy paths", () => {
     assert.equal(r.isError, undefined);
     if (!r.isError) {
       assert.equal(r._meta.accord_settlement_receipt, undefined);
+      assert.match(String(r._meta.accord_settlement_error), /rail\.settle threw/);
+    }
+  });
+
+  it("does not emit invalid settlement receipts in _meta", async () => {
+    const ag = minimalAgreement();
+    const call = wrapAccordMcp({
+      rail: {
+        rail: "ergo",
+        verifyPayment: async () => ({ ok: true, rail: "ergo" }),
+        settle: async () => ({
+          type: "accord.settlement_receipt.v0",
+          version: "v0",
+          settlement_id: "sr_01HX0000000000000000000000",
+          agreement_id: "acc_DIFFERENT",
+          agreement_hash: "blake2b256:0x" + "0".repeat(64),
+          rail: "base",
+          mode: "redeemed",
+          status: "settled",
+          amount: "99",
+          currency: "USDC",
+          decimals: 6,
+          tx: {
+            network: "base-sepolia",
+            tx_id: "0x" + "a".repeat(64),
+          },
+          created_at: "2026-05-07T00:00:20Z",
+        }),
+      },
+      handler: async () => "ok",
+      resolveAgreement: async () => ag,
+    });
+    const r = await call({
+      accord_agreement_id: ag.agreement_id,
+      accord_payment: { proof: "x" },
+    } as never);
+    assert.equal(r.isError, undefined);
+    if (!r.isError) {
+      assert.equal(r._meta.accord_settlement_receipt, undefined);
+      assert.match(String(r._meta.accord_settlement_error), /settlement receipt is invalid/);
     }
   });
 });

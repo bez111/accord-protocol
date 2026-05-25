@@ -56,13 +56,14 @@ const toolDef = describeAccordMcpTool({
 1. Pull accord_agreement_id / accord_payment / accord_task_output from buyer's args
 2. resolveAgreement(id)                       → reject if unknown
 3. validateAgreement(agreement)                → reject on cross-field problems
-4. rail.verifyPayment(agreement, payment)      → reject if payment fails
+4. bind configured rail to agreement.payment.rail
+   + rail.verifyPayment(agreement, payment)    → reject if payment fails or rail mismatch
 5. (optional) check accord_task_output hash    → reject if it doesn't match agreement.task.output_hash
 6. handler(strippedArgs, { agreement })        → run the seller's tool
 7. (if required) verifier(agreement, output)
    + validateVerificationReceipt(receipt)
    + check result !== "rejected"
-8. (best-effort) rail.settle(...)              → don't reject the call if settle fails
+8. (best-effort) rail.settle(...) + validate   → invalid receipts omitted from _meta
 9. return output + _meta.accord_*
 ```
 
@@ -77,11 +78,18 @@ The wrapper **returns** structured errors (`isError: true` + `_meta.accord_error
 | `UNKNOWN_AGREEMENT` | `resolveAgreement(id)` returned undefined or threw |
 | `AGREEMENT_INVALID` | `validateAgreement` from `@accord-protocol/core` rejected |
 | `PAYMENT_VERIFICATION_FAILED` | Rail returned `{ ok: false }` |
+| `PAYMENT_RAIL_MISMATCH` | Configured adapter, Agreement rail, or verified payment rail disagree |
 | `RAIL_UNAVAILABLE` | Rail's `verifyPayment` threw |
 | `TASK_OUTPUT_HASH_MISMATCH` | Buyer's `accord_task_output` hash ≠ `agreement.task.output_hash` |
 | `HANDLER_THREW` | Seller's handler threw |
 | `VERIFICATION_REQUIRED` | `agreement.verification.required` is true but no verifier configured |
 | `VERIFICATION_REJECTED` | Verifier rejected, or returned an invalid receipt |
+
+## Rail binding and settlement validation
+
+The wrapper rejects calls when the configured adapter rail, `agreement.payment.rail`, and `verifyPayment(...).rail` disagree.
+
+If `rail.settle(...)` is configured, the returned Settlement Receipt is validated against the Agreement before it is emitted in `_meta.accord_settlement_receipt`. Invalid settlement receipts are omitted and `_meta.accord_settlement_error` records the validation failure.
 
 ## What's NOT in this package
 

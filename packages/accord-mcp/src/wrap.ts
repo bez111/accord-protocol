@@ -8,7 +8,9 @@
 //      out of the buyer's tool args. Reject if `agreement_id` is missing.
 //   2. Resolve the Agreement via `config.resolveAgreement`. Reject if unknown.
 //   3. Run @accord-protocol/core's `validateAgreement`. Reject on any problem.
-//   4. Call `rail.verifyPayment({ agreement, payment })`. Reject on failure.
+//   4. Bind the configured rail to `agreement.payment.rail`, then call
+//      `rail.verifyPayment({ agreement, payment })`. Reject on failure or
+//      if the verified rail does not match.
 //   5. (Optional) If `accord_task_output` was sent, ensure its
 //      `accord_hash_v0` matches `agreement.task.output_hash` if that field
 //      was set.
@@ -18,9 +20,10 @@
 //        a. Call `config.verifier({ agreement, output })`.
 //        b. Run `validateVerificationReceipt(receipt, { agreement })`.
 //        c. Reject the call if the receipt's `result === "rejected"`.
-//   8. (Optional) Call `rail.settle(...)`. Don't reject the tool call if
-//      settle fails post-execution — log it and return both receipts so
-//      the buyer can retry settlement out-of-band.
+//   8. (Optional) Call `rail.settle(...)` and validate the returned
+//      Settlement Receipt. Don't reject the tool call if settle fails
+//      post-execution — report the settlement error in `_meta` so the buyer
+//      can retry settlement out-of-band.
 //   9. Return the handler's output, with both receipts (if any) attached
 //      under `_meta.accord_*`.
 //
@@ -34,6 +37,7 @@
 import {
   accordHashV0,
   validateAgreement,
+  validateSettlementReceipt,
   validateVerificationReceipt,
   type AccordAgreement,
   type AccordSettlementReceipt,
@@ -139,6 +143,17 @@ export function wrapAccordMcp<TArgs extends Record<string, unknown>, TOut>(
       });
     }
 
+    if (config.rail.rail !== agreement.payment.rail) {
+      return mcpError(ACCORD_MCP_ERROR_CODES.PAYMENT_RAIL_MISMATCH, {
+        message:
+          `configured rail ${config.rail.rail} does not match agreement.payment.rail ` +
+          `${agreement.payment.rail}`,
+        rail: config.rail.rail,
+        expected_rail: agreement.payment.rail,
+        accord_agreement_id,
+      });
+    }
+
     // ── 4. Verify payment with the rail ───────────────────────────────────
     let verification:
       | { ok: true; rail: string; details?: Record<string, unknown> }
@@ -160,6 +175,16 @@ export function wrapAccordMcp<TArgs extends Record<string, unknown>, TOut>(
         message: verification.message,
         rail: verification.rail,
         rail_error_code: verification.code,
+        accord_agreement_id,
+      });
+    }
+    if (verification.rail !== config.rail.rail || verification.rail !== agreement.payment.rail) {
+      return mcpError(ACCORD_MCP_ERROR_CODES.PAYMENT_RAIL_MISMATCH, {
+        message:
+          `rail.verifyPayment returned rail ${verification.rail}, expected ` +
+          `${agreement.payment.rail}`,
+        rail: verification.rail,
+        expected_rail: agreement.payment.rail,
         accord_agreement_id,
       });
     }
@@ -224,6 +249,7 @@ export function wrapAccordMcp<TArgs extends Record<string, unknown>, TOut>(
 
     // ── 8. Settle (best-effort) ───────────────────────────────────────────
     let settlementReceipt: AccordSettlementReceipt | undefined;
+    let settlementError: string | undefined;
     if (config.rail.settle) {
       try {
         settlementReceipt = await config.rail.settle({
@@ -231,10 +257,17 @@ export function wrapAccordMcp<TArgs extends Record<string, unknown>, TOut>(
           payment: accord_payment,
           verification: verificationReceipt,
         });
-      } catch {
+        const srCheck = validateSettlementReceipt(settlementReceipt, { agreement });
+        if (!srCheck.ok) {
+          settlementError =
+            `settlement receipt is invalid: ${srCheck.problems.map((p) => p.code).join(", ")}`;
+          settlementReceipt = undefined;
+        }
+      } catch (err) {
         // Settlement failure post-execution does NOT reject the tool call
         // — the buyer already got the work, the receipts can be reconciled
         // out-of-band. The seller's logs should pick this up.
+        settlementError = `rail.settle threw: ${stringifyError(err)}`;
         settlementReceipt = undefined;
       }
     }
@@ -256,6 +289,7 @@ export function wrapAccordMcp<TArgs extends Record<string, unknown>, TOut>(
         accord_agreement_hash: "blake2b256:0x" + accordHashV0(agreement),
         accord_verification_receipt: verificationReceipt,
         accord_settlement_receipt: settlementReceipt,
+        accord_settlement_error: settlementError,
       },
     };
   };

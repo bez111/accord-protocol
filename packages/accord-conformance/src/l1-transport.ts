@@ -292,6 +292,89 @@ async function runMcpChecks(checks: ConformanceCheck[]): Promise<void> {
       }
     }
   }
+
+  // 6. Rail binding: configured MCP rail must match agreement.payment.rail
+  {
+    const mismatchedRail = { ...makeRail(), rail: "x402" } as AccordRailAdapter;
+    const callTool = wrapAccordMcp({
+      rail: mismatchedRail,
+      verifier,
+      resolveAgreement: async (id) => store.get(id),
+      handler: async () => ({ pong: true }),
+    });
+    const r = await callTool({
+      accord_agreement_id: agreement.agreement_id,
+      accord_payment: { value: "0.001" },
+    } as never);
+    const meta = r._meta as Record<string, unknown>;
+    const ok =
+      r.isError === true &&
+      meta.accord_error_code === "PAYMENT_RAIL_MISMATCH";
+    checks.push({
+      id: "L1.mcp.rail-mismatch-rejected",
+      level: "L1",
+      description:
+        "configured MCP rail must match agreement.payment.rail before payment is accepted",
+      result: ok ? "pass" : "fail",
+      detail: ok ? undefined : `code=${String(meta.accord_error_code)}`,
+    });
+  }
+
+  // 7. Settlement validation: invalid MCP receipts are not emitted as evidence
+  {
+    const baseRail = makeRail();
+    const invalidSettlementRail: AccordRailAdapter = {
+      ...baseRail,
+      async verifyPayment(input: VerifyPaymentInput): Promise<VerifyPaymentResult> {
+        return baseRail.verifyPayment(input);
+      },
+      async settle(input: SettleInput): Promise<AccordSettlementReceipt> {
+        return {
+          type: "accord.settlement_receipt.v0",
+          version: "v0",
+          settlement_id: "sr_L1MCPINVALIDSETTLEMENTXXX",
+          agreement_id: "acc_WRONG",
+          agreement_hash: "blake2b256:0x" + accordHashV0(input.agreement),
+          rail: "base",
+          mode: "redeemed",
+          status: "settled",
+          amount: "999",
+          currency: "USDC",
+          decimals: 6,
+          tx: {
+            network: "base-sepolia",
+            tx_id: "0x" + "5".repeat(64),
+          },
+          created_at: "2026-05-07T00:00:20Z",
+        };
+      },
+    };
+    const callTool = wrapAccordMcp({
+      rail: invalidSettlementRail,
+      verifier,
+      resolveAgreement: async (id) => store.get(id),
+      handler: async () => ({ pong: true }),
+    });
+    const r = await callTool({
+      accord_agreement_id: agreement.agreement_id,
+      accord_payment: { value: "0.001", __settle_seed: "bad" },
+    } as never);
+    const meta = r._meta as Record<string, unknown>;
+    const ok =
+      !r.isError &&
+      meta.accord_settlement_receipt === undefined &&
+      typeof meta.accord_settlement_error === "string";
+    checks.push({
+      id: "L1.mcp.invalid-settlement-omitted",
+      level: "L1",
+      description:
+        "invalid MCP Settlement Receipts are omitted from _meta",
+      result: ok ? "pass" : "fail",
+      detail: ok
+        ? undefined
+        : `isError=${String(r.isError)}, meta=${JSON.stringify(meta)}`,
+    });
+  }
 }
 
 // ── Gateway / Accord/402 transport checks ───────────────────────────────────
