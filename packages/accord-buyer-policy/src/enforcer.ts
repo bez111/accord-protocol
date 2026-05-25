@@ -98,6 +98,12 @@ function parseRecipientPattern(raw: string): ParsedRecipient {
   if (star === -1) {
     return { raw, prefix: raw, exact: true };
   }
+  if (star === 0) {
+    throw new BuyerPolicyError(
+      "POLICY_INVALID_RECIPIENT_PATTERN",
+      "wildcard '*' requires a non-empty literal prefix",
+    );
+  }
   if (star !== raw.length - 1) {
     throw new BuyerPolicyError(
       "POLICY_INVALID_RECIPIENT_PATTERN",

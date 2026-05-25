@@ -148,6 +148,14 @@ describe("attack: allow-list bypass", () => {
     assert.throws(
       () =>
         createBuyerPolicyEnforcer({
+          policy: makePolicy({ allowedRecipients: ["*"] }),
+          signer: async () => "signed",
+        }),
+      isPatternErr,
+    );
+    assert.throws(
+      () =>
+        createBuyerPolicyEnforcer({
           policy: makePolicy({ allowedRecipients: ["*-provider"] }),
           signer: async () => "signed",
         }),

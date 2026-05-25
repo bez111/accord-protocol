@@ -52,7 +52,8 @@ export interface BuyerPolicy {
 
   /**
    * Allow-list of agreement.seller.id values. Wildcard tail with `*` is
-   * supported (e.g. "provider://repo-audit-*"); leading or middle wildcards
+   * supported only after a non-empty literal prefix
+   * (e.g. "provider://repo-audit-*"); bare, leading, or middle wildcards
    * are deliberately rejected to keep the matching trivially auditable.
    */
   allowedRecipients: ReadonlyArray<string>;

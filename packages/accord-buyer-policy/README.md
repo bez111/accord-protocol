@@ -18,7 +18,7 @@ Specifically, it enforces these rules **before** the signer runs:
 | `maxSessionSpend` | Cumulative cap per session. |
 | `maxDailySpend` *(optional)* | Rolling 24h cap, tracked per session. |
 | `requireApprovalAbove` *(optional)* | Threshold above which the integrator-supplied `approvalHandler` is consulted. Hard timeout. |
-| `allowedRecipients` | Allow-list of `agreement.seller.id` values. Suffix wildcards (`provider://repo-audit-*`) supported. |
+| `allowedRecipients` | Allow-list of `agreement.seller.id` values. Suffix wildcards with a non-empty literal prefix (`provider://repo-audit-*`) supported. |
 | `allowedRails` | Allow-list of rails (`ergo`, `rosen`, `base`, `x402`). |
 
 ## Install
@@ -71,7 +71,7 @@ This package is the small, paranoid layer between your agent and your signer. Th
 | Time-of-check / time-of-use across concurrent `authorize()` calls | Per-session `AsyncMutex`. Budget is incremented BEFORE the signer is invoked, rolled back if the signer rejects. |
 | JS Number precision drift around caps | Every amount is parsed from a decimal string into a BigInt scaled by `decimals`. JS numbers are rejected at the API boundary. |
 | Cross-currency comparison | All caps share one `(currency, decimals)`. Mismatched agreement currency rejects with `CURRENCY_MISMATCH`; converting belongs in an oracle layer the integrator wires up. |
-| Allow-list bypass via wildcard pattern | Only suffix `*` is honoured. Mid-string or leading wildcards reject at construction. |
+| Allow-list bypass via wildcard pattern | Only suffix `*` after a non-empty literal prefix is honoured. Bare, mid-string, or leading wildcards reject at construction. |
 | Approval handler hang | `AbortController` + hard timeout (default 60s). Handler exceptions surface as `APPROVAL_HANDLER_ERROR`. |
 | Session-id forgery | IDs are 16 random bytes from `crypto.randomBytes`, hex-encoded. Membership lookup uses `timingSafeEqual`. |
 | Information leak via error messages | Errors carry typed `code` strings; messages reference field names only — never amount values, agreement bodies, or signer payloads. |
