@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { execFileSync } from 'node:child_process';
 
 const root = process.cwd();
 
@@ -62,6 +63,12 @@ function exists(rel) {
   return fs.existsSync(path.join(root, rel));
 }
 
+function gitLsFiles() {
+  return execFileSync('git', ['ls-files'], { cwd: root, encoding: 'utf8' })
+    .split('\n')
+    .filter(Boolean);
+}
+
 function assertIncludes(rel, needles) {
   const text = readText(rel);
   for (const needle of needles) {
@@ -89,6 +96,15 @@ for (const name of fs.readdirSync(path.join(root, 'docs/audit'))) {
     `${rel} is not part of the public audit posture allow-list`,
   );
 }
+
+const trackedFiles = gitLsFiles();
+const trackedEnvFiles = trackedFiles.filter((rel) => {
+  const base = path.basename(rel);
+  return base === '.env' || base.startsWith('.env.');
+});
+assert(trackedEnvFiles.length === 0, `tracked env files are not allowed: ${trackedEnvFiles.join(', ')}`);
+
+assertIncludes('.gitignore', ['.env', '.env.*', '*.local']);
 
 const publicMarkdownFiles = new Set([
   'README.md',

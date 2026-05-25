@@ -2,6 +2,7 @@ node_modules/
 dist/
 packages/accord-conformance/fixtures/
 .env
+.env.*
 *.local
 .DS_Store
 .idea/
