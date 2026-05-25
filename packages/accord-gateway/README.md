@@ -57,8 +57,8 @@ app.listen(3000);
 3. validateAgreement(agreement)               → 400 if cross-field problems
 4. JSON.parse(X-Accord-Payment)               → 402 if missing
 5. rail.verifyPayment(...)                    → 402 if rejected, 502 if threw
-6. replayStore.claim(rail, payment_id)        → 402 if same id replayed
-7. (optional) accord_task_output hash check   → 400 if mismatch
+6. (optional) accord_task_output hash check   → 400 if mismatch
+7. replayStore.claim(rail, payment_id)        → 402 if same id replayed
 8. handler(req, { agreement, body })          → 500 if threw
 9. (if required) verifier(...) + validate     → 422 if rejected/invalid
 10. (best-effort) rail.settle(...) + validate → invalid receipts omitted from _meta

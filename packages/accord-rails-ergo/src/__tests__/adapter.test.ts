@@ -238,6 +238,37 @@ describe("createErgoRailAdapter — verifyPayment rejection paths", () => {
     if (!result.ok) assert.equal(result.code, ERGO_RAIL_ERROR_CODES.RESERVE_MISMATCH);
   });
 
+  it("RESERVE_MISMATCH when agreement.payment.reserve_ref is malformed", async () => {
+    const adapter = createErgoRailAdapter({ ops: makeOps() });
+    const result = await adapter.verifyPayment({
+      agreement: agreement({
+        payment: {
+          mode: "note",
+          rail: "ergo",
+          reserve_ref: "not-a-reserve",
+          deadline: "+480 blocks",
+        },
+      }),
+      payment: VALID_PAYMENT,
+    });
+    assert.equal(result.ok, false);
+    if (!result.ok) assert.equal(result.code, ERGO_RAIL_ERROR_CODES.RESERVE_MISMATCH);
+  });
+
+  it("RESERVE_MISMATCH when the Note is missing R4 reserve binding", async () => {
+    const adapter = createErgoRailAdapter({
+      ops: makeOps({
+        checkNote: async () => noteInfo({ reserveBoxId: undefined }),
+      }),
+    });
+    const result = await adapter.verifyPayment({
+      agreement: agreement(),
+      payment: VALID_PAYMENT,
+    });
+    assert.equal(result.ok, false);
+    if (!result.ok) assert.equal(result.code, ERGO_RAIL_ERROR_CODES.RESERVE_MISMATCH);
+  });
+
   it("RECIPIENT_MISMATCH when agreement.seller.wallet is missing", async () => {
     const adapter = createErgoRailAdapter({ ops: makeOps() });
     const result = await adapter.verifyPayment({

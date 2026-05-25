@@ -58,8 +58,8 @@ const toolDef = describeAccordMcpTool({
 3. validateAgreement(agreement)                → reject on cross-field problems
 4. bind configured rail to agreement.payment.rail
    + rail.verifyPayment(agreement, payment)    → reject if payment fails or rail mismatch
-5. replayStore.claim(rail, payment_id)         → reject if same id replayed
-6. (optional) check accord_task_output hash    → reject if it doesn't match agreement.task.output_hash
+5. (optional) check accord_task_output hash    → reject if it doesn't match agreement.task.output_hash
+6. replayStore.claim(rail, payment_id)         → reject if same id replayed
 7. handler(strippedArgs, { agreement })        → run the seller's tool
 8. (if required) verifier(agreement, output)
    + validateVerificationReceipt(receipt)
@@ -91,7 +91,7 @@ The wrapper **returns** structured errors (`isError: true` + `_meta.accord_error
 
 The wrapper rejects calls when the configured adapter rail, `agreement.payment.rail`, and `verifyPayment(...).rail` disagree.
 
-Successful `verifyPayment(...)` results must include a stable non-empty `payment_id`. The wrapper claims `(rail, payment_id)` before running the tool; pass a production replay store with atomic `claim(...)` when running more than one process.
+Successful `verifyPayment(...)` results must include a stable non-empty `payment_id`. The wrapper claims `(rail, payment_id)` after cheap pre-handler validation and before running the tool; pass a production replay store with atomic `claim(...)` when running more than one process.
 
 If `rail.settle(...)` is configured, the returned Settlement Receipt is validated against the Agreement before it is emitted in `_meta.accord_settlement_receipt`. Invalid settlement receipts are omitted and `_meta.accord_settlement_error` records the validation failure.
 

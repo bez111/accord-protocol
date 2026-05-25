@@ -67,7 +67,7 @@ Optional env:
 
 - Full Agreement JSON and `agreement_hash`.
 - Full Verification Receipt JSON and `receipt_id`.
-- Full Settlement Receipt JSON with EVM tx hash or Note id.
+- Full Settlement Receipt JSON with EVM tx hash and Note id evidence.
 - Base Sepolia RPC endpoint name, contract address, deployment tx, and bytecode
   hash.
 - Live testnet transaction link proving reserve, Note, redemption, or refund

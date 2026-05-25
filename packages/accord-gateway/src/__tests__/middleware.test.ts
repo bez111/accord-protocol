@@ -239,6 +239,30 @@ describe("accordGateway — failure paths", () => {
     assert.equal(bodyJson(res).error, ACCORD_GATEWAY_ERROR_CODES.PAYMENT_RAIL_MISMATCH);
   });
 
+  it("402 PAYMENT_VERIFICATION_FAILED when verifyPayment omits payment_id", async () => {
+    const mw = accordGateway({
+      rail: makeRail({
+        verifyPayment: async () => ({ ok: true, rail: "ergo" }) as never,
+      }),
+      buildAgreementTemplate: () => TEMPLATE,
+      resolveAgreement: async () => minimalAgreement(),
+      handler: async () => "x",
+    });
+    const res = mockRes();
+    await mw(
+      reqWith({
+        [ACCORD_HEADERS.agreementId]: "acc_01HX0000000000000000000000",
+        [ACCORD_HEADERS.payment]: '{"proof":"x"}',
+      }),
+      res,
+      () => {},
+    );
+    const body = bodyJson(res);
+    assert.equal(res.statusCode, 402);
+    assert.equal(body.error, ACCORD_GATEWAY_ERROR_CODES.PAYMENT_VERIFICATION_FAILED);
+    assert.equal(body.rail_error_code, "MISSING_PAYMENT_ID");
+  });
+
   it("502 RAIL_UNAVAILABLE when the rail throws", async () => {
     const mw = accordGateway({
       rail: makeRail({
@@ -325,6 +349,40 @@ describe("accordGateway — failure paths", () => {
       bodyJson(res).error,
       ACCORD_GATEWAY_ERROR_CODES.TASK_OUTPUT_HASH_MISMATCH,
     );
+  });
+
+  it("does not claim replay state when task-output hash rejects first", async () => {
+    const target = "expected output";
+    const ag = minimalAgreement({
+      task: {
+        kind: "summarise",
+        input_ref: "inline:hi",
+        description: "x",
+        output_hash: "blake2b256:0x" + accordHashV0(target),
+      },
+    });
+    const replayStore = new InMemoryReplayStore();
+    const mw = accordGateway({
+      rail: makeRail({
+        verifyPayment: async () => ({ ok: true, rail: "ergo", payment_id: "p-task-output" }),
+      }),
+      replayStore,
+      buildAgreementTemplate: () => TEMPLATE,
+      resolveAgreement: async () => ag,
+      handler: async () => "ok",
+    });
+    const baseHeaders = {
+      [ACCORD_HEADERS.agreementId]: ag.agreement_id,
+      [ACCORD_HEADERS.payment]: '{"proof":"x"}',
+    };
+
+    const bad = mockRes();
+    await mw(reqWith({ ...baseHeaders, [ACCORD_HEADERS.taskOutput]: "wrong output" }), bad, () => {});
+    assert.equal(bad.statusCode, 400);
+
+    const good = mockRes();
+    await mw(reqWith({ ...baseHeaders, [ACCORD_HEADERS.taskOutput]: target }), good, () => {});
+    assert.equal(good.statusCode, 200, `second call should not be replay-blocked: ${good.body}`);
   });
 
   it("500 HANDLER_THREW when the seller's handler throws", async () => {
@@ -441,6 +499,7 @@ describe("accordGateway — happy paths", () => {
     assert.deepEqual(body.output, { word_count: 2 });
     const meta = body._meta as Record<string, unknown>;
     assert.equal(meta.accord_agreement_id, ag.agreement_id);
+    assert.equal(meta.accord_payment_id, "tx-001");
     assert.match(String(meta.accord_agreement_hash), /^blake2b256:0x[0-9a-f]{64}$/);
     assert.equal(res.headerMap.get(ACCORD_HEADERS.versionResponse), "v0");
     assert.match(

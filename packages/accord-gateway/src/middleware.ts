@@ -11,9 +11,9 @@
 //      Missing → 402.
 //   5. rail.verifyPayment(...). Reject → 402 PAYMENT_VERIFICATION_FAILED.
 //      Throws → 502 RAIL_UNAVAILABLE.
-//   6. Replay-store check: paymentId already claimed → 402 REPLAY_DETECTED.
+//   6. (Optional) Pre-committed task-output check.
+//   7. Replay-store check: paymentId already claimed → 402 REPLAY_DETECTED.
 //      First time → put(paymentId, deadline).
-//   7. (Optional) Pre-committed task-output check.
 //   8. Run the seller's handler. Throws → 500 HANDLER_THREW.
 //   9. (If required) Call verifier; reject → 422 VERIFICATION_REJECTED.
 //  10. (Optional) rail.settle(...). Failure does NOT reject; logged in meta.
@@ -166,8 +166,32 @@ export function accordGateway<TBody = unknown, TOut = unknown>(
             `${agreement.payment.rail}`,
         });
       }
+      if (
+        typeof verification.payment_id !== "string" ||
+        verification.payment_id.trim().length === 0
+      ) {
+        return respondJson(res, 402, {
+          error: ACCORD_GATEWAY_ERROR_CODES.PAYMENT_VERIFICATION_FAILED,
+          rail: verification.rail,
+          rail_error_code: "MISSING_PAYMENT_ID",
+          accord_agreement_id: agreementId,
+          message: "rail.verifyPayment returned ok=true without a non-empty payment_id",
+        });
+      }
 
-      // ── 6. Replay protection ───────────────────────────────────────────
+      // ── 6. Optional pre-committed task-output check ────────────────────
+      if (taskOutputRaw && agreement.task.output_hash) {
+        const got = "blake2b256:0x" + accordHashV0(taskOutputRaw);
+        if (got !== agreement.task.output_hash) {
+          return respondJson(res, 400, {
+            error: ACCORD_GATEWAY_ERROR_CODES.TASK_OUTPUT_HASH_MISMATCH,
+            accord_agreement_id: agreementId,
+            message: `accord_task_output hash ${got} ≠ agreement.task.output_hash ${agreement.task.output_hash}`,
+          });
+        }
+      }
+
+      // ── 7. Replay protection ───────────────────────────────────────────
       const replayKey = verification.payment_id;
       const expiresAtMs = Date.now() + DEFAULT_REPLAY_TTL_MS;
       const claimAccepted = replayStore.claim
@@ -182,18 +206,6 @@ export function accordGateway<TBody = unknown, TOut = unknown>(
         });
       }
       if (!replayStore.claim) await replayStore.put(verification.rail, replayKey, expiresAtMs);
-
-      // ── 7. Optional pre-committed task-output check ────────────────────
-      if (taskOutputRaw && agreement.task.output_hash) {
-        const got = "blake2b256:0x" + accordHashV0(taskOutputRaw);
-        if (got !== agreement.task.output_hash) {
-          return respondJson(res, 400, {
-            error: ACCORD_GATEWAY_ERROR_CODES.TASK_OUTPUT_HASH_MISMATCH,
-            accord_agreement_id: agreementId,
-            message: `accord_task_output hash ${got} ≠ agreement.task.output_hash ${agreement.task.output_hash}`,
-          });
-        }
-      }
 
       // ── 8. Run the seller's handler ────────────────────────────────────
       let output: TOut | void;
@@ -298,6 +310,7 @@ export function accordGateway<TBody = unknown, TOut = unknown>(
           _meta: {
             accord_agreement_id: agreementId,
             accord_agreement_hash: agreementHash,
+            accord_payment_id: verification.payment_id,
             accord_verification_receipt: verificationReceipt,
             accord_settlement_receipt: settlementReceipt,
             accord_settlement_attempted: !!config.rail.settle,

@@ -109,7 +109,7 @@ When the seller emits `accord_settlement_receipt`, the receipt MUST validate aga
 
 ## 5. Replay protection
 
-The seller derives a `payment_id` from the rail's `verifyPayment` response and rejects the second use of the same id within a TTL window. The default reference implementation uses a 24-hour TTL and an in-memory store; production deployments SHOULD plug in Redis or equivalent.
+The seller derives a `payment_id` from the rail's `verifyPayment` response and rejects the second use of the same id within a TTL window. The replay claim happens after cheap pre-handler validation such as `accord_task_output` hash checks, and before the seller handler runs. The default reference implementation uses a 24-hour TTL and an in-memory store; production deployments SHOULD plug in Redis or equivalent.
 
 Production replay stores SHOULD claim `(accord version, rail, payment_id)` atomically. A non-atomic `has()` then `put()` sequence is acceptable for local demos and single-process tests, but it is not sufficient for horizontally scaled production gateways.
 

@@ -281,6 +281,37 @@ describe("wrapAccordMcp — error paths", () => {
       assert.equal(r._meta.accord_error_code, ACCORD_MCP_ERROR_CODES.TASK_OUTPUT_HASH_MISMATCH);
   });
 
+  it("does not claim replay state when task-output hash rejects first", async () => {
+    const expected = "expected output";
+    const ag = minimalAgreement({
+      task: {
+        kind: "summarise",
+        input_ref: "inline:hello",
+        description: "x",
+        output_hash: "blake2b256:0x" + accordHashV0(expected),
+      },
+    });
+    const call = wrapAccordMcp({
+      rail: makeRail({
+        verifyPayment: async () => ({ ok: true, rail: "ergo", payment_id: "task-output-pay" }),
+      }),
+      handler: async () => "ok",
+      resolveAgreement: async () => ag,
+    });
+    const bad = await call({
+      accord_agreement_id: ag.agreement_id,
+      accord_payment: { proof: "x" },
+      accord_task_output: "wrong output",
+    } as never);
+    const good = await call({
+      accord_agreement_id: ag.agreement_id,
+      accord_payment: { proof: "x" },
+      accord_task_output: expected,
+    } as never);
+    assert.equal(bad.isError, true);
+    assert.equal(good.isError, undefined);
+  });
+
   it("returns HANDLER_THREW when the seller's handler throws", async () => {
     const call = wrapAccordMcp<{ text?: string }, string>({
       rail: makeRail(),

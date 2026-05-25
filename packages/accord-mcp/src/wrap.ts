@@ -11,10 +11,10 @@
 //   4. Bind the configured rail to `agreement.payment.rail`, then call
 //      `rail.verifyPayment({ agreement, payment })`. Reject on failure or
 //      if the verified rail does not match.
-//   5. Claim `(rail, payment_id)` in the replay store before work runs.
-//   6. (Optional) If `accord_task_output` was sent, ensure its
+//   5. (Optional) If `accord_task_output` was sent, ensure its
 //      `accord_hash_v0` matches `agreement.task.output_hash` if that field
 //      was set.
+//   6. Claim `(rail, payment_id)` in the replay store before work runs.
 //   7. Run the seller's handler with the *non-Accord* args + the resolved
 //      Agreement.
 //   8. If `agreement.verification.required` is true:
@@ -208,6 +208,18 @@ export function wrapAccordMcp<TArgs extends Record<string, unknown>, TOut>(
       });
     }
 
+    // ── 5. Optional pre-committed task-output hash check ──────────────────
+    if (accord_task_output !== undefined && agreement.task.output_hash) {
+      const got = "blake2b256:0x" + accordHashV0(accord_task_output);
+      if (got !== agreement.task.output_hash) {
+        return mcpError(ACCORD_MCP_ERROR_CODES.TASK_OUTPUT_HASH_MISMATCH, {
+          message: `accord_task_output hash ${got} ≠ agreement.task.output_hash ${agreement.task.output_hash}`,
+          accord_agreement_id,
+        });
+      }
+    }
+
+    // ── 6. Replay protection ─────────────────────────────────────────────
     const expiresAtMs = Date.now() + replayTtlMs;
     const claimAccepted = replayStore.claim
       ? await replayStore.claim(verification.rail, verification.payment_id, expiresAtMs)
@@ -224,18 +236,7 @@ export function wrapAccordMcp<TArgs extends Record<string, unknown>, TOut>(
       await replayStore.put(verification.rail, verification.payment_id, expiresAtMs);
     }
 
-    // ── 5. Optional pre-committed task-output hash check ──────────────────
-    if (accord_task_output !== undefined && agreement.task.output_hash) {
-      const got = "blake2b256:0x" + accordHashV0(accord_task_output);
-      if (got !== agreement.task.output_hash) {
-        return mcpError(ACCORD_MCP_ERROR_CODES.TASK_OUTPUT_HASH_MISMATCH, {
-          message: `accord_task_output hash ${got} ≠ agreement.task.output_hash ${agreement.task.output_hash}`,
-          accord_agreement_id,
-        });
-      }
-    }
-
-    // ── 6. Run the seller's handler ───────────────────────────────────────
+    // ── 7. Run the seller's handler ───────────────────────────────────────
     let output: TOut;
     try {
       output = await config.handler(rest as StrippedArgs<TArgs>, { agreement });
@@ -246,7 +247,7 @@ export function wrapAccordMcp<TArgs extends Record<string, unknown>, TOut>(
       });
     }
 
-    // ── 7. Verifier (when required) ───────────────────────────────────────
+    // ── 8. Verifier (when required) ───────────────────────────────────────
     let verificationReceipt: AccordVerificationReceipt | undefined;
     if (agreement.verification.required) {
       if (!config.verifier) {
@@ -282,7 +283,7 @@ export function wrapAccordMcp<TArgs extends Record<string, unknown>, TOut>(
       }
     }
 
-    // ── 8. Settle (best-effort) ───────────────────────────────────────────
+    // ── 9. Settle (best-effort) ───────────────────────────────────────────
     let settlementReceipt: AccordSettlementReceipt | undefined;
     let settlementError: string | undefined;
     if (config.rail.settle) {
@@ -307,7 +308,7 @@ export function wrapAccordMcp<TArgs extends Record<string, unknown>, TOut>(
       }
     }
 
-    // ── 9. Success ────────────────────────────────────────────────────────
+    // ── 10. Success ───────────────────────────────────────────────────────
     return {
       content: [
         {

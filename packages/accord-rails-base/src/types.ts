@@ -16,7 +16,7 @@ export type Hex = `0x${string}`;
  * {
  *   "note_id": "0x...",
  *   "task_output": "{\"word_count\":2}",
- *   "tx_hash": "0x..."        // optional — the issuance tx, used for receipt routing
+ *   "tx_hash": "0x..."        // optional — issuance tx evidence; not used as replay identity
  * }
  * ```
  */
@@ -25,7 +25,7 @@ export interface BasePaymentProof {
   note_id: Hex;
   /** Raw task-output bytes the buyer pre-committed to. keccak256(task_output) MUST equal note.taskHash. */
   task_output: string | Uint8Array;
-  /** Optional tx-hash override for the issuance. */
+  /** Optional issuance transaction hash evidence. */
   tx_hash?: Hex;
 }
 

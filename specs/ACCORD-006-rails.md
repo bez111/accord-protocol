@@ -49,7 +49,7 @@ Every successful `verifyPayment` returns a `payment_id`: a non-empty string, sta
 |---|---|
 | `ergo` | Ergo Note `boxId` (64 hex) |
 | `rosen` | Ergo Note `boxId` (the wrapped token rides an Ergo Note) |
-| `base` | EVM tx hash that locked the Note (preferred) or the deterministic `noteId` |
+| `base` | Deterministic `noteId` from the Base/EVM reserve contract |
 | `x402` | Accord-stable id derived from the opaque payment payload, scheme, and facilitator network; facilitator id may be preserved in `details.facilitator_payment_id` |
 
 The wrapping layer SHOULD reject the second use of the same `payment_id` within a TTL window (default 24h in the reference implementation).

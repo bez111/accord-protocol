@@ -115,12 +115,13 @@ describe("createBaseRailAdapter — verifyPayment happy path", () => {
     assert.equal(result.ok, true);
     if (result.ok) {
       assert.equal(result.rail, "base");
-      assert.equal(result.payment_id, TX_HASH);                  // tx_hash preferred
+      assert.equal(result.payment_id, NOTE_ID.toLowerCase());
+      assert.equal(result.details?.issue_tx_hash, TX_HASH.toLowerCase());
       assert.equal(result.details?.note_amount, "50000");
     }
   });
 
-  it("falls back to note_id as payment_id when tx_hash is absent", async () => {
+  it("uses note_id as payment_id when tx_hash is absent", async () => {
     const adapter = createBaseRailAdapter({ ops: makeOps() });
     const result = await adapter.verifyPayment({
       agreement: agreement(),
@@ -167,6 +168,16 @@ describe("createBaseRailAdapter — verifyPayment rejection paths", () => {
     const result = await adapter.verifyPayment({
       agreement: agreement(),
       payment: { note_id: NOTE_ID } as never,
+    });
+    assert.equal(result.ok, false);
+    if (!result.ok) assert.equal(result.code, BASE_RAIL_ERROR_CODES.INVALID_PAYMENT_SHAPE);
+  });
+
+  it("INVALID_PAYMENT_SHAPE when tx_hash is malformed", async () => {
+    const adapter = createBaseRailAdapter({ ops: makeOps() });
+    const result = await adapter.verifyPayment({
+      agreement: agreement(),
+      payment: { ...VALID_PAYMENT, tx_hash: "0xshort" as Hex },
     });
     assert.equal(result.ok, false);
     if (!result.ok) assert.equal(result.code, BASE_RAIL_ERROR_CODES.INVALID_PAYMENT_SHAPE);

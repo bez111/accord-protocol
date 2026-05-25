@@ -80,8 +80,8 @@ For each tool call, a conformant Accord/MCP wrapper:
 2. Resolves the agreement via the seller-supplied `resolveAgreement(id)` callback.
 3. Runs `validateAgreement` (cross-field rules from ACCORD-001 §7).
 4. Binds the configured rail to `agreement.payment.rail`, then calls `rail.verifyPayment({ agreement, payment })`.
-5. Claims `(rail, payment_id)` in the replay store before the tool handler runs.
-6. (Optional) Hashes `accord_task_output` and compares against `agreement.task.output_hash`.
+5. (Optional) Hashes `accord_task_output` and compares against `agreement.task.output_hash`.
+6. Claims `(rail, payment_id)` in the replay store before the tool handler runs.
 7. Runs the seller's handler with the **non-Accord** args + the resolved Agreement.
 8. (If `agreement.verification.required`) calls the configured verifier; runs `validateVerificationReceipt(receipt, { agreement })`; rejects if `result == "rejected"`.
 9. (Best-effort) calls `rail.settle(...)`, then validates the Settlement Receipt against the Agreement before emitting it. Failure or an invalid receipt here does NOT reject the call — the buyer already got the work; receipts are reconciled out of band.

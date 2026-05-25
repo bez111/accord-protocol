@@ -125,8 +125,20 @@ async function verifyPayment(
   }
 
   // 4. Reserve binding.
-  const expectedReserve = stripReservePrefix(input.agreement.payment.reserve_ref);
-  if (expectedReserve && note.reserveBoxId && note.reserveBoxId !== expectedReserve) {
+  const expectedReserve = parseReserveRef(input.agreement.payment.reserve_ref);
+  if (!expectedReserve) {
+    return rejection(
+      "RESERVE_MISMATCH",
+      "agreement.payment.reserve_ref must be ergo:box:<64 hex>, ergo:<64 hex>, or bare 64 hex",
+    );
+  }
+  if (!note.reserveBoxId) {
+    return rejection(
+      "RESERVE_MISMATCH",
+      "Note is missing R4 reserve binding",
+    );
+  }
+  if (note.reserveBoxId.toLowerCase() !== expectedReserve) {
     return rejection(
       "RESERVE_MISMATCH",
       `Note's R4 reserve ${shorten(note.reserveBoxId)} ≠ agreement's reserve_ref ${shorten(expectedReserve)}`,
@@ -248,15 +260,13 @@ function computeTaskHashHex(taskOutput: string | Uint8Array): string {
 }
 
 /**
- * Strip a leading rail prefix from `reserve_ref`. Accepts both
+ * Parse and normalise `reserve_ref`. Accepts both
  *   - the wire form (`ergo:box:abc...` or `ergo:abc...`), and
  *   - the bare 64-hex box id.
  *
- * Returns undefined if the value can't be coerced to a 64-hex id —
- * verifyPayment treats that as "no reserve binding to check" rather
- * than rejecting outright.
+ * Returns undefined if the value can't be coerced to a 64-hex id.
  */
-function stripReservePrefix(ref: string | undefined): string | undefined {
+function parseReserveRef(ref: string | undefined): string | undefined {
   if (!ref) return undefined;
   const candidate = ref
     .replace(/^ergo:box:/i, "")

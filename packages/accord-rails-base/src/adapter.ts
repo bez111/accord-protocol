@@ -7,7 +7,7 @@
 // Cross-rail differences vs rails-ergo:
 //   * keccak256 acceptance predicate (vs blake2b256 on Ergo)
 //   * settlement mode allow-list: redeemed | refund_expired (per ACCORD-003)
-//   * payment_id = the EVM tx hash of issuance (or noteId if tx_hash absent)
+//   * payment_id = the deterministic EVM Note id (stable replay identity)
 //   * refund() is a real on-chain operation (refundExpired contract method)
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -34,6 +34,7 @@ import type {
 } from "./types.js";
 
 const HEX_NOTE_ID = /^0x[0-9a-fA-F]{64}$/;
+const HEX_TX_HASH = /^0x[0-9a-fA-F]{64}$/;
 
 export const BASE_RAIL_ERROR_CODES = {
   INVALID_PAYMENT_SHAPE: "INVALID_PAYMENT_SHAPE",
@@ -80,6 +81,12 @@ async function verifyPayment(
     return rejection(
       "INVALID_PAYMENT_SHAPE",
       "payment.task_output is required",
+    );
+  }
+  if (proof.tx_hash !== undefined && !HEX_TX_HASH.test(proof.tx_hash)) {
+    return rejection(
+      "INVALID_PAYMENT_SHAPE",
+      "payment.tx_hash must be 0x + 64 hex chars when provided",
     );
   }
 
@@ -172,15 +179,12 @@ async function verifyPayment(
     );
   }
 
-  // payment_id = tx_hash if the buyer supplied it (preferred — anchors the
-  // claim to a specific issuance tx); else fall back to the noteId.
-  const paymentId = proof.tx_hash ?? proof.note_id;
-
   return {
     ok: true,
     rail: "base",
-    payment_id: paymentId,
+    payment_id: proof.note_id.toLowerCase(),
     details: {
+      issue_tx_hash: proof.tx_hash?.toLowerCase() ?? null,
       note_amount: note.amount.toString(),
       note_expires_at: note.expiryBlock.toString(),
       issuer: note.issuer,

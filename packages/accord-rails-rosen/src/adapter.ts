@@ -148,8 +148,20 @@ async function verifyPayment(
   }
 
   // 5. Reserve binding.
-  const expectedReserve = stripReservePrefix(input.agreement.payment.reserve_ref);
-  if (expectedReserve && note.reserveBoxId && note.reserveBoxId.toLowerCase() !== expectedReserve) {
+  const expectedReserve = parseReserveRef(input.agreement.payment.reserve_ref);
+  if (!expectedReserve) {
+    return rejection(
+      "RESERVE_MISMATCH",
+      "agreement.payment.reserve_ref must be ergo:box:<64 hex>, ergo:<64 hex>, or bare 64 hex",
+    );
+  }
+  if (!note.reserveBoxId) {
+    return rejection(
+      "RESERVE_MISMATCH",
+      "Note is missing R4 reserve binding",
+    );
+  }
+  if (note.reserveBoxId.toLowerCase() !== expectedReserve) {
     return rejection(
       "RESERVE_MISMATCH",
       `Note's R4 ${shorten(note.reserveBoxId)} ≠ agreement's reserve_ref ${shorten(expectedReserve)}`,
@@ -274,7 +286,7 @@ function computeTaskHashHex(taskOutput: string | Uint8Array): string {
   return out;
 }
 
-function stripReservePrefix(ref: string | undefined): string | undefined {
+function parseReserveRef(ref: string | undefined): string | undefined {
   if (!ref) return undefined;
   const candidate = ref.replace(/^ergo:box:/i, "").replace(/^ergo:/i, "").toLowerCase();
   return HEX_64.test(candidate) ? candidate : undefined;
