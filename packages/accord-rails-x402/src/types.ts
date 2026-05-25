@@ -4,7 +4,9 @@
 // Wraps an x402 facilitator (Coinbase's hosted one, a self-hosted shim, or
 // a test stub) into the AccordRailAdapter shape. The buyer's payment is the
 // x402 X-PAYMENT header value, opaque to this package — the facilitator
-// verifies it and returns a payment_id we use for replay protection.
+// verifies it and returns its own payment id. Accord derives a stable replay
+// id from the opaque payload so replay protection does not depend on
+// facilitator id semantics.
 //
 // Settlement is atomic with the response under x402 ("pay_before_response"),
 // so we don't carry a separate `settle()` step — the facilitator's `verify`
@@ -84,7 +86,7 @@ export interface X402SettleInput {
   agreement: import("@accord-protocol/core").AccordAgreement;
   paymentPayload: string;
   scheme?: string;
-  /** payment_id returned by the matching `verify` call. */
+  /** Facilitator payment_id returned by the matching `verify` call. */
   payment_id: string;
 }
 

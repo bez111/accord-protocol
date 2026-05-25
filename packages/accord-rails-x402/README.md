@@ -53,11 +53,15 @@ Receipt shape:
   "rail": "x402",
   "mode": "paid_before_response",
   "status": "settled",
-  "tx": { "tx_id": "<facilitator-issued payment_id>", "network": "base-sepolia", "block_height": ... }
+  "tx": { "tx_id": "<facilitator payment id or tx hash>", "network": "base-sepolia", "block_height": ... }
 }
 ```
 
-`payment_id` (from the facilitator) doubles as the receipt's `tx_id` when the facilitator doesn't expose a separate `settle` endpoint — typical for facilitator-broker setups where verify and submit happen in one round-trip.
+Accord's replay `payment_id` is derived from the x402 payload, scheme, and
+facilitator network. The facilitator's own payment id is preserved in
+`details.facilitator_payment_id` and doubles as the receipt's `tx_id` when the
+facilitator doesn't expose a separate `settle` endpoint — typical for
+facilitator-broker setups where verify and submit happen in one round-trip.
 
 ## Buyer payment-proof shape
 
@@ -72,17 +76,24 @@ The payload is opaque — for Coinbase's facilitator on Base it's an EIP-3009 `t
 
 ## verifyPayment checks (in order)
 
-1. **Shape** — `x402_payment_payload` is a non-empty string.
+1. **Shape** — `x402_payment_payload` is a non-empty string and `scheme`, when supplied, is a non-empty string.
 2. **Currency** — agreement asks for USDC or USDT (rejection: `CURRENCY_NOT_SUPPORTED`; for ERG use `rails-ergo`, for rsUSDT/rsUSDC/rsBTC use `rails-rosen`, for native ERC-20 paywalled-Note flows use `rails-base`).
-3. **`facilitator.verify(...)`** — the rail of last resort. Returns `ok` + `payment_id` or a structured rejection.
+3. **`facilitator.verify(...)`** — the rail of last resort. Returns `ok` + a facilitator payment id or a structured rejection.
    - On `ok: false` → `FACILITATOR_REJECTED`.
    - On thrown → `FACILITATOR_UNAVAILABLE`.
 
-On success: `payment_id` is whatever the facilitator returns (typically the EVM tx hash that will land the payment).
+On success: `payment_id` is an Accord-stable id (`x402_<64 hex>`) derived from
+the opaque payment payload. The facilitator id is retained as
+`details.facilitator_payment_id`.
 
 ## settle behaviour
 
-`settle()` re-calls `facilitator.verify(...)` (idempotent under x402's stateless contract) to get a fresh `payment_id`, then optionally calls `facilitator.settle(...)` for the real on-chain `tx_hash`. If the facilitator doesn't expose `settle`, the adapter still returns a `settled` Settlement Receipt using `payment_id` as the tx id — typical for facilitator-flow x402 where verify and submit happen in the same step.
+`settle()` re-calls `facilitator.verify(...)` (idempotent under x402's stateless
+contract) to recover the facilitator's payment id, then optionally calls
+`facilitator.settle(...)` for the real on-chain `tx_hash`. If the facilitator
+doesn't expose `settle`, the adapter still returns a `settled` Settlement
+Receipt using the facilitator payment id as the tx id — typical for
+facilitator-flow x402 where verify and submit happen in the same step.
 
 ## Error codes
 

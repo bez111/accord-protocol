@@ -79,9 +79,10 @@ describe("createX402RailAdapter — verifyPayment happy path", () => {
     assert.equal(result.ok, true);
     if (result.ok) {
       assert.equal(result.rail, "x402");
-      assert.match(result.payment_id, /^0x[0-9a-f]{64}$/);
+      assert.match(result.payment_id, /^x402_[0-9a-f]{64}$/);
       assert.equal(result.details?.scheme, "exact");
       assert.equal(result.details?.facilitator_network, "base-sepolia");
+      assert.equal(result.details?.facilitator_payment_id, "0x" + "a".repeat(64));
     }
   });
 
@@ -101,6 +102,52 @@ describe("createX402RailAdapter — verifyPayment happy path", () => {
     });
     assert.equal(observedScheme, "exact");
   });
+
+  it("derives a stable Accord payment_id from the payment payload", async () => {
+    let counter = 0;
+    const adapter = createX402RailAdapter({
+      facilitator: makeFacilitator({
+        verify: async () => {
+          counter += 1;
+          return {
+            ok: true,
+            payment_id: "facilitator-" + counter,
+            scheme: "exact",
+          };
+        },
+      }),
+    });
+    const first = await adapter.verifyPayment({
+      agreement: agreement(),
+      payment: VALID_PAYMENT,
+    });
+    const second = await adapter.verifyPayment({
+      agreement: agreement(),
+      payment: VALID_PAYMENT,
+    });
+    assert.equal(first.ok, true);
+    assert.equal(second.ok, true);
+    if (first.ok && second.ok) {
+      assert.equal(first.payment_id, second.payment_id);
+      assert.equal(first.details?.facilitator_payment_id, "facilitator-1");
+      assert.equal(second.details?.facilitator_payment_id, "facilitator-2");
+    }
+  });
+
+  it("derives a different Accord payment_id for a different payment payload", async () => {
+    const adapter = createX402RailAdapter({ facilitator: makeFacilitator() });
+    const first = await adapter.verifyPayment({
+      agreement: agreement(),
+      payment: VALID_PAYMENT,
+    });
+    const second = await adapter.verifyPayment({
+      agreement: agreement(),
+      payment: { ...VALID_PAYMENT, x402_payment_payload: "another-payload" },
+    });
+    assert.equal(first.ok, true);
+    assert.equal(second.ok, true);
+    if (first.ok && second.ok) assert.notEqual(first.payment_id, second.payment_id);
+  });
 });
 
 // ── rejection paths ─────────────────────────────────────────────────────────
@@ -118,6 +165,16 @@ describe("createX402RailAdapter — verifyPayment rejection paths", () => {
     const result = await adapter.verifyPayment({
       agreement: agreement(),
       payment: { scheme: "exact" } as never,
+    });
+    assert.equal(result.ok, false);
+    if (!result.ok) assert.equal(result.code, X402_RAIL_ERROR_CODES.INVALID_PAYMENT_SHAPE);
+  });
+
+  it("INVALID_PAYMENT_SHAPE when scheme is not a non-empty string", async () => {
+    const adapter = createX402RailAdapter({ facilitator: makeFacilitator() });
+    const result = await adapter.verifyPayment({
+      agreement: agreement(),
+      payment: { x402_payment_payload: "payload", scheme: "" },
     });
     assert.equal(result.ok, false);
     if (!result.ok) assert.equal(result.code, X402_RAIL_ERROR_CODES.INVALID_PAYMENT_SHAPE);

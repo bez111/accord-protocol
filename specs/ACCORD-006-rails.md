@@ -50,7 +50,7 @@ Every successful `verifyPayment` returns a `payment_id`: a non-empty string, sta
 | `ergo` | Ergo Note `boxId` (64 hex) |
 | `rosen` | Ergo Note `boxId` (the wrapped token rides an Ergo Note) |
 | `base` | EVM tx hash that locked the Note (preferred) or the deterministic `noteId` |
-| `x402` | Facilitator-issued payment-proof id (typically the EVM tx hash) |
+| `x402` | Accord-stable id derived from the opaque payment payload, scheme, and facilitator network; facilitator id may be preserved in `details.facilitator_payment_id` |
 
 The wrapping layer SHOULD reject the second use of the same `payment_id` within a TTL window (default 24h in the reference implementation).
 
@@ -108,7 +108,7 @@ Maps to the Base/EVM Note primitive (`AgentPayReserveV0` Solidity contract). `ve
 
 ### 6.4 `@accord-protocol/rails-x402`
 
-Wraps any [x402 facilitator](https://github.com/coinbase/x402) (Coinbase, self-hosted, custom) into the Accord rail interface. The buyer's payment proof is whatever the facilitator's `payment_requirements` indicates (typically an EIP-3009 signed authorization for USDC on Base, base64-encoded). The adapter doesn't decode it — it forwards to the facilitator's `verify` endpoint and uses the response.
+Wraps any [x402 facilitator](https://github.com/coinbase/x402) (Coinbase, self-hosted, custom) into the Accord rail interface. The buyer's payment proof is whatever the facilitator's `payment_requirements` indicates (typically an EIP-3009 signed authorization for USDC on Base, base64-encoded). The adapter doesn't decode it — it forwards to the facilitator's `verify` endpoint, but derives Accord's replay `payment_id` from the opaque payload instead of trusting facilitator id stability.
 
 ## 7. Building a third-party rail
 

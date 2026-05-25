@@ -57,10 +57,22 @@ async function verifyPayment(
   if (!proof || typeof proof !== "object") {
     return rejection("INVALID_PAYMENT_SHAPE", "payment must be an object");
   }
-  if (typeof proof.x402_payment_payload !== "string" || proof.x402_payment_payload.length === 0) {
+  if (
+    typeof proof.x402_payment_payload !== "string" ||
+    proof.x402_payment_payload.trim().length === 0
+  ) {
     return rejection(
       "INVALID_PAYMENT_SHAPE",
       "payment.x402_payment_payload must be a non-empty string",
+    );
+  }
+  if (
+    proof.scheme !== undefined &&
+    (typeof proof.scheme !== "string" || proof.scheme.trim().length === 0)
+  ) {
+    return rejection(
+      "INVALID_PAYMENT_SHAPE",
+      "payment.scheme must be a non-empty string when provided",
     );
   }
   const scheme = proof.scheme ?? "exact";
@@ -101,11 +113,16 @@ async function verifyPayment(
   return {
     ok: true,
     rail: "x402",
-    payment_id: result.payment_id,
+    payment_id: makePaymentId({
+      facilitatorNetwork: facilitator.network,
+      paymentPayload: proof.x402_payment_payload,
+      scheme,
+    }),
     details: {
       scheme: result.scheme,
       payer: result.payer ?? null,
       facilitator_network: facilitator.network,
+      facilitator_payment_id: result.payment_id,
       ...(result.details ?? {}),
     },
   };
@@ -121,12 +138,16 @@ async function settle(
   const proof = input.payment as X402PaymentProof;
   const scheme = proof.scheme ?? "exact";
 
-  // The verifyPayment call already returned a payment_id; when settle is
-  // called the gateway/MCP wrapper has it. We re-derive by calling
-  // facilitator.verify again (idempotent for x402's stateless facilitator
-  // contract). If facilitator.settle is implemented, prefer the on-chain
-  // tx_hash it returns.
-  let payment_id: string;
+  // Re-derive Accord's stable replay id from the opaque payload and call
+  // facilitator.verify again to recover the facilitator's own payment id.
+  // If facilitator.settle is implemented, prefer the on-chain tx_hash it
+  // returns for the Settlement Receipt tx anchor.
+  const accordPaymentId = makePaymentId({
+    facilitatorNetwork: facilitator.network,
+    paymentPayload: proof.x402_payment_payload,
+    scheme,
+  });
+  let facilitatorPaymentId: string;
   try {
     const v = await facilitator.verify({
       agreement: input.agreement,
@@ -136,12 +157,12 @@ async function settle(
     if (!v.ok) {
       throw new Error(`facilitator rejected during settle: ${v.code}: ${v.message}`);
     }
-    payment_id = v.payment_id;
+    facilitatorPaymentId = v.payment_id;
   } catch (err) {
     throw new Error(`rails-x402 settle: ${stringifyError(err)}`);
   }
 
-  let txHash = payment_id;
+  let txHash = facilitatorPaymentId;
   let blockHeight: number | undefined;
   if (facilitator.settle) {
     try {
@@ -149,7 +170,7 @@ async function settle(
         agreement: input.agreement,
         paymentPayload: proof.x402_payment_payload,
         scheme,
-        payment_id,
+        payment_id: facilitatorPaymentId,
       });
       txHash = r.tx_hash;
       blockHeight = r.block_height;
@@ -173,7 +194,7 @@ async function settle(
   return {
     type: "accord.settlement_receipt.v0",
     version: "v0",
-    settlement_id: makeSettlementId(agreement.agreement_id, payment_id),
+    settlement_id: makeSettlementId(agreement.agreement_id, accordPaymentId),
     agreement_id: agreement.agreement_id,
     agreement_hash: "blake2b256:0x" + accordHashV0(agreement),
     ...(input.verification
@@ -234,6 +255,23 @@ function makeSettlementId(agreementId: string, anchor: string): string {
     }
   }
   return "sr_" + out;
+}
+
+function makePaymentId(input: {
+  facilitatorNetwork: string;
+  paymentPayload: string;
+  scheme: string;
+}): string {
+  const paymentPayloadHash = "blake2b256:0x" + accordHashV0(input.paymentPayload);
+  const hash = accordHashV0({
+    type: "accord.x402_payment_id.v0",
+    version: "v0",
+    rail: "x402",
+    facilitator_network: input.facilitatorNetwork,
+    scheme: input.scheme,
+    payment_payload_hash: paymentPayloadHash,
+  });
+  return "x402_" + hash;
 }
 
 function nowIsoUtc(): string {
