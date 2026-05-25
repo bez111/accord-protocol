@@ -40,6 +40,13 @@ export function canonicalize(value: unknown, path = "$"): string {
   }
 
   if (typeof value === "object") {
+    if (!isPlainJsonObject(value)) {
+      throw new AccordError(
+        `Unsupported object type at ${path}; expected a plain JSON object`,
+        "ACCORD_INVALID_SCHEMA",
+        path,
+      );
+    }
     const obj = value as Record<string, unknown>;
     const keys = Object.keys(obj).sort();
     return (
@@ -59,6 +66,11 @@ export function canonicalize(value: unknown, path = "$"): string {
     "ACCORD_INVALID_SCHEMA",
     path,
   );
+}
+
+function isPlainJsonObject(value: object): boolean {
+  const proto = Object.getPrototypeOf(value);
+  return proto === Object.prototype || proto === null;
 }
 
 /** Canonicalize and return UTF-8 bytes — what BLAKE2b-256 hashes over. */

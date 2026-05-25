@@ -23,6 +23,9 @@ are sufficient.
 
 ### 1.2 Object keys
 
+- Objects are JSON objects: unordered key/value maps. Runtime-specific object
+  instances (`Date`, typed arrays, class instances, etc.) MUST be rejected
+  before hashing.
 - Sorted **lexicographically by Unicode codepoint** (i.e. byte-order on the
   UTF-8 representation, since codepoint order ≡ UTF-8 byte order for valid
   Unicode).
@@ -88,6 +91,10 @@ function canonicalize(value: unknown): string {
     return "[" + value.map(canonicalize).join(",") + "]";
   }
   if (typeof value === "object") {
+    const proto = Object.getPrototypeOf(value);
+    if (proto !== Object.prototype && proto !== null) {
+      throw new Error("ACCORD_INVALID_SCHEMA: expected a plain JSON object");
+    }
     const keys = Object.keys(value as object).sort();
     return (
       "{" +

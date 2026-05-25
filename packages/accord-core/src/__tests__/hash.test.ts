@@ -35,6 +35,18 @@ describe("accordHashV0", () => {
     // We don't pin the value here — just assert it's stable across calls.
     assert.equal(accordHashV0({}), accordHashV0({}));
   });
+
+  it("rejects non-JSON object instances before hashing", () => {
+    assert.throws(() => accordHashV0(new Date("2026-05-07T00:00:00Z")), AccordError);
+    assert.throws(() => accordHashV0(new Uint8Array([1, 2, 3])), AccordError);
+  });
+
+  it("allows null-prototype JSON dictionaries", () => {
+    const obj = Object.create(null) as Record<string, unknown>;
+    obj.z = 1;
+    obj.a = 2;
+    assert.equal(accordHashV0(obj), accordHashV0({ a: 2, z: 1 }));
+  });
 });
 
 describe("signingHash", () => {
