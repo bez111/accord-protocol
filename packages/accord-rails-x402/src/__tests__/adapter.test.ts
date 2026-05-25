@@ -148,6 +148,33 @@ describe("createX402RailAdapter — verifyPayment happy path", () => {
     assert.equal(second.ok, true);
     if (first.ok && second.ok) assert.notEqual(first.payment_id, second.payment_id);
   });
+
+  it("does not let facilitator details override Accord-controlled fields", async () => {
+    const adapter = createX402RailAdapter({
+      facilitator: makeFacilitator({
+        verify: async () => ({
+          ok: true,
+          payment_id: "0x" + "a".repeat(64),
+          scheme: "exact",
+          details: {
+            scheme: "evil",
+            facilitator_network: "evil",
+            facilitator_payment_id: "evil",
+          },
+        }),
+      }),
+    });
+    const result = await adapter.verifyPayment({
+      agreement: agreement(),
+      payment: VALID_PAYMENT,
+    });
+    assert.equal(result.ok, true);
+    if (result.ok) {
+      assert.equal(result.details?.scheme, "exact");
+      assert.equal(result.details?.facilitator_network, "base-sepolia");
+      assert.equal(result.details?.facilitator_payment_id, "0x" + "a".repeat(64));
+    }
+  });
 });
 
 // ── rejection paths ─────────────────────────────────────────────────────────
@@ -209,6 +236,24 @@ describe("createX402RailAdapter — verifyPayment rejection paths", () => {
       assert.equal(result.code, X402_RAIL_ERROR_CODES.FACILITATOR_REJECTED);
       assert.match(result.message, /INSUFFICIENT_VALUE/);
     }
+  });
+
+  it("FACILITATOR_REJECTED when facilitator returns an invalid success shape", async () => {
+    const adapter = createX402RailAdapter({
+      facilitator: makeFacilitator({
+        verify: async () => ({
+          ok: true,
+          payment_id: "",
+          scheme: "",
+        }),
+      }),
+    });
+    const result = await adapter.verifyPayment({
+      agreement: agreement(),
+      payment: VALID_PAYMENT,
+    });
+    assert.equal(result.ok, false);
+    if (!result.ok) assert.equal(result.code, X402_RAIL_ERROR_CODES.FACILITATOR_REJECTED);
   });
 
   it("FACILITATOR_UNAVAILABLE when facilitator throws", async () => {

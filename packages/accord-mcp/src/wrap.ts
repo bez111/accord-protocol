@@ -60,6 +60,9 @@ import type {
 type StrippedArgs<TArgs> = Omit<TArgs, keyof AccordMcpInputArgs>;
 
 const DEFAULT_REPLAY_TTL_MS = 24 * 60 * 60 * 1000;
+const DEFAULT_MAX_AGREEMENT_ID_BYTES = 256;
+const DEFAULT_MAX_PAYMENT_BYTES = 16 * 1024;
+const DEFAULT_MAX_TASK_OUTPUT_BYTES = 64 * 1024;
 
 /**
  * Inject `accord_agreement_id`, `accord_payment`, `accord_task_output`
@@ -106,6 +109,8 @@ export function wrapAccordMcp<TArgs extends Record<string, unknown>, TOut>(
   const replayStore: AccordMcpReplayStore =
     config.replayStore ?? new InMemoryMcpReplayStore();
   const replayTtlMs = config.replayTtlMs ?? DEFAULT_REPLAY_TTL_MS;
+  const limits = normalizeLimits(config.limits);
+  const exposeInternalErrors = config.exposeInternalErrors === true;
 
   return async function callAccordMcp(rawArgs) {
     // ── 1. Pull the Accord fields ─────────────────────────────────────────
@@ -117,10 +122,32 @@ export function wrapAccordMcp<TArgs extends Record<string, unknown>, TOut>(
         message: "accord_agreement_id is required",
       });
     }
+    if (byteLengthOfString(accord_agreement_id) > limits.maxAgreementIdBytes) {
+      return mcpError(ACCORD_MCP_ERROR_CODES.INPUT_TOO_LARGE, {
+        message: "accord_agreement_id exceeds the configured size limit",
+      });
+    }
     if (accord_payment === undefined || accord_payment === null) {
       return mcpError(ACCORD_MCP_ERROR_CODES.MISSING_PAYMENT, {
         message: "accord_payment is required",
         accord_agreement_id,
+      });
+    }
+    if (byteLengthOfUnknown(accord_payment) > limits.maxPaymentBytes) {
+      return mcpError(ACCORD_MCP_ERROR_CODES.INPUT_TOO_LARGE, {
+        message: "accord_payment exceeds the configured size limit",
+        accord_agreement_id,
+        accord_field: "accord_payment",
+      });
+    }
+    if (
+      accord_task_output !== undefined &&
+      byteLengthOfUnknown(accord_task_output) > limits.maxTaskOutputBytes
+    ) {
+      return mcpError(ACCORD_MCP_ERROR_CODES.INPUT_TOO_LARGE, {
+        message: "accord_task_output exceeds the configured size limit",
+        accord_agreement_id,
+        accord_field: "accord_task_output",
       });
     }
 
@@ -130,7 +157,7 @@ export function wrapAccordMcp<TArgs extends Record<string, unknown>, TOut>(
       agreement = await config.resolveAgreement(accord_agreement_id);
     } catch (err) {
       return mcpError(ACCORD_MCP_ERROR_CODES.UNKNOWN_AGREEMENT, {
-        message: `resolveAgreement threw: ${stringifyError(err)}`,
+        message: `resolveAgreement threw: ${stringifyError(err, exposeInternalErrors)}`,
         accord_agreement_id,
       });
     }
@@ -142,7 +169,15 @@ export function wrapAccordMcp<TArgs extends Record<string, unknown>, TOut>(
     }
 
     // ── 3. Validate the Agreement ─────────────────────────────────────────
-    const v = validateAgreement(agreement);
+    let v;
+    try {
+      v = validateAgreement(agreement);
+    } catch (err) {
+      return mcpError(ACCORD_MCP_ERROR_CODES.AGREEMENT_INVALID, {
+        message: `agreement validation threw: ${stringifyError(err, exposeInternalErrors)}`,
+        accord_agreement_id,
+      });
+    }
     if (!v.ok) {
       return mcpError(ACCORD_MCP_ERROR_CODES.AGREEMENT_INVALID, {
         message: `agreement is invalid: ${v.problems.map((p) => p.code + "@" + p.path).join(", ")}`,
@@ -173,7 +208,7 @@ export function wrapAccordMcp<TArgs extends Record<string, unknown>, TOut>(
       });
     } catch (err) {
       return mcpError(ACCORD_MCP_ERROR_CODES.RAIL_UNAVAILABLE, {
-        message: `rail.verifyPayment threw: ${stringifyError(err)}`,
+        message: `rail.verifyPayment threw: ${stringifyError(err, exposeInternalErrors)}`,
         rail: config.rail.rail,
         accord_agreement_id,
       });
@@ -242,7 +277,7 @@ export function wrapAccordMcp<TArgs extends Record<string, unknown>, TOut>(
       output = await config.handler(rest as StrippedArgs<TArgs>, { agreement });
     } catch (err) {
       return mcpError(ACCORD_MCP_ERROR_CODES.HANDLER_THREW, {
-        message: stringifyError(err),
+        message: stringifyError(err, exposeInternalErrors),
         accord_agreement_id,
       });
     }
@@ -261,12 +296,20 @@ export function wrapAccordMcp<TArgs extends Record<string, unknown>, TOut>(
         verificationReceipt = await config.verifier({ agreement, output });
       } catch (err) {
         return mcpError(ACCORD_MCP_ERROR_CODES.VERIFICATION_REJECTED, {
-          message: `verifier threw: ${stringifyError(err)}`,
+          message: `verifier threw: ${stringifyError(err, exposeInternalErrors)}`,
           accord_agreement_id,
         });
       }
 
-      const vrCheck = validateVerificationReceipt(verificationReceipt, { agreement });
+      let vrCheck;
+      try {
+        vrCheck = validateVerificationReceipt(verificationReceipt, { agreement });
+      } catch (err) {
+        return mcpError(ACCORD_MCP_ERROR_CODES.VERIFICATION_REJECTED, {
+          message: `verification receipt validation threw: ${stringifyError(err, exposeInternalErrors)}`,
+          accord_agreement_id,
+        });
+      }
       if (!vrCheck.ok) {
         return mcpError(ACCORD_MCP_ERROR_CODES.VERIFICATION_REJECTED, {
           message: `verification receipt is invalid: ${vrCheck.problems.map((p) => p.code).join(", ")}`,
@@ -303,7 +346,7 @@ export function wrapAccordMcp<TArgs extends Record<string, unknown>, TOut>(
         // Settlement failure post-execution does NOT reject the tool call
         // — the buyer already got the work, the receipts can be reconciled
         // out-of-band. The seller's logs should pick this up.
-        settlementError = `rail.settle threw: ${stringifyError(err)}`;
+        settlementError = `rail.settle threw: ${stringifyError(err, exposeInternalErrors)}`;
         settlementReceipt = undefined;
       }
     }
@@ -380,15 +423,71 @@ function mcpError(
   };
 }
 
-/** Best-effort string render of an unknown thrown value. */
-function stringifyError(err: unknown): string {
-  if (err instanceof Error) return err.message;
-  if (typeof err === "string") return err;
+function normalizeLimits(limits: AccordMcpWrapperConfig<unknown, unknown>["limits"]) {
+  return {
+    maxAgreementIdBytes: positiveIntegerOrDefault(
+      limits?.maxAgreementIdBytes,
+      DEFAULT_MAX_AGREEMENT_ID_BYTES,
+    ),
+    maxPaymentBytes: positiveIntegerOrDefault(
+      limits?.maxPaymentBytes,
+      DEFAULT_MAX_PAYMENT_BYTES,
+    ),
+    maxTaskOutputBytes: positiveIntegerOrDefault(
+      limits?.maxTaskOutputBytes,
+      DEFAULT_MAX_TASK_OUTPUT_BYTES,
+    ),
+  };
+}
+
+function positiveIntegerOrDefault(value: unknown, fallback: number): number {
+  return Number.isSafeInteger(value) && (value as number) > 0
+    ? (value as number)
+    : fallback;
+}
+
+function byteLengthOfString(value: string): number {
+  return new TextEncoder().encode(value).length;
+}
+
+function byteLengthOfUnknown(value: unknown): number {
+  if (typeof value === "string") return byteLengthOfString(value);
   try {
-    return JSON.stringify(err);
+    const encoded = JSON.stringify(value);
+    return typeof encoded === "string"
+      ? byteLengthOfString(encoded)
+      : Number.POSITIVE_INFINITY;
   } catch {
-    return String(err);
+    return Number.POSITIVE_INFINITY;
   }
+}
+
+function stringifyError(err: unknown, exposeInternalErrors: boolean): string {
+  if (!exposeInternalErrors) return "internal error";
+  let text: string;
+  if (err instanceof Error) text = err.message;
+  else if (typeof err === "string") text = err;
+  else {
+    try {
+      text = JSON.stringify(err);
+    } catch {
+      text = String(err);
+    }
+  }
+  return truncateForWire(redactLikelySecrets(text));
+}
+
+function redactLikelySecrets(text: string): string {
+  return text
+    .replace(/0x[0-9a-fA-F]{64}/g, "0x[REDACTED_32B]")
+    .replace(/\b[A-Za-z0-9_-]{32,}\.[A-Za-z0-9_-]{16,}\.[A-Za-z0-9_-]{16,}\b/g, "[REDACTED_TOKEN]")
+    .replace(/\b(sk|pk|secret|token|private[_-]?key)=([^,\s]+)/gi, "$1=[REDACTED]");
+}
+
+function truncateForWire(text: string): string {
+  const max = 512;
+  if (text.length <= max) return text;
+  return text.slice(0, max) + "...";
 }
 
 /**

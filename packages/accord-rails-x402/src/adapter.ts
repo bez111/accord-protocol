@@ -109,6 +109,17 @@ async function verifyPayment(
       message: `${result.code}: ${result.message}`,
     };
   }
+  if (
+    typeof result.payment_id !== "string" ||
+    result.payment_id.trim().length === 0 ||
+    typeof result.scheme !== "string" ||
+    result.scheme.trim().length === 0
+  ) {
+    return rejection(
+      "FACILITATOR_REJECTED",
+      "facilitator returned an invalid success shape",
+    );
+  }
 
   return {
     ok: true,
@@ -119,11 +130,11 @@ async function verifyPayment(
       scheme,
     }),
     details: {
+      ...(result.details ?? {}),
       scheme: result.scheme,
       payer: result.payer ?? null,
       facilitator_network: facilitator.network,
       facilitator_payment_id: result.payment_id,
-      ...(result.details ?? {}),
     },
   };
 }

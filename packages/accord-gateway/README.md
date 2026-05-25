@@ -111,6 +111,26 @@ const replayStore: AccordReplayStore = {
 
 The `has`/`put` pair stays in the interface for simple adapters, but production stores SHOULD implement `claim` so replay protection is a single atomic operation.
 
+## Runtime hardening
+
+The gateway applies Accord-specific size limits before JSON parsing or hashing:
+
+```ts
+accordGateway({
+  // ...
+  limits: {
+    maxAgreementIdBytes: 256,
+    maxPaymentHeaderBytes: 16 * 1024,
+    maxTaskOutputHeaderBytes: 64 * 1024,
+  },
+});
+```
+
+Thrown internal errors are redacted by default and surfaced as `internal error`.
+Set `exposeInternalErrors: true` only in local development; long messages,
+private-key-shaped values, and bearer-token-shaped values are still truncated or
+redacted before they are returned to the buyer.
+
 ## Rail binding and settlement validation
 
 The gateway rejects requests when the configured adapter rail, `agreement.payment.rail`, and `verifyPayment(...).rail` disagree. This prevents a proof from one rail domain from being accepted under a different Agreement.
@@ -124,6 +144,7 @@ If `rail.settle(...)` is configured, the returned Settlement Receipt is validate
 | `ACCORD_PAYMENT_REQUIRED` | 402 |
 | `UNKNOWN_AGREEMENT` | 402 |
 | `MISSING_PAYMENT` | 402 |
+| `INPUT_TOO_LARGE` | 413 |
 | `AGREEMENT_INVALID` | 400 |
 | `PAYMENT_VERIFICATION_FAILED` | 402 |
 | `PAYMENT_RAIL_MISMATCH` | 400 / 402 |

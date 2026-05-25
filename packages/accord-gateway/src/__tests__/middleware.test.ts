@@ -263,6 +263,29 @@ describe("accordGateway — failure paths", () => {
     assert.equal(body.rail_error_code, "MISSING_PAYMENT_ID");
   });
 
+  it("413 INPUT_TOO_LARGE when Accord payment header exceeds the configured limit", async () => {
+    const mw = accordGateway({
+      rail: makeRail(),
+      limits: { maxPaymentHeaderBytes: 4 },
+      buildAgreementTemplate: () => TEMPLATE,
+      resolveAgreement: async () => minimalAgreement(),
+      handler: async () => "x",
+    });
+    const res = mockRes();
+    await mw(
+      reqWith({
+        [ACCORD_HEADERS.agreementId]: "acc_01HX0000000000000000000000",
+        [ACCORD_HEADERS.payment]: '{"proof":"x"}',
+      }),
+      res,
+      () => {},
+    );
+    const body = bodyJson(res);
+    assert.equal(res.statusCode, 413);
+    assert.equal(body.error, ACCORD_GATEWAY_ERROR_CODES.INPUT_TOO_LARGE);
+    assert.equal(body.field, ACCORD_HEADERS.payment);
+  });
+
   it("502 RAIL_UNAVAILABLE when the rail throws", async () => {
     const mw = accordGateway({
       rail: makeRail({
@@ -405,6 +428,54 @@ describe("accordGateway — failure paths", () => {
     );
     assert.equal(res.statusCode, 500);
     assert.equal(bodyJson(res).error, ACCORD_GATEWAY_ERROR_CODES.HANDLER_THREW);
+  });
+
+  it("does not leak raw thrown handler details by default", async () => {
+    const mw = accordGateway({
+      rail: makeRail(),
+      buildAgreementTemplate: () => TEMPLATE,
+      resolveAgreement: async () => minimalAgreement(),
+      handler: async () => {
+        throw new Error("private_key=0x" + "a".repeat(64));
+      },
+    });
+    const res = mockRes();
+    await mw(
+      reqWith({
+        [ACCORD_HEADERS.agreementId]: "acc_01HX0000000000000000000000",
+        [ACCORD_HEADERS.payment]: '{"proof":"x"}',
+      }),
+      res,
+      () => {},
+    );
+    const body = bodyJson(res);
+    assert.equal(res.statusCode, 500);
+    assert.equal(body.error, ACCORD_GATEWAY_ERROR_CODES.HANDLER_THREW);
+    assert.equal(body.message, "internal error");
+  });
+
+  it("exposes redacted thrown details only when configured", async () => {
+    const mw = accordGateway({
+      rail: makeRail(),
+      exposeInternalErrors: true,
+      buildAgreementTemplate: () => TEMPLATE,
+      resolveAgreement: async () => minimalAgreement(),
+      handler: async () => {
+        throw new Error("private_key=0x" + "a".repeat(64));
+      },
+    });
+    const res = mockRes();
+    await mw(
+      reqWith({
+        [ACCORD_HEADERS.agreementId]: "acc_01HX0000000000000000000000",
+        [ACCORD_HEADERS.payment]: '{"proof":"x"}',
+      }),
+      res,
+      () => {},
+    );
+    const body = bodyJson(res);
+    assert.equal(res.statusCode, 500);
+    assert.match(String(body.message), /private_key=\[REDACTED\]/);
   });
 
   it("422 VERIFICATION_REQUIRED when verification.required=true but no verifier is configured", async () => {

@@ -16,6 +16,9 @@ export const ACCORD_GATEWAY_ERROR_CODES = {
   /** Buyer included partial Accord headers (e.g. id without payment). */
   MISSING_PAYMENT: "MISSING_PAYMENT",
 
+  /** Accord header / field exceeded the configured runtime limit. */
+  INPUT_TOO_LARGE: "INPUT_TOO_LARGE",
+
   /** validateAgreement rejected the resolved Agreement. */
   AGREEMENT_INVALID: "AGREEMENT_INVALID",
 

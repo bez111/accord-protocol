@@ -70,12 +70,34 @@ const toolDef = describeAccordMcpTool({
 
 The wrapper **returns** structured errors (`isError: true` + `_meta.accord_error_code`) instead of throwing. MCP clients are easier to wire that way.
 
+## Runtime hardening
+
+The wrapper applies Accord-field limits before forwarding payment proofs to a
+rail or hashing pre-committed output:
+
+```ts
+wrapAccordMcp({
+  // ...
+  limits: {
+    maxAgreementIdBytes: 256,
+    maxPaymentBytes: 16 * 1024,
+    maxTaskOutputBytes: 64 * 1024,
+  },
+});
+```
+
+Thrown internal errors are redacted by default and surfaced as `internal error`.
+Set `exposeInternalErrors: true` only in local development; long messages,
+private-key-shaped values, and bearer-token-shaped values are still truncated or
+redacted before they are returned to the buyer.
+
 ## Error codes
 
 | Code | When |
 |---|---|
 | `MISSING_AGREEMENT_ID` | Buyer didn't include `accord_agreement_id` |
 | `MISSING_PAYMENT` | Buyer didn't include `accord_payment` |
+| `INPUT_TOO_LARGE` | Accord-specific tool arg exceeded the configured size limit |
 | `UNKNOWN_AGREEMENT` | `resolveAgreement(id)` returned undefined or threw |
 | `AGREEMENT_INVALID` | `validateAgreement` from `@accord-protocol/core` rejected |
 | `PAYMENT_VERIFICATION_FAILED` | Rail returned `{ ok: false }` |

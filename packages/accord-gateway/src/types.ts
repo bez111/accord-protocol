@@ -96,6 +96,26 @@ export interface AccordGatewayConfig<TBody, TOut> {
   /** The seller's handler. */
   handler: AccordHttpHandler<TBody, TOut>;
 
+  /**
+   * Runtime input limits for Accord-specific headers. These are a guardrail
+   * against memory / parser abuse; production deployments should still keep
+   * framework and proxy-level request-size limits enabled.
+   */
+  limits?: {
+    /** Defaults to 256 UTF-8 bytes. */
+    maxAgreementIdBytes?: number;
+    /** Defaults to 16 KiB. */
+    maxPaymentHeaderBytes?: number;
+    /** Defaults to 64 KiB. */
+    maxTaskOutputHeaderBytes?: number;
+  };
+
+  /**
+   * Defaults to false. When false, thrown internal error details are replaced
+   * with a generic message so provider secrets do not leak to buyers.
+   */
+  exposeInternalErrors?: boolean;
+
   /** Optional replay store. Defaults to an in-process Map; pass Redis-backed for prod. */
   replayStore?: AccordReplayStore;
 

@@ -1,6 +1,6 @@
 import { createReadStream, existsSync, statSync } from "node:fs";
 import { createServer } from "node:http";
-import { extname, join, normalize, resolve } from "node:path";
+import { extname, join, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = resolve(fileURLToPath(new URL(".", import.meta.url)));
@@ -23,12 +23,18 @@ const contentTypes = new Map([
 ]);
 
 function resolveRequestPath(requestUrl) {
-  const url = new URL(requestUrl, `http://${host}:${port}`);
-  const pathname = decodeURIComponent(url.pathname);
-  const cleanPath = normalize(pathname).replace(/^(\.\.[/\\])+/, "");
-  const candidate = join(root, cleanPath);
+  let pathname;
+  try {
+    const url = new URL(requestUrl, `http://${host}:${port}`);
+    pathname = decodeURIComponent(url.pathname);
+  } catch {
+    return null;
+  }
 
-  if (!candidate.startsWith(root)) {
+  const relativePath = pathname.replace(/^[/\\]+/, "");
+  const candidate = resolve(root, relativePath);
+
+  if (candidate !== root && !candidate.startsWith(root + sep)) {
     return null;
   }
 

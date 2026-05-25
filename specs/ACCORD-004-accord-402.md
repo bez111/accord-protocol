@@ -138,6 +138,7 @@ The seller emits structured 4xx / 5xx responses with a JSON body that carries an
 | `ACCORD_PAYMENT_REQUIRED` | 402 | No Accord-* headers; 402 challenge body returned |
 | `UNKNOWN_AGREEMENT` | 402 | Agreement-id not resolvable |
 | `MISSING_PAYMENT` | 402 | Agreement resolved but `X-Accord-Payment` missing |
+| `INPUT_TOO_LARGE` | 413 | Accord-specific header exceeded implementation limit |
 | `AGREEMENT_INVALID` | 400 | Resolved agreement fails cross-field validation |
 | `PAYMENT_VERIFICATION_FAILED` | 402 | Rail's `verifyPayment` returned `ok: false` |
 | `PAYMENT_RAIL_MISMATCH` | 400 / 402 | Configured adapter, Agreement rail, or verified payment rail disagree |

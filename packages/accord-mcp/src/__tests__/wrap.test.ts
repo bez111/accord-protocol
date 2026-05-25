@@ -176,6 +176,24 @@ describe("wrapAccordMcp — error paths", () => {
     }
   });
 
+  it("returns INPUT_TOO_LARGE when accord_payment exceeds the configured limit", async () => {
+    const call = wrapAccordMcp({
+      rail: makeRail(),
+      limits: { maxPaymentBytes: 4 },
+      handler: async () => "ok",
+      resolveAgreement: async () => minimalAgreement(),
+    });
+    const r = await call({
+      accord_agreement_id: "acc_01HX0000000000000000000000",
+      accord_payment: { proof: "x" },
+    } as never);
+    assert.equal(r.isError, true);
+    if (r.isError) {
+      assert.equal(r._meta.accord_error_code, ACCORD_MCP_ERROR_CODES.INPUT_TOO_LARGE);
+      assert.equal(r._meta.accord_field, "accord_payment");
+    }
+  });
+
   it("returns PAYMENT_RAIL_MISMATCH when configured rail does not match agreement rail", async () => {
     const call = wrapAccordMcp({
       rail: makeRail({ rail: "x402" }),
@@ -326,6 +344,44 @@ describe("wrapAccordMcp — error paths", () => {
     } as never);
     assert.equal(r.isError, true);
     if (r.isError) assert.equal(r._meta.accord_error_code, ACCORD_MCP_ERROR_CODES.HANDLER_THREW);
+  });
+
+  it("does not leak raw thrown handler details by default", async () => {
+    const call = wrapAccordMcp<{ text?: string }, string>({
+      rail: makeRail(),
+      handler: async () => {
+        throw new Error("private_key=0x" + "a".repeat(64));
+      },
+      resolveAgreement: async () => minimalAgreement(),
+    });
+    const r = await call({
+      accord_agreement_id: "acc_01HX0000000000000000000000",
+      accord_payment: { proof: "x" },
+    } as never);
+    assert.equal(r.isError, true);
+    if (r.isError) {
+      assert.equal(r._meta.accord_error_code, ACCORD_MCP_ERROR_CODES.HANDLER_THREW);
+      assert.equal(r.content[0]?.text, "[HANDLER_THREW] internal error");
+    }
+  });
+
+  it("exposes redacted thrown details only when configured", async () => {
+    const call = wrapAccordMcp<{ text?: string }, string>({
+      rail: makeRail(),
+      exposeInternalErrors: true,
+      handler: async () => {
+        throw new Error("private_key=0x" + "a".repeat(64));
+      },
+      resolveAgreement: async () => minimalAgreement(),
+    });
+    const r = await call({
+      accord_agreement_id: "acc_01HX0000000000000000000000",
+      accord_payment: { proof: "x" },
+    } as never);
+    assert.equal(r.isError, true);
+    if (r.isError) {
+      assert.match(r.content[0]?.text ?? "", /private_key=\[REDACTED\]/);
+    }
   });
 
   it("returns VERIFICATION_REQUIRED when verification.required=true but no verifier is configured", async () => {

@@ -49,11 +49,16 @@ import {
 } from "./types.js";
 
 const DEFAULT_REPLAY_TTL_MS = 24 * 60 * 60 * 1000; // 24h
+const DEFAULT_MAX_AGREEMENT_ID_BYTES = 256;
+const DEFAULT_MAX_PAYMENT_HEADER_BYTES = 16 * 1024;
+const DEFAULT_MAX_TASK_OUTPUT_HEADER_BYTES = 64 * 1024;
 
 export function accordGateway<TBody = unknown, TOut = unknown>(
   config: AccordGatewayConfig<TBody, TOut>,
 ): AccordMiddleware {
   const replayStore: AccordReplayStore = config.replayStore ?? new InMemoryReplayStore();
+  const limits = normalizeLimits(config.limits);
+  const exposeInternalErrors = config.exposeInternalErrors === true;
 
   return async function handle(req, res, next) {
     try {
@@ -68,6 +73,29 @@ export function accordGateway<TBody = unknown, TOut = unknown>(
           message: "Accord agreement-id required. Construct an Agreement and retry.",
         });
       }
+      if (utf8Bytes(agreementId) > limits.maxAgreementIdBytes) {
+        return respondJson(res, 413, {
+          error: ACCORD_GATEWAY_ERROR_CODES.INPUT_TOO_LARGE,
+          field: ACCORD_HEADERS.agreementId,
+          message: "Accord agreement-id exceeds the configured size limit",
+        });
+      }
+      if (paymentRaw && utf8Bytes(paymentRaw) > limits.maxPaymentHeaderBytes) {
+        return respondJson(res, 413, {
+          error: ACCORD_GATEWAY_ERROR_CODES.INPUT_TOO_LARGE,
+          field: ACCORD_HEADERS.payment,
+          accord_agreement_id: agreementId,
+          message: "Accord payment proof exceeds the configured size limit",
+        });
+      }
+      if (taskOutputRaw && utf8Bytes(taskOutputRaw) > limits.maxTaskOutputHeaderBytes) {
+        return respondJson(res, 413, {
+          error: ACCORD_GATEWAY_ERROR_CODES.INPUT_TOO_LARGE,
+          field: ACCORD_HEADERS.taskOutput,
+          accord_agreement_id: agreementId,
+          message: "Accord task-output header exceeds the configured size limit",
+        });
+      }
 
       // ── 2. Resolve the Agreement ───────────────────────────────────────
       let agreement: AccordAgreement | undefined;
@@ -76,7 +104,7 @@ export function accordGateway<TBody = unknown, TOut = unknown>(
       } catch (err) {
         return respond402(res, config.buildAgreementTemplate(req), {
           code: ACCORD_GATEWAY_ERROR_CODES.UNKNOWN_AGREEMENT,
-          message: `resolveAgreement threw: ${stringifyError(err)}`,
+          message: `resolveAgreement threw: ${stringifyError(err, exposeInternalErrors)}`,
           accord_agreement_id: agreementId,
         });
       }
@@ -89,7 +117,16 @@ export function accordGateway<TBody = unknown, TOut = unknown>(
       }
 
       // ── 3. validateAgreement ───────────────────────────────────────────
-      const v = validateAgreement(agreement);
+      let v;
+      try {
+        v = validateAgreement(agreement);
+      } catch (err) {
+        return respondJson(res, 400, {
+          error: ACCORD_GATEWAY_ERROR_CODES.AGREEMENT_INVALID,
+          accord_agreement_id: agreementId,
+          message: `agreement validation threw: ${stringifyError(err, exposeInternalErrors)}`,
+        });
+      }
       if (!v.ok) {
         return respondJson(res, 400, {
           error: ACCORD_GATEWAY_ERROR_CODES.AGREEMENT_INVALID,
@@ -141,7 +178,7 @@ export function accordGateway<TBody = unknown, TOut = unknown>(
           error: ACCORD_GATEWAY_ERROR_CODES.RAIL_UNAVAILABLE,
           rail: config.rail.rail,
           accord_agreement_id: agreementId,
-          message: `rail.verifyPayment threw: ${stringifyError(err)}`,
+          message: `rail.verifyPayment threw: ${stringifyError(err, exposeInternalErrors)}`,
         });
       }
       if (!verification.ok) {
@@ -218,7 +255,7 @@ export function accordGateway<TBody = unknown, TOut = unknown>(
         return respondJson(res, 500, {
           error: ACCORD_GATEWAY_ERROR_CODES.HANDLER_THREW,
           accord_agreement_id: agreementId,
-          message: stringifyError(err),
+          message: stringifyError(err, exposeInternalErrors),
         });
       }
 
@@ -242,10 +279,19 @@ export function accordGateway<TBody = unknown, TOut = unknown>(
           return respondJson(res, 422, {
             error: ACCORD_GATEWAY_ERROR_CODES.VERIFICATION_REJECTED,
             accord_agreement_id: agreementId,
-            message: `verifier threw: ${stringifyError(err)}`,
+            message: `verifier threw: ${stringifyError(err, exposeInternalErrors)}`,
           });
         }
-        const vr = validateVerificationReceipt(verificationReceipt, { agreement });
+        let vr;
+        try {
+          vr = validateVerificationReceipt(verificationReceipt, { agreement });
+        } catch (err) {
+          return respondJson(res, 422, {
+            error: ACCORD_GATEWAY_ERROR_CODES.VERIFICATION_REJECTED,
+            accord_agreement_id: agreementId,
+            message: `verification receipt validation threw: ${stringifyError(err, exposeInternalErrors)}`,
+          });
+        }
         if (!vr.ok || verificationReceipt.result === "rejected") {
           return respondJson(res, 422, {
             error: ACCORD_GATEWAY_ERROR_CODES.VERIFICATION_REJECTED,
@@ -276,7 +322,7 @@ export function accordGateway<TBody = unknown, TOut = unknown>(
           }
         } catch (err) {
           // Logged in the response meta; not a hard failure.
-          settlementError = `rail.settle threw: ${stringifyError(err)}`;
+          settlementError = `rail.settle threw: ${stringifyError(err, exposeInternalErrors)}`;
           settlementReceipt = undefined;
         }
       }
@@ -373,12 +419,57 @@ function respondJson(
   res.end(JSON.stringify(body));
 }
 
-function stringifyError(err: unknown): string {
-  if (err instanceof Error) return err.message;
-  if (typeof err === "string") return err;
-  try {
-    return JSON.stringify(err);
-  } catch {
-    return String(err);
+function normalizeLimits(limits: AccordGatewayConfig<unknown, unknown>["limits"]) {
+  return {
+    maxAgreementIdBytes: positiveIntegerOrDefault(
+      limits?.maxAgreementIdBytes,
+      DEFAULT_MAX_AGREEMENT_ID_BYTES,
+    ),
+    maxPaymentHeaderBytes: positiveIntegerOrDefault(
+      limits?.maxPaymentHeaderBytes,
+      DEFAULT_MAX_PAYMENT_HEADER_BYTES,
+    ),
+    maxTaskOutputHeaderBytes: positiveIntegerOrDefault(
+      limits?.maxTaskOutputHeaderBytes,
+      DEFAULT_MAX_TASK_OUTPUT_HEADER_BYTES,
+    ),
+  };
+}
+
+function positiveIntegerOrDefault(value: unknown, fallback: number): number {
+  return Number.isSafeInteger(value) && (value as number) > 0
+    ? (value as number)
+    : fallback;
+}
+
+function utf8Bytes(value: string): number {
+  return new TextEncoder().encode(value).length;
+}
+
+function stringifyError(err: unknown, exposeInternalErrors: boolean): string {
+  if (!exposeInternalErrors) return "internal error";
+  let text: string;
+  if (err instanceof Error) text = err.message;
+  else if (typeof err === "string") text = err;
+  else {
+    try {
+      text = JSON.stringify(err);
+    } catch {
+      text = String(err);
+    }
   }
+  return truncateForWire(redactLikelySecrets(text));
+}
+
+function redactLikelySecrets(text: string): string {
+  return text
+    .replace(/0x[0-9a-fA-F]{64}/g, "0x[REDACTED_32B]")
+    .replace(/\b[A-Za-z0-9_-]{32,}\.[A-Za-z0-9_-]{16,}\.[A-Za-z0-9_-]{16,}\b/g, "[REDACTED_TOKEN]")
+    .replace(/\b(sk|pk|secret|token|private[_-]?key)=([^,\s]+)/gi, "$1=[REDACTED]");
+}
+
+function truncateForWire(text: string): string {
+  const max = 512;
+  if (text.length <= max) return text;
+  return text.slice(0, max) + "...";
 }

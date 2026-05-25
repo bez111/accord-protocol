@@ -126,6 +126,27 @@ export interface AccordMcpWrapperConfig<TArgs, TOut> {
   replayTtlMs?: number;
 
   /**
+   * Runtime input limits for Accord-specific tool args. These prevent a
+   * buyer from forcing the wrapper to stringify/hash arbitrarily large
+   * payment proofs or pre-committed outputs. MCP transports should also keep
+   * their own request-size limits enabled.
+   */
+  limits?: {
+    /** Defaults to 256 UTF-8 bytes. */
+    maxAgreementIdBytes?: number;
+    /** Defaults to 16 KiB after JSON/string encoding. */
+    maxPaymentBytes?: number;
+    /** Defaults to 64 KiB after JSON/string encoding. */
+    maxTaskOutputBytes?: number;
+  };
+
+  /**
+   * Defaults to false. When false, thrown internal error details are replaced
+   * with a generic message so provider secrets do not leak to buyers.
+   */
+  exposeInternalErrors?: boolean;
+
+  /**
    * Resolve an agreement_id to the full AccordAgreement. The wrapper does
    * not assume any storage backend; the caller plugs in their own. Return
    * `undefined` to signal "unknown agreement" — the wrapper turns this

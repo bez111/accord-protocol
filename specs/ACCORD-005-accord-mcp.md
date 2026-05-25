@@ -101,6 +101,7 @@ The wrapper surfaces errors via `_meta.accord_error_code`. Conformant implementa
 |---|---|
 | `MISSING_AGREEMENT_ID` | Buyer didn't include `accord_agreement_id` |
 | `MISSING_PAYMENT` | Buyer didn't include `accord_payment` |
+| `INPUT_TOO_LARGE` | Accord-specific tool arg exceeded implementation limit |
 | `UNKNOWN_AGREEMENT` | `resolveAgreement(id)` returned undefined or threw |
 | `AGREEMENT_INVALID` | `validateAgreement` rejected (cross-field rules) |
 | `PAYMENT_VERIFICATION_FAILED` | Rail returned `{ ok: false }` |
