@@ -6,7 +6,7 @@ Public website: https://accordprotocol.ai/
 Public status page: https://accordprotocol.ai/status/
 Security page: https://accordprotocol.ai/security/
 
-Last updated: 2026-05-24 — `v0.4.2` npm publication verified, Python reference package `0.3.2` verified on PyPI, public website and learn hub live at `accordprotocol.ai`, sitemap/RSS/LLM/agent discovery files live, GitHub repository metadata/topics updated, P4 pilot status is 5/5 complete, Base Sepolia contract rail live evidence is archived with external transaction links, Sage full receipt live recheck now passes against Accord v0 schemas and L1 conformance, and mainnet gates still default-deny.
+Last updated: 2026-06-01 — `v0.4.2` npm publication verified, Python reference package `0.3.2` verified on PyPI, public website and learn hub live at `accordprotocol.ai`, sitemap/RSS/LLM/agent discovery files live, GitHub repository metadata/topics updated, P4 pilot status is 5/5 complete, Base Sepolia contract rail live evidence is archived with external transaction links, Sage full receipt live recheck passes against Accord v0 schemas and L1 conformance, local pre-launch checks pass, partnership disclosure policy is documented, and mainnet gates still default-deny.
 
 Public launch posts, mcp.so submission, and broad community distribution remain
 deferred until the pre-launch gates in [`docs/LAUNCH_READINESS.md`](./LAUNCH_READINESS.md)

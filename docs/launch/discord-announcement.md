@@ -77,7 +77,8 @@ same text twice.
 
 > 🪙 **MCP server with paywalled tools — Claude pays per call**
 >
-> Just dropped `ergo-agent-mcp@0.3.0` with the
+> Current Accord/MCP work lives in `@accord-protocol/mcp@0.4.2`, while the
+> legacy Ergo MCP server is `ergo-agent-mcp@0.3.2`. The older server includes the
 > `createPaywalledTool({ pricing, agent, handler })` pattern. Wrapping
 > any MCP tool turns it into a paid endpoint:
 >

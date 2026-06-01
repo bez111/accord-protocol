@@ -25,6 +25,7 @@ gates:
 | Proof narrative | Sage Ergo, Base Sepolia, x402, Rosen, and mock rail are presented through [`docs/RAIL_MATURITY_MATRIX.md`](./RAIL_MATURITY_MATRIX.md) with links to receipts, explorer or facilitator evidence, conformance, and result records |
 | Provider onboarding | A third-party provider can see how to become Accord-compatible without reverse-engineering Sage |
 | Audit posture | Mainnet remains default-deny, with public manifest format and `mainnetAllowed: true` semantics explicit; detailed audit work papers remain private |
+| Partnership posture | Sponsored content, hardware-wallet reviews and affiliate links follow [`docs/PARTNERSHIP_DISCLOSURE.md`](./PARTNERSHIP_DISCLOSURE.md) and cannot imply mainnet certification |
 | Site polish | Mobile, status, roadmap, learn hub, security, and homepage copy are consistent and scannable |
 | Launch drafts | HN/Reddit/X/Discord/mcp.so drafts point to stable pages and do not overclaim mainnet readiness |
 
@@ -39,6 +40,12 @@ npm run pilots:sage:live
 npm run site:build-learn
 npm run site:check
 ```
+
+Latest local gate run: 2026-06-01. `release:check`, `pilots:check`,
+`pilots:sage:live`, `site:build-learn`, and `site:check` passed locally.
+Manual account actions such as Search Console, Bing Webmaster Tools, HN,
+Reddit, X, Discord, and mcp.so submission still require owner-controlled
+accounts.
 
 For release-sensitive changes, also run the full release preflight described in
 [`docs/DEVELOPER_GOLDEN_PATH.md`](./DEVELOPER_GOLDEN_PATH.md) and

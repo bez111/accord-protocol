@@ -27,6 +27,7 @@ Accord Protocol is the open standard. **AgentAccord** may build commercial infra
 - Audit and mainnet certification: [`docs/audit/`](./docs/audit/)
 - Launch readiness: [`docs/LAUNCH_READINESS.md`](./docs/LAUNCH_READINESS.md)
 - Provider onboarding: [`docs/PROVIDER_ONBOARDING.md`](./docs/PROVIDER_ONBOARDING.md)
+- Partnership disclosure: [`docs/PARTNERSHIP_DISCLOSURE.md`](./docs/PARTNERSHIP_DISCLOSURE.md)
 - Provider onboarding kit: [`examples/17-provider-onboarding-kit`](./examples/17-provider-onboarding-kit/)
 
 ```text

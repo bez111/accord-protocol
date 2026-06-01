@@ -20,6 +20,9 @@ current package matrix.
 * `manual-indexing-checklist.md` — owner-account checklist for search-console and community launch tasks.
 * `og-image-spec.md` — what an OG image (open graph preview) should
   look like, with a placeholder URL until we have one.
+* [`../PARTNERSHIP_DISCLOSURE.md`](../PARTNERSHIP_DISCLOSURE.md) — policy for
+  hardware-wallet reviews, affiliate offers, sponsored content and
+  co-marketing.
 
 Each draft must stay short, factual, and linked back to canonical artifacts in
 the repo. Current public wording must say Accord is alpha / testnet-first, not
@@ -42,7 +45,10 @@ production-certified, and not mainnet-certified.
    cross-posting).
 9. Reach out to 3-5 design partners in private — agent teams that
    already need a payment rail.
-10. After the public website is live, make sure every external post uses
+10. Handle any sponsor, review-device or affiliate offer through
+    [`docs/PARTNERSHIP_DISCLOSURE.md`](../PARTNERSHIP_DISCLOSURE.md) before it
+    touches public launch copy.
+11. After the public website is live, make sure every external post uses
    the canonical homepage: https://accordprotocol.ai/
 
 The first 48 hours determine whether discovery happens at all.

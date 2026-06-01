@@ -16,17 +16,18 @@ description for the website.
 
 **Slug:** `ergo-agent`
 
-**One-liner:** Lets MCP-compatible agents hold ERG, check Note boxes
-on the Ergo blockchain, build payment transactions, and offer paywalled
-tools that gate execution behind a real on-chain Note.
+**One-liner:** Testnet-first MCP server for Accord's Ergo reference rail:
+agents can inspect Ergo balances and Note boxes, build unsigned payment
+transactions, compute task hashes, and prototype paywalled tools.
 
 **Long description:**
 
-`ergo-agent-mcp` is the MCP server for the AgentPay v0 protocol on
-Ergo. It exposes the SDK's full lifecycle — `pay`, `issueNote`,
-`redeemNote`, `createReserve`, `deployTracker`, `settleBatch`, plus
-the BLAKE2b-256 task-hash utility — as MCP tools any compatible host
-(Claude Desktop, Cursor, Windsurf, Continue, …) can call.
+`ergo-agent-mcp` is the MCP server for Accord's maintained Ergo reference
+rail. It exposes the lifecycle tools from `ergo-agent-pay` — balance and UTxO
+inspection, unsigned payment building, Note inspection, Reserve creation,
+Note issuance/redemption, Tracker deployment, settlement batching, and the
+BLAKE2b-256 task-hash utility — as MCP tools any compatible host
+(Claude Desktop, Cursor, Windsurf, Continue, ...) can call.
 
 Most MCP servers run their tools for free. This one ships a
 `createPaywalledTool` helper so a server author can gate any tool
@@ -35,10 +36,10 @@ behind a testnet Note by default: the tool's input schema gets `note_box_id` and
 on-chain, redeems it inline (when a signer is configured), and
 otherwise returns a structured 402-style error.
 
-This brings MCP into the agent-economy story. An LLM-driven agent
-can buy access to expensive tools on demand without a relationship
-to the server, and a server author can offer compute / inference /
-scraping for sale to anyone holding the right Note.
+This brings MCP into the agent-economy story. An LLM-driven agent can prototype
+paid tool access through a testnet Note, while server authors can experiment
+with paid compute, inference or scraping flows before any production rail is
+certified.
 
 **Tags:** ergo · agent-payments · ai-agents · blockchain · stablecoin
 · model-context-protocol · agent-economy · blake2b
@@ -68,7 +69,8 @@ https://testnet.ergofaucet.org.
 
 **Status:**
 
-- npm: `ergo-agent-mcp@0.3.0` — published on tag.
+- npm: `ergo-agent-mcp@0.3.2` — maintained reference package.
+- Accord/MCP wrapper: `@accord-protocol/mcp@0.4.2`.
 - Mainnet: blocked at the audit gate. Testnet/demo workflows only.
 - Source repo: https://github.com/accord-protocol/accord-protocol
 - Public Accord/MCP guide: https://accordprotocol.ai/learn/accord-mcp-paid-tools/
