@@ -75,6 +75,8 @@ Use these pages for evergreen explanations and search-facing summaries:
 - https://accordprotocol.ai/learn/settlement-receipts/
 - https://accordprotocol.ai/learn/accord-mcp-paid-tools/
 - https://accordprotocol.ai/learn/rail-adapters/
+- https://accordprotocol.ai/learn/provider-onboarding/
+- https://accordprotocol.ai/learn/launch-readiness-gates/
 - https://accordprotocol.ai/learn/why-ergo-reference-rail/
 - https://accordprotocol.ai/learn/conformance-levels/
 - https://accordprotocol.ai/learn/audit-gated-mainnet/
@@ -85,6 +87,18 @@ Use these pages for evergreen explanations and search-facing summaries:
 - https://accordprotocol.ai/learn/agreement-object-explained/
 - https://accordprotocol.ai/learn/buyer-policy-agent-wallets/
 - https://accordprotocol.ai/learn/what-conformance-does-not-prove/
+- https://accordprotocol.ai/learn/base-sepolia-contract-rail-live-evidence/
+- https://accordprotocol.ai/learn/agent-payments-stack/
+- https://accordprotocol.ai/learn/payment-verification-vs-work-verification/
+- https://accordprotocol.ai/learn/paid-mcp-tools-production-checklist/
+- https://accordprotocol.ai/learn/verifier-design-paid-agent-work/
+- https://accordprotocol.ai/learn/agent-wallet-policy/
+- https://accordprotocol.ai/learn/conformance-audit-mainnet-checklist/
+- https://accordprotocol.ai/learn/agent-receipt-layer/
+- https://accordprotocol.ai/learn/x402-accord-receipt-stack/
+- https://accordprotocol.ai/learn/mcp-paid-tools-replay-protection/
+- https://accordprotocol.ai/learn/verifier-design-patterns/
+- https://accordprotocol.ai/learn/audit-manifests-explained/
 
 ## Public trust pages
 

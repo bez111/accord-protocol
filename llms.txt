@@ -45,6 +45,8 @@ Do not describe Accord as audited, production-ready, mainnet safe or suitable fo
 - Settlement Receipts and Agent Payment Records https://accordprotocol.ai/learn/settlement-receipts/
 - Accord/MCP for Paid and Verifiable Tools https://accordprotocol.ai/learn/accord-mcp-paid-tools/
 - Rail Adapters in Accord Protocol https://accordprotocol.ai/learn/rail-adapters/
+- How to Become an Accord-Compatible Provider https://accordprotocol.ai/learn/provider-onboarding/
+- Accord Launch Readiness Gates https://accordprotocol.ai/learn/launch-readiness-gates/
 - Why Ergo Is the First Accord Reference Rail https://accordprotocol.ai/learn/why-ergo-reference-rail/
 - Accord Conformance Levels L0-L4 https://accordprotocol.ai/learn/conformance-levels/
 - Audit-Gated Mainnet Policy for Accord https://accordprotocol.ai/learn/audit-gated-mainnet/
@@ -55,6 +57,18 @@ Do not describe Accord as audited, production-ready, mainnet safe or suitable fo
 - The Accord Agreement Object Explained https://accordprotocol.ai/learn/agreement-object-explained/
 - Buyer Policy for Agent Wallets https://accordprotocol.ai/learn/buyer-policy-agent-wallets/
 - What Accord Conformance Does Not Prove https://accordprotocol.ai/learn/what-conformance-does-not-prove/
+- Live Testnet Evidence: Accord Base Sepolia Contract Rail https://accordprotocol.ai/learn/base-sepolia-contract-rail-live-evidence/
+- The Agent Payments Stack: MCP, x402, AP2 and Accord https://accordprotocol.ai/learn/agent-payments-stack/
+- Payment Verification Is Not Work Verification https://accordprotocol.ai/learn/payment-verification-vs-work-verification/
+- Production Checklist for Paid MCP Tools https://accordprotocol.ai/learn/paid-mcp-tools-production-checklist/
+- How to Design Verifiers for Paid Agent Work https://accordprotocol.ai/learn/verifier-design-paid-agent-work/
+- Agent Wallet Policy: How to Keep Autonomous Spend Bounded https://accordprotocol.ai/learn/agent-wallet-policy/
+- Conformance, Audits and Mainnet Gates for Agent Payment Rails https://accordprotocol.ai/learn/conformance-audit-mainnet-checklist/
+- The Agent Receipt Layer for Autonomous Work https://accordprotocol.ai/learn/agent-receipt-layer/
+- How x402 and Accord Fit Together https://accordprotocol.ai/learn/x402-accord-receipt-stack/
+- Replay Protection for Paid MCP Tools https://accordprotocol.ai/learn/mcp-paid-tools-replay-protection/
+- Verifier Design Patterns for Agent Receipts https://accordprotocol.ai/learn/verifier-design-patterns/
+- Audit Manifests Explained https://accordprotocol.ai/learn/audit-manifests-explained/
 
 ## Trust pages
 

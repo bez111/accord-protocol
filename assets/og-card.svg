@@ -1,24 +1,63 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
   <title id="title">Accord Protocol social preview</title>
-  <desc id="desc">Accord Protocol brand card with agreement, verification and settlement receipts.</desc>
-  <rect width="1200" height="630" fill="#F7F4EC"/>
-  <rect x="56" y="56" width="1088" height="518" rx="24" fill="#FFFDF8" stroke="#D9D2C0" stroke-width="2"/>
-  <g transform="translate(96 96)">
-    <rect width="78" height="78" rx="16" fill="#151712"/>
-    <path d="M23 25h38M23 39h38M23 53h38" stroke="#F7F4EC" stroke-width="6" stroke-linecap="round"/>
-    <circle cx="23" cy="25" r="6" fill="#67D29B"/>
-    <circle cx="42" cy="39" r="6" fill="#F2C66D"/>
-    <circle cx="61" cy="53" r="6" fill="#86B8DF"/>
+  <desc id="desc">Accord Protocol social preview showing agreement, verification and settlement receipts for paid agent work.</desc>
+  <defs>
+    <pattern id="grid" width="44" height="44" patternUnits="userSpaceOnUse">
+      <path d="M44 0H0v44" fill="none" stroke="#DDE5DA" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="630" fill="#F5F8F1"/>
+  <rect width="1200" height="630" fill="url(#grid)" opacity="0.55"/>
+  <rect x="44" y="44" width="1112" height="542" rx="28" fill="#FFFDF8" stroke="#CFD8CC" stroke-width="2"/>
+
+  <g transform="translate(88 82)">
+    <rect width="82" height="82" rx="18" fill="#11140F"/>
+    <path d="M24 27h38M24 41h38M24 55h38" stroke="#FFFDF8" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="24" cy="27" r="6" fill="#53C889"/>
+    <circle cx="43" cy="41" r="6" fill="#F4BF4F"/>
+    <circle cx="62" cy="55" r="6" fill="#5BA7DB"/>
   </g>
-  <text x="96" y="250" fill="#151712" font-family="Inter, Arial, sans-serif" font-size="92" font-weight="800">Accord Protocol</text>
-  <text x="100" y="326" fill="#287554" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="800">Agreement layer for autonomous agent work</text>
-  <text x="100" y="406" fill="#33362F" font-family="Inter, Arial, sans-serif" font-size="38" font-weight="700">x402 verifies payment. Accord verifies completion.</text>
-  <g transform="translate(100 474)">
-    <rect width="230" height="62" rx="10" fill="#DFF1E7"/>
-    <text x="24" y="39" fill="#287554" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="800">Agreement</text>
-    <rect x="256" width="230" height="62" rx="10" fill="#F4E3BD"/>
-    <text x="280" y="39" fill="#9A650B" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="800">Verification</text>
-    <rect x="512" width="230" height="62" rx="10" fill="#DCEAF4"/>
-    <text x="536" y="39" fill="#315F87" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="800">Settlement</text>
+
+  <text x="188" y="118" fill="#287554" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="800">OPEN TRUST LAYER FOR AGENT WORK</text>
+  <text x="86" y="236" fill="#11140F" font-family="Inter, Arial, sans-serif" font-size="82" font-weight="900">Accord Protocol</text>
+  <text x="90" y="304" fill="#287554" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="800">Receipts for paid agent work</text>
+  <text x="90" y="366" fill="#30362E" font-family="Inter, Arial, sans-serif" font-size="31" font-weight="700">x402 verifies payment.</text>
+  <text x="90" y="404" fill="#30362E" font-family="Inter, Arial, sans-serif" font-size="31" font-weight="700">Accord verifies completion.</text>
+
+  <g transform="translate(90 448)">
+    <rect width="148" height="50" rx="12" fill="#DFF3E7"/>
+    <text x="22" y="33" fill="#287554" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="800">Agreement</text>
+    <path d="M176 25h42" stroke="#AEB7AB" stroke-width="5" stroke-linecap="round"/>
+    <path d="M213 14l12 11-12 11" fill="none" stroke="#AEB7AB" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="248" width="158" height="50" rx="12" fill="#F7E8BD"/>
+    <text x="270" y="33" fill="#8D6208" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="800">Verification</text>
+    <path d="M430 25h42" stroke="#AEB7AB" stroke-width="5" stroke-linecap="round"/>
+    <path d="M467 14l12 11-12 11" fill="none" stroke="#AEB7AB" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="502" width="144" height="50" rx="12" fill="#DCECF8"/>
+    <text x="524" y="33" fill="#28618A" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="800">Settlement</text>
+  </g>
+
+  <text x="90" y="548" fill="#566054" font-family="Inter, Arial, sans-serif" font-size="21" font-weight="700">Testnet-first. Audit-gated. Mainnet blocked until signed manifests.</text>
+
+  <g transform="translate(790 92)">
+    <rect width="318" height="430" rx="24" fill="#11140F"/>
+    <text x="30" y="54" fill="#FFFDF8" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="900">Receipt stack</text>
+    <text x="30" y="86" fill="#AEB7AB" font-family="Inter, Arial, sans-serif" font-size="17" font-weight="700">machine-readable proof trail</text>
+
+    <g transform="translate(28 118)">
+      <rect width="262" height="78" rx="14" fill="#E7F6EC"/>
+      <text x="22" y="31" fill="#287554" font-family="Inter, Arial, sans-serif" font-size="17" font-weight="900">01 Agreement Object</text>
+      <text x="22" y="56" fill="#30362E" font-family="Menlo, Consolas, monospace" font-size="14">task + price + verifier</text>
+    </g>
+    <g transform="translate(28 214)">
+      <rect width="262" height="78" rx="14" fill="#FFF0C9"/>
+      <text x="22" y="31" fill="#8D6208" font-family="Inter, Arial, sans-serif" font-size="17" font-weight="900">02 Verification Receipt</text>
+      <text x="22" y="56" fill="#30362E" font-family="Menlo, Consolas, monospace" font-size="14">accepted | rejected</text>
+    </g>
+    <g transform="translate(28 310)">
+      <rect width="262" height="78" rx="14" fill="#E4F2FB"/>
+      <text x="22" y="31" fill="#28618A" font-family="Inter, Arial, sans-serif" font-size="17" font-weight="900">03 Settlement Receipt</text>
+      <text x="22" y="56" fill="#30362E" font-family="Menlo, Consolas, monospace" font-size="14">rail proof + tx evidence</text>
+    </g>
   </g>
 </svg>

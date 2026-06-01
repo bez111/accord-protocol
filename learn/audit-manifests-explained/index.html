@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Audit Manifests Explained | Accord Protocol</title>
+    <meta name="description" content="How Accord uses signed manifests, exact artifact identity and default-deny mainnet gates instead of broad audit badges.">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <link rel="canonical" href="https://accordprotocol.ai/learn/audit-manifests-explained/">
+    <link rel="icon" type="image/svg+xml" href="/assets/logo.svg">
+    <link rel="alternate" type="application/rss+xml" title="Accord Protocol Learn Feed" href="/feed.xml">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="Accord Protocol">
+    <meta property="og:title" content="Audit Manifests Explained | Accord Protocol">
+    <meta property="og:description" content="How Accord uses signed manifests, exact artifact identity and default-deny mainnet gates instead of broad audit badges.">
+    <meta property="og:url" content="https://accordprotocol.ai/learn/audit-manifests-explained/">
+    <meta property="og:image" content="https://accordprotocol.ai/assets/og-card.png">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Accord Protocol social preview">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Audit Manifests Explained | Accord Protocol">
+    <meta name="twitter:description" content="How Accord uses signed manifests, exact artifact identity and default-deny mainnet gates instead of broad audit badges.">
+    <meta name="twitter:image" content="https://accordprotocol.ai/assets/og-card.png">
+    <meta name="twitter:image:alt" content="Accord Protocol social preview">
+    <link rel="stylesheet" href="/styles.css">
+    <script type="application/ld+json">{
+      "@context": "https://schema.org",
+      "@graph": [
+            {
+                  "@type": "Organization",
+                  "@id": "https://accordprotocol.ai/#organization",
+                  "name": "Accord Protocol",
+                  "url": "https://accordprotocol.ai/",
+                  "logo": "https://accordprotocol.ai/assets/logo.svg"
+            },
+            {
+                  "@type": "Article",
+                  "@id": "https://accordprotocol.ai/learn/audit-manifests-explained/#article",
+                  "headline": "Audit Manifests Explained",
+                  "description": "How Accord uses signed manifests, exact artifact identity and default-deny mainnet gates instead of broad audit badges.",
+                  "datePublished": "2026-06-01",
+                  "dateModified": "2026-06-01",
+                  "author": {
+                        "@type": "Organization",
+                        "name": "Accord Protocol"
+                  },
+                  "publisher": {
+                        "@id": "https://accordprotocol.ai/#organization"
+                  },
+                  "mainEntityOfPage": "https://accordprotocol.ai/learn/audit-manifests-explained/",
+                  "image": "https://accordprotocol.ai/assets/og-card.png",
+                  "articleSection": "Audit manifests",
+                  "citation": [
+                        "https://accordprotocol.ai/learn/audit-gated-mainnet/",
+                        "https://accordprotocol.ai/learn/conformance-audit-mainnet-checklist/",
+                        "https://github.com/accord-protocol/accord-protocol/tree/main/docs/audit"
+                  ]
+            },
+            {
+                  "@type": "BreadcrumbList",
+                  "@id": "https://accordprotocol.ai/learn/audit-manifests-explained/#breadcrumbs",
+                  "itemListElement": [
+                        {
+                              "@type": "ListItem",
+                              "position": 1,
+                              "name": "Home",
+                              "item": "https://accordprotocol.ai/"
+                        },
+                        {
+                              "@type": "ListItem",
+                              "position": 2,
+                              "name": "Learn",
+                              "item": "https://accordprotocol.ai/learn/"
+                        },
+                        {
+                              "@type": "ListItem",
+                              "position": 3,
+                              "name": "Audit Manifests Explained",
+                              "item": "https://accordprotocol.ai/learn/audit-manifests-explained/"
+                        }
+                  ]
+            },
+            {
+                  "@type": "FAQPage",
+                  "@id": "https://accordprotocol.ai/learn/audit-manifests-explained/#faq",
+                  "mainEntity": [
+                        {
+                              "@type": "Question",
+                              "name": "Is conformance the same as an audit manifest?",
+                              "acceptedAnswer": {
+                                    "@type": "Answer",
+                                    "text": "No. Conformance checks compatibility. A manifest records external audit evidence for exact artifacts."
+                              }
+                        },
+                        {
+                              "@type": "Question",
+                              "name": "Why include runtime bytecode or compiled script hashes?",
+                              "acceptedAnswer": {
+                                    "@type": "Answer",
+                                    "text": "Because deployed artifacts can differ from source, and software gates need exact identities."
+                              }
+                        },
+                        {
+                              "@type": "Question",
+                              "name": "Who should sign the manifest?",
+                              "acceptedAnswer": {
+                                    "@type": "Answer",
+                                    "text": "An external auditor or authorized audit process, not only the maintainer who built the artifact."
+                              }
+                        }
+                  ]
+            }
+      ]
+}</script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header" data-header>
+      <a class="brand" href="/" aria-label="Accord Protocol home">
+        <img src="/assets/logo.svg" width="36" height="36" alt="">
+        <span>Accord Protocol</span>
+      </a>
+      <nav id="primary-nav" class="site-nav" aria-label="Primary navigation" data-nav>
+        <a href="/#why">Overview</a>
+        <a href="/#protocol">Protocol</a>
+        <a href="/#developers">Build</a>
+        <a href="/learn/">Learn</a>
+        <a href="/status/">Status</a>
+        <a href="/security/">Security</a>
+        <a href="/roadmap/">Roadmap</a>
+        <a href="/#rails">Rails</a>
+        <a href="/#agents">Agents</a>
+      </nav>
+      <a class="header-link" href="https://github.com/accord-protocol/accord-protocol" rel="noopener" target="_blank">GitHub</a>
+      <button class="nav-toggle" type="button" aria-controls="primary-nav" aria-expanded="false" data-nav-toggle>
+        <span>Menu</span>
+        <span class="nav-toggle-lines" aria-hidden="true"></span>
+      </button>
+    </header>
+    <main id="main">
+      <article class="article-page">
+        <header class="article-hero">
+          <a class="breadcrumb" href="/learn/">Learn</a>
+          <p class="eyebrow">Audit manifests</p>
+          <h1>Audit Manifests Explained</h1>
+          <p class="article-deck">An audit manifest turns external review into software-checkable evidence: exact artifact identity, auditor signature and explicit mainnet permission.</p>
+          <div class="article-meta">
+            <span>Updated 2026-06-01</span>
+            <span>8 min read</span>
+            <span>Accord Protocol</span>
+          </div>
+        </header>
+
+        <div class="article-layout">
+          <aside class="article-aside" aria-label="Key takeaways">
+            <h2>Key takeaways</h2>
+            <ul>
+              <li>A passing demo is not an audit and a broad badge is not enough for a rail.</li>
+              <li>Manifests should name exact artifacts: package versions, script hashes, bytecode or deployments.</li>
+              <li>Accord mainnet gates stay default-deny until signed manifests explicitly allow them.</li>
+            </ul>
+            <nav class="article-toc" aria-label="Article sections">
+              <h2>On this page</h2>
+              <ol>
+                <li><a href="#why-broad-audit-claims-fail">Why broad audit claims fail</a></li>
+                <li><a href="#what-a-manifest-should-identify">What a manifest should identify</a></li>
+                <li><a href="#default-deny-is-the-safer-gate">Default-deny is the safer gate</a></li>
+                <li><a href="#what-manifests-do-not-prove">What manifests do not prove</a></li>
+                <li><a href="#the-accord-posture">The Accord posture</a></li>
+                <li><a href="#faq">FAQ</a></li>
+                <li><a href="#sources">Sources</a></li>
+              </ol>
+            </nav>
+          </aside>
+
+          <div class="article-content">
+            <section id="why-broad-audit-claims-fail">
+              <h2>Why broad audit claims fail</h2>
+              <p>Agent payment rails need exactness. Saying that a repository was reviewed is weaker than saying which script hash, bytecode hash, package version, deployment address and verifier assumptions were reviewed.</p>
+              <p>A broad badge can become misleading when code changes, deployments differ or a demo artifact is promoted beyond its reviewed scope.</p>
+            </section>
+
+            <section id="what-a-manifest-should-identify">
+              <h2>What a manifest should identify</h2>
+              <p>A useful audit manifest names the reviewed component, version, source hash, compiled artifact hash, deployment address where relevant, network domain, auditor identity, report reference and mainnetAllowed value.</p>
+              <p>Runtime bytecode or compiled script identity matters because source code alone does not prove what was deployed.</p>
+            </section>
+
+            <section id="default-deny-is-the-safer-gate">
+              <h2>Default-deny is the safer gate</h2>
+              <p>If a manifest is missing, expired, unsigned, mismatched or says mainnetAllowed: false, the safer production behavior is denial. That prevents old demos and testnet artifacts from quietly becoming production rails.</p>
+              <p>This is especially important for autonomous agents because they can repeat a bad action quickly and at scale.</p>
+            </section>
+
+            <section id="what-manifests-do-not-prove">
+              <h2>What manifests do not prove</h2>
+              <p>A manifest does not prove the auditor is infallible, the operator keeps keys safe, the verifier is honest, a bridge will remain solvent or every future integration is safe.</p>
+              <p>It proves a narrower but valuable claim: a named reviewer signed a claim about exact artifacts and the allowed deployment posture.</p>
+            </section>
+
+            <section id="the-accord-posture">
+              <h2>The Accord posture</h2>
+              <p>Accord v0 keeps production mainnet use blocked until signed audit manifests allow exact scripts or contracts. That posture should appear in docs, site metadata, AI-facing files and launch copy.</p>
+              <p>Conformance, testnet evidence and live receipts make the protocol credible. External audits and signed manifests are what can move a rail toward controlled mainnet use.</p>
+            </section>
+
+            <section id="faq">
+              <h2>FAQ</h2>
+              <h3>Is conformance the same as an audit manifest?</h3>
+              <p>No. Conformance checks compatibility. A manifest records external audit evidence for exact artifacts.</p>
+              <h3>Why include runtime bytecode or compiled script hashes?</h3>
+              <p>Because deployed artifacts can differ from source, and software gates need exact identities.</p>
+              <h3>Who should sign the manifest?</h3>
+              <p>An external auditor or authorized audit process, not only the maintainer who built the artifact.</p>
+            </section>
+
+            <section id="sources">
+              <h2>Sources and references</h2>
+              <h3><a href="https://accordprotocol.ai/learn/audit-gated-mainnet/" rel="noopener" target="_blank">Audit-gated mainnet policy</a></h3>
+              <p>Public explanation of the current default-deny mainnet posture.</p>
+              <h3><a href="https://accordprotocol.ai/learn/conformance-audit-mainnet-checklist/" rel="noopener" target="_blank">Conformance, audits and mainnet gates</a></h3>
+              <p>Checklist separating compatibility, audit evidence and production readiness.</p>
+              <h3><a href="https://github.com/accord-protocol/accord-protocol/tree/main/docs/audit" rel="noopener" target="_blank">Accord audit docs</a></h3>
+              <p>Repository audit-gate materials and manifest documentation.</p>
+            </section>
+
+            <section class="article-action">
+              <div>
+                <span>Next action</span>
+                <h2>Open audit-gate docs</h2>
+                <p>Review exact artifact identity, signed evidence and default-deny mainnet gates.</p>
+              </div>
+              <a class="button button-primary" href="https://github.com/accord-protocol/accord-protocol/tree/main/docs/audit" rel="noopener" target="_blank">Open</a>
+            </section>
+          </div>
+        </div>
+
+        <section class="related-section" aria-label="Related articles">
+          <div class="section-heading">
+            <p class="eyebrow">Read next</p>
+            <h2>Related Accord guides</h2>
+          </div>
+          <div class="learn-grid">
+            <a class="learn-card" href="/learn/audit-gated-mainnet/">
+              <span>Safety</span>
+              <h3>Audit-Gated Mainnet Policy for Accord</h3>
+              <p>Why Accord keeps mainnet use blocked by default until signed audit manifests explicitly allow relevant scripts or contracts.</p>
+            </a>
+            <a class="learn-card" href="/learn/conformance-audit-mainnet-checklist/">
+              <span>Safety</span>
+              <h3>Conformance, Audits and Mainnet Gates for Agent Payment Rails</h3>
+              <p>How to separate Accord compatibility, external audits, rail risk, verifier assumptions and mainnet readiness for agent payment systems.</p>
+            </a>
+            <a class="learn-card" href="/learn/what-conformance-does-not-prove/">
+              <span>Safety</span>
+              <h3>What Accord Conformance Does Not Prove</h3>
+              <p>A safety-focused explanation of the limits of conformance testing and why compatibility is not production certification.</p>
+            </a>
+          </div>
+        </section>
+      </article>
+    </main>
+    <footer class="site-footer">
+      <div class="footer-brand">
+        <img src="/assets/logo.svg" width="34" height="34" alt="">
+        <div>
+          <strong>Accord Protocol</strong>
+          <p>Open standard for autonomous agent work agreements.</p>
+        </div>
+      </div>
+      <nav aria-label="Footer navigation">
+        <a href="/learn/">Learn</a>
+        <a href="/status/">Status</a>
+        <a href="/security/">Security</a>
+        <a href="/roadmap/">Roadmap</a>
+        <a href="/llms.txt">llms.txt</a>
+        <a href="/agents.txt">agents.txt</a>
+        <a href="https://github.com/accord-protocol/accord-protocol" rel="noopener" target="_blank">GitHub</a>
+        <a href="https://github.com/accord-protocol/accord-protocol/tree/main/specs" rel="noopener" target="_blank">Specs</a>
+        <a href="/sitemap.xml">Sitemap</a>
+      </nav>
+    </footer>
+    <script src="/script.js" defer></script>
+  </body>
+</html>

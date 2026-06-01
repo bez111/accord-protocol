@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>The Agent Receipt Layer for Autonomous Work | Accord Protocol</title>
+    <meta name="description" content="How Accord combines agreement, verification receipt and settlement receipt records so paid AI work can be inspected after execution.">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <link rel="canonical" href="https://accordprotocol.ai/learn/agent-receipt-layer/">
+    <link rel="icon" type="image/svg+xml" href="/assets/logo.svg">
+    <link rel="alternate" type="application/rss+xml" title="Accord Protocol Learn Feed" href="/feed.xml">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="Accord Protocol">
+    <meta property="og:title" content="The Agent Receipt Layer for Autonomous Work | Accord Protocol">
+    <meta property="og:description" content="How Accord combines agreement, verification receipt and settlement receipt records so paid AI work can be inspected after execution.">
+    <meta property="og:url" content="https://accordprotocol.ai/learn/agent-receipt-layer/">
+    <meta property="og:image" content="https://accordprotocol.ai/assets/og-card.png">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Accord Protocol social preview">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="The Agent Receipt Layer for Autonomous Work | Accord Protocol">
+    <meta name="twitter:description" content="How Accord combines agreement, verification receipt and settlement receipt records so paid AI work can be inspected after execution.">
+    <meta name="twitter:image" content="https://accordprotocol.ai/assets/og-card.png">
+    <meta name="twitter:image:alt" content="Accord Protocol social preview">
+    <link rel="stylesheet" href="/styles.css">
+    <script type="application/ld+json">{
+      "@context": "https://schema.org",
+      "@graph": [
+            {
+                  "@type": "Organization",
+                  "@id": "https://accordprotocol.ai/#organization",
+                  "name": "Accord Protocol",
+                  "url": "https://accordprotocol.ai/",
+                  "logo": "https://accordprotocol.ai/assets/logo.svg"
+            },
+            {
+                  "@type": "Article",
+                  "@id": "https://accordprotocol.ai/learn/agent-receipt-layer/#article",
+                  "headline": "The Agent Receipt Layer for Autonomous Work",
+                  "description": "How Accord combines agreement, verification receipt and settlement receipt records so paid AI work can be inspected after execution.",
+                  "datePublished": "2026-06-01",
+                  "dateModified": "2026-06-01",
+                  "author": {
+                        "@type": "Organization",
+                        "name": "Accord Protocol"
+                  },
+                  "publisher": {
+                        "@id": "https://accordprotocol.ai/#organization"
+                  },
+                  "mainEntityOfPage": "https://accordprotocol.ai/learn/agent-receipt-layer/",
+                  "image": "https://accordprotocol.ai/assets/og-card.png",
+                  "articleSection": "Receipt layer",
+                  "citation": [
+                        "https://accordprotocol.ai/schemas/agreement.v0.schema.json",
+                        "https://accordprotocol.ai/schemas/verification-receipt.v0.schema.json",
+                        "https://accordprotocol.ai/schemas/settlement-receipt.v0.schema.json"
+                  ]
+            },
+            {
+                  "@type": "BreadcrumbList",
+                  "@id": "https://accordprotocol.ai/learn/agent-receipt-layer/#breadcrumbs",
+                  "itemListElement": [
+                        {
+                              "@type": "ListItem",
+                              "position": 1,
+                              "name": "Home",
+                              "item": "https://accordprotocol.ai/"
+                        },
+                        {
+                              "@type": "ListItem",
+                              "position": 2,
+                              "name": "Learn",
+                              "item": "https://accordprotocol.ai/learn/"
+                        },
+                        {
+                              "@type": "ListItem",
+                              "position": 3,
+                              "name": "The Agent Receipt Layer for Autonomous Work",
+                              "item": "https://accordprotocol.ai/learn/agent-receipt-layer/"
+                        }
+                  ]
+            },
+            {
+                  "@type": "FAQPage",
+                  "@id": "https://accordprotocol.ai/learn/agent-receipt-layer/#faq",
+                  "mainEntity": [
+                        {
+                              "@type": "Question",
+                              "name": "Is Accord a payment rail?",
+                              "acceptedAnswer": {
+                                    "@type": "Answer",
+                                    "text": "No. Accord can bind to rails, but its core role is the work agreement and receipt layer around payment and settlement."
+                              }
+                        },
+                        {
+                              "@type": "Question",
+                              "name": "Why not use one combined receipt?",
+                              "acceptedAnswer": {
+                                    "@type": "Answer",
+                                    "text": "Separate records keep payment proof, work verification and settlement evidence from being confused with each other."
+                              }
+                        },
+                        {
+                              "@type": "Question",
+                              "name": "Can another agent read Accord receipts?",
+                              "acceptedAnswer": {
+                                    "@type": "Answer",
+                                    "text": "Yes. The goal is machine-readable agreement and receipt objects that agents and policy engines can inspect."
+                              }
+                        }
+                  ]
+            }
+      ]
+}</script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header" data-header>
+      <a class="brand" href="/" aria-label="Accord Protocol home">
+        <img src="/assets/logo.svg" width="36" height="36" alt="">
+        <span>Accord Protocol</span>
+      </a>
+      <nav id="primary-nav" class="site-nav" aria-label="Primary navigation" data-nav>
+        <a href="/#why">Overview</a>
+        <a href="/#protocol">Protocol</a>
+        <a href="/#developers">Build</a>
+        <a href="/learn/">Learn</a>
+        <a href="/status/">Status</a>
+        <a href="/security/">Security</a>
+        <a href="/roadmap/">Roadmap</a>
+        <a href="/#rails">Rails</a>
+        <a href="/#agents">Agents</a>
+      </nav>
+      <a class="header-link" href="https://github.com/accord-protocol/accord-protocol" rel="noopener" target="_blank">GitHub</a>
+      <button class="nav-toggle" type="button" aria-controls="primary-nav" aria-expanded="false" data-nav-toggle>
+        <span>Menu</span>
+        <span class="nav-toggle-lines" aria-hidden="true"></span>
+      </button>
+    </header>
+    <main id="main">
+      <article class="article-page">
+        <header class="article-hero">
+          <a class="breadcrumb" href="/learn/">Learn</a>
+          <p class="eyebrow">Receipt layer</p>
+          <h1>The Agent Receipt Layer for Autonomous Work</h1>
+          <p class="article-deck">Accord is a receipt layer for paid agent work: it binds what was requested, how completion was judged and how settlement was recorded.</p>
+          <div class="article-meta">
+            <span>Updated 2026-06-01</span>
+            <span>8 min read</span>
+            <span>Accord Protocol</span>
+          </div>
+        </header>
+
+        <div class="article-layout">
+          <aside class="article-aside" aria-label="Key takeaways">
+            <h2>Key takeaways</h2>
+            <ul>
+              <li>A payment receipt alone does not prove the work was completed.</li>
+              <li>Accord uses three linked records: Agreement, Verification Receipt and Settlement Receipt.</li>
+              <li>The receipt layer gives agents, wallets, providers and auditors a shared evidence trail.</li>
+            </ul>
+            <nav class="article-toc" aria-label="Article sections">
+              <h2>On this page</h2>
+              <ol>
+                <li><a href="#why-agent-work-needs-receipts">Why agent work needs receipts</a></li>
+                <li><a href="#the-three-record-model">The three-record model</a></li>
+                <li><a href="#receipts-are-policy-inputs">Receipts are policy inputs</a></li>
+                <li><a href="#what-makes-a-receipt-useful">What makes a receipt useful</a></li>
+                <li><a href="#current-safety-posture">Current safety posture</a></li>
+                <li><a href="#faq">FAQ</a></li>
+                <li><a href="#sources">Sources</a></li>
+              </ol>
+            </nav>
+          </aside>
+
+          <div class="article-content">
+            <section id="why-agent-work-needs-receipts">
+              <h2>Why agent work needs receipts</h2>
+              <p>When an autonomous agent pays for work, the interesting question is rarely only whether money moved. The buyer needs to know what was promised, which output was delivered, who judged it and what settlement evidence exists.</p>
+              <p>A receipt layer turns that lifecycle into machine-readable records. That makes the workflow inspectable by another agent, a wallet, a registry, a verifier, a dashboard or a later audit.</p>
+            </section>
+
+            <section id="the-three-record-model">
+              <h2>The three-record model</h2>
+              <p>The Accord Agreement records terms before work starts. The Verification Receipt records whether the work was accepted, rejected or partially accepted. The Settlement Receipt records the economic closeout on the chosen rail.</p>
+              <p>Keeping those records separate is deliberate. Payment proof, work judgment and settlement evidence have different trust boundaries and often come from different systems.</p>
+            </section>
+
+            <section id="receipts-are-policy-inputs">
+              <h2>Receipts are policy inputs</h2>
+              <p>A buyer wallet can use an agreement hash before granting payment authority. A provider registry can use verification receipts to show what kind of work has passed. A monitoring system can compare settled work against accepted work and flag drift.</p>
+              <p>The point is not to make every workflow trustless. The point is to make the trust claims explicit enough that software can reason about them.</p>
+            </section>
+
+            <section id="what-makes-a-receipt-useful">
+              <h2>What makes a receipt useful</h2>
+              <p>A useful receipt binds to the correct agreement, names the verifier or rail, includes stable output or transaction references and can be validated against a schema. If the receipt is signed, the signature should cover the canonical receipt object.</p>
+              <p>Receipts should avoid vague prose where policy needs structured facts. Human notes are helpful, but the core verdict and settlement state need to be parseable.</p>
+            </section>
+
+            <section id="current-safety-posture">
+              <h2>Current safety posture</h2>
+              <p>Accord v0 is alpha / testnet-first and NOT CERTIFIED FOR MAINNET. The receipt model is ready for demos, conformance testing and testnet evidence, but real-fund production workflows remain audit-gated.</p>
+              <p>That conservative posture is part of the design. A receipt layer becomes more valuable when it refuses to blur compatibility, testnet success and production safety.</p>
+            </section>
+
+            <section id="faq">
+              <h2>FAQ</h2>
+              <h3>Is Accord a payment rail?</h3>
+              <p>No. Accord can bind to rails, but its core role is the work agreement and receipt layer around payment and settlement.</p>
+              <h3>Why not use one combined receipt?</h3>
+              <p>Separate records keep payment proof, work verification and settlement evidence from being confused with each other.</p>
+              <h3>Can another agent read Accord receipts?</h3>
+              <p>Yes. The goal is machine-readable agreement and receipt objects that agents and policy engines can inspect.</p>
+            </section>
+
+            <section id="sources">
+              <h2>Sources and references</h2>
+              <h3><a href="https://accordprotocol.ai/schemas/agreement.v0.schema.json" rel="noopener" target="_blank">Accord Agreement schema</a></h3>
+              <p>Public schema for the agreement object that anchors the receipt trail.</p>
+              <h3><a href="https://accordprotocol.ai/schemas/verification-receipt.v0.schema.json" rel="noopener" target="_blank">Accord Verification Receipt schema</a></h3>
+              <p>Public schema for the work-completion verdict record.</p>
+              <h3><a href="https://accordprotocol.ai/schemas/settlement-receipt.v0.schema.json" rel="noopener" target="_blank">Accord Settlement Receipt schema</a></h3>
+              <p>Public schema for recording rail settlement evidence.</p>
+            </section>
+
+            <section class="article-action">
+              <div>
+                <span>Next action</span>
+                <h2>Inspect the receipt schemas</h2>
+                <p>Follow the Agreement, Verification Receipt and Settlement Receipt trail.</p>
+              </div>
+              <a class="button button-primary" href="/schemas/verification-receipt.v0.schema.json">Open</a>
+            </section>
+          </div>
+        </div>
+
+        <section class="related-section" aria-label="Related articles">
+          <div class="section-heading">
+            <p class="eyebrow">Read next</p>
+            <h2>Related Accord guides</h2>
+          </div>
+          <div class="learn-grid">
+            <a class="learn-card" href="/learn/agent-work-agreements/">
+              <span>Foundation</span>
+              <h3>What Are Agent Work Agreements?</h3>
+              <p>A practical explanation of agent work agreements: terms, authority, verification and settlement records for autonomous software work.</p>
+            </a>
+            <a class="learn-card" href="/learn/verification-receipts/">
+              <span>Protocol object</span>
+              <h3>Verification Receipts for AI Agents</h3>
+              <p>Why verification receipts matter for autonomous agent workflows and how they record accepted, rejected or partially accepted work.</p>
+            </a>
+            <a class="learn-card" href="/learn/settlement-receipts/">
+              <span>Protocol object</span>
+              <h3>Settlement Receipts and Agent Payment Records</h3>
+              <p>How Settlement Receipts record the economic closeout of agent work across rails without making Accord a payment processor.</p>
+            </a>
+          </div>
+        </section>
+      </article>
+    </main>
+    <footer class="site-footer">
+      <div class="footer-brand">
+        <img src="/assets/logo.svg" width="34" height="34" alt="">
+        <div>
+          <strong>Accord Protocol</strong>
+          <p>Open standard for autonomous agent work agreements.</p>
+        </div>
+      </div>
+      <nav aria-label="Footer navigation">
+        <a href="/learn/">Learn</a>
+        <a href="/status/">Status</a>
+        <a href="/security/">Security</a>
+        <a href="/roadmap/">Roadmap</a>
+        <a href="/llms.txt">llms.txt</a>
+        <a href="/agents.txt">agents.txt</a>
+        <a href="https://github.com/accord-protocol/accord-protocol" rel="noopener" target="_blank">GitHub</a>
+        <a href="https://github.com/accord-protocol/accord-protocol/tree/main/specs" rel="noopener" target="_blank">Specs</a>
+        <a href="/sitemap.xml">Sitemap</a>
+      </nav>
+    </footer>
+    <script src="/script.js" defer></script>
+  </body>
+</html>

@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>How x402 and Accord Fit Together | Accord Protocol</title>
+    <meta name="description" content="x402 can unlock paid HTTP resources; Accord adds work agreements, verifier receipts and settlement records around the paid task.">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <link rel="canonical" href="https://accordprotocol.ai/learn/x402-accord-receipt-stack/">
+    <link rel="icon" type="image/svg+xml" href="/assets/logo.svg">
+    <link rel="alternate" type="application/rss+xml" title="Accord Protocol Learn Feed" href="/feed.xml">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="Accord Protocol">
+    <meta property="og:title" content="How x402 and Accord Fit Together | Accord Protocol">
+    <meta property="og:description" content="x402 can unlock paid HTTP resources; Accord adds work agreements, verifier receipts and settlement records around the paid task.">
+    <meta property="og:url" content="https://accordprotocol.ai/learn/x402-accord-receipt-stack/">
+    <meta property="og:image" content="https://accordprotocol.ai/assets/og-card.png">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Accord Protocol social preview">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="How x402 and Accord Fit Together | Accord Protocol">
+    <meta name="twitter:description" content="x402 can unlock paid HTTP resources; Accord adds work agreements, verifier receipts and settlement records around the paid task.">
+    <meta name="twitter:image" content="https://accordprotocol.ai/assets/og-card.png">
+    <meta name="twitter:image:alt" content="Accord Protocol social preview">
+    <link rel="stylesheet" href="/styles.css">
+    <script type="application/ld+json">{
+      "@context": "https://schema.org",
+      "@graph": [
+            {
+                  "@type": "Organization",
+                  "@id": "https://accordprotocol.ai/#organization",
+                  "name": "Accord Protocol",
+                  "url": "https://accordprotocol.ai/",
+                  "logo": "https://accordprotocol.ai/assets/logo.svg"
+            },
+            {
+                  "@type": "Article",
+                  "@id": "https://accordprotocol.ai/learn/x402-accord-receipt-stack/#article",
+                  "headline": "How x402 and Accord Fit Together",
+                  "description": "x402 can unlock paid HTTP resources; Accord adds work agreements, verifier receipts and settlement records around the paid task.",
+                  "datePublished": "2026-06-01",
+                  "dateModified": "2026-06-01",
+                  "author": {
+                        "@type": "Organization",
+                        "name": "Accord Protocol"
+                  },
+                  "publisher": {
+                        "@id": "https://accordprotocol.ai/#organization"
+                  },
+                  "mainEntityOfPage": "https://accordprotocol.ai/learn/x402-accord-receipt-stack/",
+                  "image": "https://accordprotocol.ai/assets/og-card.png",
+                  "articleSection": "x402 cluster",
+                  "citation": [
+                        "https://accordprotocol.ai/learn/accord-402-flow/",
+                        "https://accordprotocol.ai/learn/accord-vs-x402/",
+                        "https://accordprotocol.ai/schemas/settlement-receipt.v0.schema.json"
+                  ]
+            },
+            {
+                  "@type": "BreadcrumbList",
+                  "@id": "https://accordprotocol.ai/learn/x402-accord-receipt-stack/#breadcrumbs",
+                  "itemListElement": [
+                        {
+                              "@type": "ListItem",
+                              "position": 1,
+                              "name": "Home",
+                              "item": "https://accordprotocol.ai/"
+                        },
+                        {
+                              "@type": "ListItem",
+                              "position": 2,
+                              "name": "Learn",
+                              "item": "https://accordprotocol.ai/learn/"
+                        },
+                        {
+                              "@type": "ListItem",
+                              "position": 3,
+                              "name": "How x402 and Accord Fit Together",
+                              "item": "https://accordprotocol.ai/learn/x402-accord-receipt-stack/"
+                        }
+                  ]
+            },
+            {
+                  "@type": "FAQPage",
+                  "@id": "https://accordprotocol.ai/learn/x402-accord-receipt-stack/#faq",
+                  "mainEntity": [
+                        {
+                              "@type": "Question",
+                              "name": "Does Accord replace x402?",
+                              "acceptedAnswer": {
+                                    "@type": "Answer",
+                                    "text": "No. Accord can compose with x402 by adding agreement and receipt records around the paid resource flow."
+                              }
+                        },
+                        {
+                              "@type": "Question",
+                              "name": "What should the x402 proof reference?",
+                              "acceptedAnswer": {
+                                    "@type": "Answer",
+                                    "text": "At minimum, it should be bound to the agreement, expected provider, amount, asset, rail and replay identifier."
+                              }
+                        },
+                        {
+                              "@type": "Question",
+                              "name": "Can Accord work without x402?",
+                              "acceptedAnswer": {
+                                    "@type": "Answer",
+                                    "text": "Yes. Accord is rail-agnostic and can bind to mock, Ergo, Base/EVM, x402-compatible or other payment flows."
+                              }
+                        }
+                  ]
+            }
+      ]
+}</script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header" data-header>
+      <a class="brand" href="/" aria-label="Accord Protocol home">
+        <img src="/assets/logo.svg" width="36" height="36" alt="">
+        <span>Accord Protocol</span>
+      </a>
+      <nav id="primary-nav" class="site-nav" aria-label="Primary navigation" data-nav>
+        <a href="/#why">Overview</a>
+        <a href="/#protocol">Protocol</a>
+        <a href="/#developers">Build</a>
+        <a href="/learn/">Learn</a>
+        <a href="/status/">Status</a>
+        <a href="/security/">Security</a>
+        <a href="/roadmap/">Roadmap</a>
+        <a href="/#rails">Rails</a>
+        <a href="/#agents">Agents</a>
+      </nav>
+      <a class="header-link" href="https://github.com/accord-protocol/accord-protocol" rel="noopener" target="_blank">GitHub</a>
+      <button class="nav-toggle" type="button" aria-controls="primary-nav" aria-expanded="false" data-nav-toggle>
+        <span>Menu</span>
+        <span class="nav-toggle-lines" aria-hidden="true"></span>
+      </button>
+    </header>
+    <main id="main">
+      <article class="article-page">
+        <header class="article-hero">
+          <a class="breadcrumb" href="/learn/">Learn</a>
+          <p class="eyebrow">x402 cluster</p>
+          <h1>How x402 and Accord Fit Together</h1>
+          <p class="article-deck">x402 is a strong payment-access primitive. Accord adds the surrounding work lifecycle: terms, verification and settlement receipts.</p>
+          <div class="article-meta">
+            <span>Updated 2026-06-01</span>
+            <span>7 min read</span>
+            <span>Accord Protocol</span>
+          </div>
+        </header>
+
+        <div class="article-layout">
+          <aside class="article-aside" aria-label="Key takeaways">
+            <h2>Key takeaways</h2>
+            <ul>
+              <li>x402 answers how a paid resource can be unlocked.</li>
+              <li>Accord answers what work was promised and whether it was completed.</li>
+              <li>Together they form a cleaner stack for paid agent services.</li>
+            </ul>
+            <nav class="article-toc" aria-label="Article sections">
+              <h2>On this page</h2>
+              <ol>
+                <li><a href="#payment-unlock-is-only-one-layer">Payment unlock is only one layer</a></li>
+                <li><a href="#where-accord-wraps-the-flow">Where Accord wraps the flow</a></li>
+                <li><a href="#the-composition-pattern">The composition pattern</a></li>
+                <li><a href="#replay-and-mismatch-risks">Replay and mismatch risks</a></li>
+                <li><a href="#a-practical-mental-model">A practical mental model</a></li>
+                <li><a href="#faq">FAQ</a></li>
+                <li><a href="#sources">Sources</a></li>
+              </ol>
+            </nav>
+          </aside>
+
+          <div class="article-content">
+            <section id="payment-unlock-is-only-one-layer">
+              <h2>Payment unlock is only one layer</h2>
+              <p>x402-style flows are useful when a client needs to satisfy payment before an HTTP resource is served. That is a powerful building block for paid APIs and agent tools.</p>
+              <p>But paid agent work often has a longer lifecycle. The buyer may need acceptance criteria, verifier identity, output references, refund logic, dispute context or a settlement record that survives beyond the HTTP exchange.</p>
+            </section>
+
+            <section id="where-accord-wraps-the-flow">
+              <h2>Where Accord wraps the flow</h2>
+              <p>Before payment, an Accord Agreement states the task, price, verifier and rail assumptions. During payment, x402 can provide the payment proof or facilitator-backed access control. After execution, Accord records the Verification Receipt and Settlement Receipt.</p>
+              <p>This keeps the x402 payment proof valuable without forcing it to carry every work-completion claim.</p>
+            </section>
+
+            <section id="the-composition-pattern">
+              <h2>The composition pattern</h2>
+              <p>A provider can expose a paid endpoint, require x402 payment and include an Accord agreement hash in the request context. The handler then returns or stores output evidence that the verifier can evaluate.</p>
+              <p>The final receipt bundle can reference the x402 payment identifier, the agreement hash, the verifier verdict and any rail-specific settlement proof.</p>
+            </section>
+
+            <section id="replay-and-mismatch-risks">
+              <h2>Replay and mismatch risks</h2>
+              <p>The dangerous failure is a valid payment proof being reused for a different task, provider, chain, rail or output. The agreement hash and domain-separated identifiers should prevent that reuse.</p>
+              <p>Providers should also reject payment proofs that do not match the expected amount, asset, seller, deadline and agreement context.</p>
+            </section>
+
+            <section id="a-practical-mental-model">
+              <h2>A practical mental model</h2>
+              <p>x402 verifies payment. Accord verifies completion. That sentence is intentionally simple because it stops builders from treating paid access as proof of work quality.</p>
+              <p>The best implementation uses each layer for what it is good at and records the handoff between them.</p>
+            </section>
+
+            <section id="faq">
+              <h2>FAQ</h2>
+              <h3>Does Accord replace x402?</h3>
+              <p>No. Accord can compose with x402 by adding agreement and receipt records around the paid resource flow.</p>
+              <h3>What should the x402 proof reference?</h3>
+              <p>At minimum, it should be bound to the agreement, expected provider, amount, asset, rail and replay identifier.</p>
+              <h3>Can Accord work without x402?</h3>
+              <p>Yes. Accord is rail-agnostic and can bind to mock, Ergo, Base/EVM, x402-compatible or other payment flows.</p>
+            </section>
+
+            <section id="sources">
+              <h2>Sources and references</h2>
+              <h3><a href="https://accordprotocol.ai/learn/accord-402-flow/" rel="noopener" target="_blank">Accord/402 flow</a></h3>
+              <p>The public Accord explanation of HTTP paid-resource composition.</p>
+              <h3><a href="https://accordprotocol.ai/learn/accord-vs-x402/" rel="noopener" target="_blank">Accord Protocol vs x402</a></h3>
+              <p>High-level comparison page for search and onboarding.</p>
+              <h3><a href="https://accordprotocol.ai/schemas/settlement-receipt.v0.schema.json" rel="noopener" target="_blank">Settlement Receipt schema</a></h3>
+              <p>Schema for recording payment and settlement evidence.</p>
+            </section>
+
+            <section class="article-action">
+              <div>
+                <span>Next action</span>
+                <h2>Read Accord vs x402</h2>
+                <p>Use x402 for payment unlock and Accord for work receipts.</p>
+              </div>
+              <a class="button button-primary" href="/learn/accord-vs-x402/">Open</a>
+            </section>
+          </div>
+        </div>
+
+        <section class="related-section" aria-label="Related articles">
+          <div class="section-heading">
+            <p class="eyebrow">Read next</p>
+            <h2>Related Accord guides</h2>
+          </div>
+          <div class="learn-grid">
+            <a class="learn-card" href="/learn/accord-vs-x402/">
+              <span>Comparison</span>
+              <h3>Accord Protocol vs x402</h3>
+              <p>How Accord and x402 fit together: x402 verifies paid HTTP access, while Accord verifies completion of the work around that payment.</p>
+            </a>
+            <a class="learn-card" href="/learn/accord-402-flow/">
+              <span>Transport</span>
+              <h3>How Accord/402 Works</h3>
+              <p>A step-by-step guide to Accord/402, the HTTP paid-resource flow that combines payment proof with agreement and verification receipts.</p>
+            </a>
+            <a class="learn-card" href="/learn/settlement-receipts/">
+              <span>Protocol object</span>
+              <h3>Settlement Receipts and Agent Payment Records</h3>
+              <p>How Settlement Receipts record the economic closeout of agent work across rails without making Accord a payment processor.</p>
+            </a>
+          </div>
+        </section>
+      </article>
+    </main>
+    <footer class="site-footer">
+      <div class="footer-brand">
+        <img src="/assets/logo.svg" width="34" height="34" alt="">
+        <div>
+          <strong>Accord Protocol</strong>
+          <p>Open standard for autonomous agent work agreements.</p>
+        </div>
+      </div>
+      <nav aria-label="Footer navigation">
+        <a href="/learn/">Learn</a>
+        <a href="/status/">Status</a>
+        <a href="/security/">Security</a>
+        <a href="/roadmap/">Roadmap</a>
+        <a href="/llms.txt">llms.txt</a>
+        <a href="/agents.txt">agents.txt</a>
+        <a href="https://github.com/accord-protocol/accord-protocol" rel="noopener" target="_blank">GitHub</a>
+        <a href="https://github.com/accord-protocol/accord-protocol/tree/main/specs" rel="noopener" target="_blank">Specs</a>
+        <a href="/sitemap.xml">Sitemap</a>
+      </nav>
+    </footer>
+    <script src="/script.js" defer></script>
+  </body>
+</html>

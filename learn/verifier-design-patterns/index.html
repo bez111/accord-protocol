@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Verifier Design Patterns for Agent Receipts | Accord Protocol</title>
+    <meta name="description" content="Patterns for deterministic verifiers, model graders, human review, committees and hybrid verification in Accord workflows.">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <link rel="canonical" href="https://accordprotocol.ai/learn/verifier-design-patterns/">
+    <link rel="icon" type="image/svg+xml" href="/assets/logo.svg">
+    <link rel="alternate" type="application/rss+xml" title="Accord Protocol Learn Feed" href="/feed.xml">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="Accord Protocol">
+    <meta property="og:title" content="Verifier Design Patterns for Agent Receipts | Accord Protocol">
+    <meta property="og:description" content="Patterns for deterministic verifiers, model graders, human review, committees and hybrid verification in Accord workflows.">
+    <meta property="og:url" content="https://accordprotocol.ai/learn/verifier-design-patterns/">
+    <meta property="og:image" content="https://accordprotocol.ai/assets/og-card.png">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Accord Protocol social preview">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Verifier Design Patterns for Agent Receipts | Accord Protocol">
+    <meta name="twitter:description" content="Patterns for deterministic verifiers, model graders, human review, committees and hybrid verification in Accord workflows.">
+    <meta name="twitter:image" content="https://accordprotocol.ai/assets/og-card.png">
+    <meta name="twitter:image:alt" content="Accord Protocol social preview">
+    <link rel="stylesheet" href="/styles.css">
+    <script type="application/ld+json">{
+      "@context": "https://schema.org",
+      "@graph": [
+            {
+                  "@type": "Organization",
+                  "@id": "https://accordprotocol.ai/#organization",
+                  "name": "Accord Protocol",
+                  "url": "https://accordprotocol.ai/",
+                  "logo": "https://accordprotocol.ai/assets/logo.svg"
+            },
+            {
+                  "@type": "Article",
+                  "@id": "https://accordprotocol.ai/learn/verifier-design-patterns/#article",
+                  "headline": "Verifier Design Patterns for Agent Receipts",
+                  "description": "Patterns for deterministic verifiers, model graders, human review, committees and hybrid verification in Accord workflows.",
+                  "datePublished": "2026-06-01",
+                  "dateModified": "2026-06-01",
+                  "author": {
+                        "@type": "Organization",
+                        "name": "Accord Protocol"
+                  },
+                  "publisher": {
+                        "@id": "https://accordprotocol.ai/#organization"
+                  },
+                  "mainEntityOfPage": "https://accordprotocol.ai/learn/verifier-design-patterns/",
+                  "image": "https://accordprotocol.ai/assets/og-card.png",
+                  "articleSection": "Verifier design",
+                  "citation": [
+                        "https://accordprotocol.ai/learn/verifier-design-paid-agent-work/",
+                        "https://accordprotocol.ai/schemas/verification-receipt.v0.schema.json",
+                        "https://accordprotocol.ai/learn/what-conformance-does-not-prove/"
+                  ]
+            },
+            {
+                  "@type": "BreadcrumbList",
+                  "@id": "https://accordprotocol.ai/learn/verifier-design-patterns/#breadcrumbs",
+                  "itemListElement": [
+                        {
+                              "@type": "ListItem",
+                              "position": 1,
+                              "name": "Home",
+                              "item": "https://accordprotocol.ai/"
+                        },
+                        {
+                              "@type": "ListItem",
+                              "position": 2,
+                              "name": "Learn",
+                              "item": "https://accordprotocol.ai/learn/"
+                        },
+                        {
+                              "@type": "ListItem",
+                              "position": 3,
+                              "name": "Verifier Design Patterns for Agent Receipts",
+                              "item": "https://accordprotocol.ai/learn/verifier-design-patterns/"
+                        }
+                  ]
+            },
+            {
+                  "@type": "FAQPage",
+                  "@id": "https://accordprotocol.ai/learn/verifier-design-patterns/#faq",
+                  "mainEntity": [
+                        {
+                              "@type": "Question",
+                              "name": "What is the safest verifier?",
+                              "acceptedAnswer": {
+                                    "@type": "Answer",
+                                    "text": "The safest verifier is the one that matches objective acceptance criteria. Deterministic checks beat model judgment when the task allows them."
+                              }
+                        },
+                        {
+                              "@type": "Question",
+                              "name": "Can multiple verifiers sign one workflow?",
+                              "acceptedAnswer": {
+                                    "@type": "Answer",
+                                    "text": "Yes. A receipt bundle can preserve multiple verdicts or a final verdict derived from a threshold policy."
+                              }
+                        },
+                        {
+                              "@type": "Question",
+                              "name": "Does Accord decide which verifier is trustworthy?",
+                              "acceptedAnswer": {
+                                    "@type": "Answer",
+                                    "text": "No. Accord records verifier identity and verdicts; buyers and registries decide which verifiers they trust."
+                              }
+                        }
+                  ]
+            }
+      ]
+}</script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header" data-header>
+      <a class="brand" href="/" aria-label="Accord Protocol home">
+        <img src="/assets/logo.svg" width="36" height="36" alt="">
+        <span>Accord Protocol</span>
+      </a>
+      <nav id="primary-nav" class="site-nav" aria-label="Primary navigation" data-nav>
+        <a href="/#why">Overview</a>
+        <a href="/#protocol">Protocol</a>
+        <a href="/#developers">Build</a>
+        <a href="/learn/">Learn</a>
+        <a href="/status/">Status</a>
+        <a href="/security/">Security</a>
+        <a href="/roadmap/">Roadmap</a>
+        <a href="/#rails">Rails</a>
+        <a href="/#agents">Agents</a>
+      </nav>
+      <a class="header-link" href="https://github.com/accord-protocol/accord-protocol" rel="noopener" target="_blank">GitHub</a>
+      <button class="nav-toggle" type="button" aria-controls="primary-nav" aria-expanded="false" data-nav-toggle>
+        <span>Menu</span>
+        <span class="nav-toggle-lines" aria-hidden="true"></span>
+      </button>
+    </header>
+    <main id="main">
+      <article class="article-page">
+        <header class="article-hero">
+          <a class="breadcrumb" href="/learn/">Learn</a>
+          <p class="eyebrow">Verifier design</p>
+          <h1>Verifier Design Patterns for Agent Receipts</h1>
+          <p class="article-deck">Verifier design should match the task: deterministic tests for deterministic work, human or committee review for judgment-heavy work and hybrid checks for high-value flows.</p>
+          <div class="article-meta">
+            <span>Updated 2026-06-01</span>
+            <span>10 min read</span>
+            <span>Accord Protocol</span>
+          </div>
+        </header>
+
+        <div class="article-layout">
+          <aside class="article-aside" aria-label="Key takeaways">
+            <h2>Key takeaways</h2>
+            <ul>
+              <li>The verifier is a trust boundary, not a decorative field in a receipt.</li>
+              <li>Different task types need different verifier patterns.</li>
+              <li>Receipts should disclose verifier assumptions so downstream policy can react.</li>
+            </ul>
+            <nav class="article-toc" aria-label="Article sections">
+              <h2>On this page</h2>
+              <ol>
+                <li><a href="#pattern-one-deterministic-checks">Pattern one: deterministic checks</a></li>
+                <li><a href="#pattern-two-model-assisted-grading">Pattern two: model-assisted grading</a></li>
+                <li><a href="#pattern-three-human-review">Pattern three: human review</a></li>
+                <li><a href="#pattern-four-committees-and-thresholds">Pattern four: committees and thresholds</a></li>
+                <li><a href="#pattern-five-escalation-paths">Pattern five: escalation paths</a></li>
+                <li><a href="#faq">FAQ</a></li>
+                <li><a href="#sources">Sources</a></li>
+              </ol>
+            </nav>
+          </aside>
+
+          <div class="article-content">
+            <section id="pattern-one-deterministic-checks">
+              <h2>Pattern one: deterministic checks</h2>
+              <p>Use deterministic checks when the task has objective acceptance criteria: schema validation, unit tests, static analysis, reproducible scoring, hash comparison or snapshot testing.</p>
+              <p>This is the strongest pattern when it fits because the same evidence should produce the same verdict.</p>
+            </section>
+
+            <section id="pattern-two-model-assisted-grading">
+              <h2>Pattern two: model-assisted grading</h2>
+              <p>Model graders can be useful for summarization, writing quality, research completeness and other judgment-heavy outputs. They should use a fixed rubric and preserve enough evidence for later review.</p>
+              <p>A model verifier should not be presented as objective truth. The receipt should make clear which model or service judged the work and what rubric it used.</p>
+            </section>
+
+            <section id="pattern-three-human-review">
+              <h2>Pattern three: human review</h2>
+              <p>Human review is appropriate for subjective, high-value or legally sensitive outputs. It is slower, but it can catch ambiguity that deterministic tests and model graders miss.</p>
+              <p>The receipt should identify the reviewer role, verdict vocabulary, review time and evidence references without leaking private review notes unnecessarily.</p>
+            </section>
+
+            <section id="pattern-four-committees-and-thresholds">
+              <h2>Pattern four: committees and thresholds</h2>
+              <p>Committees can reduce single-verifier risk. They can be human committees, model ensembles, service committees or hybrid thresholds where deterministic checks must pass before a reviewer can accept.</p>
+              <p>The key is to define the threshold before work starts. A receipt that changes the acceptance rule after the result is known is not a reliable receipt.</p>
+            </section>
+
+            <section id="pattern-five-escalation-paths">
+              <h2>Pattern five: escalation paths</h2>
+              <p>Rejected or partial results should have a defined path: retry, refund, manual review, dispute, partial settlement or reputation update. Without this path, a verifier only creates a dead end.</p>
+              <p>Accord receipts make the decision inspectable; product policy decides what to do with that decision.</p>
+            </section>
+
+            <section id="faq">
+              <h2>FAQ</h2>
+              <h3>What is the safest verifier?</h3>
+              <p>The safest verifier is the one that matches objective acceptance criteria. Deterministic checks beat model judgment when the task allows them.</p>
+              <h3>Can multiple verifiers sign one workflow?</h3>
+              <p>Yes. A receipt bundle can preserve multiple verdicts or a final verdict derived from a threshold policy.</p>
+              <h3>Does Accord decide which verifier is trustworthy?</h3>
+              <p>No. Accord records verifier identity and verdicts; buyers and registries decide which verifiers they trust.</p>
+            </section>
+
+            <section id="sources">
+              <h2>Sources and references</h2>
+              <h3><a href="https://accordprotocol.ai/learn/verifier-design-paid-agent-work/" rel="noopener" target="_blank">How to Design Verifiers for Paid Agent Work</a></h3>
+              <p>Longer verifier design guide for paid agent workflows.</p>
+              <h3><a href="https://accordprotocol.ai/schemas/verification-receipt.v0.schema.json" rel="noopener" target="_blank">Verification Receipt schema</a></h3>
+              <p>Public schema for accepted, rejected and partially accepted verdicts.</p>
+              <h3><a href="https://accordprotocol.ai/learn/what-conformance-does-not-prove/" rel="noopener" target="_blank">What Accord Conformance Does Not Prove</a></h3>
+              <p>Explains why compatibility checks cannot prove verifier honesty.</p>
+            </section>
+
+            <section class="article-action">
+              <div>
+                <span>Next action</span>
+                <h2>Open the verifier guide</h2>
+                <p>Pick deterministic, model, human or committee review based on task risk.</p>
+              </div>
+              <a class="button button-primary" href="/learn/verifier-design-paid-agent-work/">Open</a>
+            </section>
+          </div>
+        </div>
+
+        <section class="related-section" aria-label="Related articles">
+          <div class="section-heading">
+            <p class="eyebrow">Read next</p>
+            <h2>Related Accord guides</h2>
+          </div>
+          <div class="learn-grid">
+            <a class="learn-card" href="/learn/verifier-design-paid-agent-work/">
+              <span>Verifier design</span>
+              <h3>How to Design Verifiers for Paid Agent Work</h3>
+              <p>A practical guide to verifier design for paid AI agent workflows: deterministic tests, human review, model graders, committees and receipt boundaries.</p>
+            </a>
+            <a class="learn-card" href="/learn/verification-receipts/">
+              <span>Protocol object</span>
+              <h3>Verification Receipts for AI Agents</h3>
+              <p>Why verification receipts matter for autonomous agent workflows and how they record accepted, rejected or partially accepted work.</p>
+            </a>
+            <a class="learn-card" href="/learn/what-conformance-does-not-prove/">
+              <span>Safety</span>
+              <h3>What Accord Conformance Does Not Prove</h3>
+              <p>A safety-focused explanation of the limits of conformance testing and why compatibility is not production certification.</p>
+            </a>
+          </div>
+        </section>
+      </article>
+    </main>
+    <footer class="site-footer">
+      <div class="footer-brand">
+        <img src="/assets/logo.svg" width="34" height="34" alt="">
+        <div>
+          <strong>Accord Protocol</strong>
+          <p>Open standard for autonomous agent work agreements.</p>
+        </div>
+      </div>
+      <nav aria-label="Footer navigation">
+        <a href="/learn/">Learn</a>
+        <a href="/status/">Status</a>
+        <a href="/security/">Security</a>
+        <a href="/roadmap/">Roadmap</a>
+        <a href="/llms.txt">llms.txt</a>
+        <a href="/agents.txt">agents.txt</a>
+        <a href="https://github.com/accord-protocol/accord-protocol" rel="noopener" target="_blank">GitHub</a>
+        <a href="https://github.com/accord-protocol/accord-protocol/tree/main/specs" rel="noopener" target="_blank">Specs</a>
+        <a href="/sitemap.xml">Sitemap</a>
+      </nav>
+    </footer>
+    <script src="/script.js" defer></script>
+  </body>
+</html>

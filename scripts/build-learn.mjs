@@ -2,7 +2,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
 const SITE_URL = "https://accordprotocol.ai";
-const updated = "2026-05-24";
+const updated = "2026-06-01";
 
 const articles = [
   {
@@ -1309,6 +1309,366 @@ articles.push(
         note: "Official ErgoScript documentation for understanding Ergo's contract model and eUTXO assumptions."
       }
     ]
+  },
+  {
+    slug: "agent-receipt-layer",
+    title: "The Agent Receipt Layer for Autonomous Work",
+    description: "How Accord combines agreement, verification receipt and settlement receipt records so paid AI work can be inspected after execution.",
+    eyebrow: "Receipt layer",
+    readTime: "8 min read",
+    summary: "Accord is a receipt layer for paid agent work: it binds what was requested, how completion was judged and how settlement was recorded.",
+    takeaways: [
+      "A payment receipt alone does not prove the work was completed.",
+      "Accord uses three linked records: Agreement, Verification Receipt and Settlement Receipt.",
+      "The receipt layer gives agents, wallets, providers and auditors a shared evidence trail."
+    ],
+    sections: [
+      {
+        heading: "Why agent work needs receipts",
+        body: [
+          "When an autonomous agent pays for work, the interesting question is rarely only whether money moved. The buyer needs to know what was promised, which output was delivered, who judged it and what settlement evidence exists.",
+          "A receipt layer turns that lifecycle into machine-readable records. That makes the workflow inspectable by another agent, a wallet, a registry, a verifier, a dashboard or a later audit."
+        ]
+      },
+      {
+        heading: "The three-record model",
+        body: [
+          "The Accord Agreement records terms before work starts. The Verification Receipt records whether the work was accepted, rejected or partially accepted. The Settlement Receipt records the economic closeout on the chosen rail.",
+          "Keeping those records separate is deliberate. Payment proof, work judgment and settlement evidence have different trust boundaries and often come from different systems."
+        ]
+      },
+      {
+        heading: "Receipts are policy inputs",
+        body: [
+          "A buyer wallet can use an agreement hash before granting payment authority. A provider registry can use verification receipts to show what kind of work has passed. A monitoring system can compare settled work against accepted work and flag drift.",
+          "The point is not to make every workflow trustless. The point is to make the trust claims explicit enough that software can reason about them."
+        ]
+      },
+      {
+        heading: "What makes a receipt useful",
+        body: [
+          "A useful receipt binds to the correct agreement, names the verifier or rail, includes stable output or transaction references and can be validated against a schema. If the receipt is signed, the signature should cover the canonical receipt object.",
+          "Receipts should avoid vague prose where policy needs structured facts. Human notes are helpful, but the core verdict and settlement state need to be parseable."
+        ]
+      },
+      {
+        heading: "Current safety posture",
+        body: [
+          "Accord v0 is alpha / testnet-first and NOT CERTIFIED FOR MAINNET. The receipt model is ready for demos, conformance testing and testnet evidence, but real-fund production workflows remain audit-gated.",
+          "That conservative posture is part of the design. A receipt layer becomes more valuable when it refuses to blur compatibility, testnet success and production safety."
+        ]
+      }
+    ],
+    faq: [
+      ["Is Accord a payment rail?", "No. Accord can bind to rails, but its core role is the work agreement and receipt layer around payment and settlement."],
+      ["Why not use one combined receipt?", "Separate records keep payment proof, work verification and settlement evidence from being confused with each other."],
+      ["Can another agent read Accord receipts?", "Yes. The goal is machine-readable agreement and receipt objects that agents and policy engines can inspect."]
+    ],
+    references: [
+      {
+        label: "Accord Agreement schema",
+        url: "https://accordprotocol.ai/schemas/agreement.v0.schema.json",
+        note: "Public schema for the agreement object that anchors the receipt trail."
+      },
+      {
+        label: "Accord Verification Receipt schema",
+        url: "https://accordprotocol.ai/schemas/verification-receipt.v0.schema.json",
+        note: "Public schema for the work-completion verdict record."
+      },
+      {
+        label: "Accord Settlement Receipt schema",
+        url: "https://accordprotocol.ai/schemas/settlement-receipt.v0.schema.json",
+        note: "Public schema for recording rail settlement evidence."
+      }
+    ]
+  },
+  {
+    slug: "x402-accord-receipt-stack",
+    title: "How x402 and Accord Fit Together",
+    description: "x402 can unlock paid HTTP resources; Accord adds work agreements, verifier receipts and settlement records around the paid task.",
+    eyebrow: "x402 cluster",
+    readTime: "7 min read",
+    summary: "x402 is a strong payment-access primitive. Accord adds the surrounding work lifecycle: terms, verification and settlement receipts.",
+    takeaways: [
+      "x402 answers how a paid resource can be unlocked.",
+      "Accord answers what work was promised and whether it was completed.",
+      "Together they form a cleaner stack for paid agent services."
+    ],
+    sections: [
+      {
+        heading: "Payment unlock is only one layer",
+        body: [
+          "x402-style flows are useful when a client needs to satisfy payment before an HTTP resource is served. That is a powerful building block for paid APIs and agent tools.",
+          "But paid agent work often has a longer lifecycle. The buyer may need acceptance criteria, verifier identity, output references, refund logic, dispute context or a settlement record that survives beyond the HTTP exchange."
+        ]
+      },
+      {
+        heading: "Where Accord wraps the flow",
+        body: [
+          "Before payment, an Accord Agreement states the task, price, verifier and rail assumptions. During payment, x402 can provide the payment proof or facilitator-backed access control. After execution, Accord records the Verification Receipt and Settlement Receipt.",
+          "This keeps the x402 payment proof valuable without forcing it to carry every work-completion claim."
+        ]
+      },
+      {
+        heading: "The composition pattern",
+        body: [
+          "A provider can expose a paid endpoint, require x402 payment and include an Accord agreement hash in the request context. The handler then returns or stores output evidence that the verifier can evaluate.",
+          "The final receipt bundle can reference the x402 payment identifier, the agreement hash, the verifier verdict and any rail-specific settlement proof."
+        ]
+      },
+      {
+        heading: "Replay and mismatch risks",
+        body: [
+          "The dangerous failure is a valid payment proof being reused for a different task, provider, chain, rail or output. The agreement hash and domain-separated identifiers should prevent that reuse.",
+          "Providers should also reject payment proofs that do not match the expected amount, asset, seller, deadline and agreement context."
+        ]
+      },
+      {
+        heading: "A practical mental model",
+        body: [
+          "x402 verifies payment. Accord verifies completion. That sentence is intentionally simple because it stops builders from treating paid access as proof of work quality.",
+          "The best implementation uses each layer for what it is good at and records the handoff between them."
+        ]
+      }
+    ],
+    faq: [
+      ["Does Accord replace x402?", "No. Accord can compose with x402 by adding agreement and receipt records around the paid resource flow."],
+      ["What should the x402 proof reference?", "At minimum, it should be bound to the agreement, expected provider, amount, asset, rail and replay identifier."],
+      ["Can Accord work without x402?", "Yes. Accord is rail-agnostic and can bind to mock, Ergo, Base/EVM, x402-compatible or other payment flows."]
+    ],
+    references: [
+      {
+        label: "Accord/402 flow",
+        url: "https://accordprotocol.ai/learn/accord-402-flow/",
+        note: "The public Accord explanation of HTTP paid-resource composition."
+      },
+      {
+        label: "Accord Protocol vs x402",
+        url: "https://accordprotocol.ai/learn/accord-vs-x402/",
+        note: "High-level comparison page for search and onboarding."
+      },
+      {
+        label: "Settlement Receipt schema",
+        url: "https://accordprotocol.ai/schemas/settlement-receipt.v0.schema.json",
+        note: "Schema for recording payment and settlement evidence."
+      }
+    ]
+  },
+  {
+    slug: "mcp-paid-tools-replay-protection",
+    title: "Replay Protection for Paid MCP Tools",
+    description: "How to prevent payment proofs, tool calls and receipts from being reused across sessions, providers or rails.",
+    eyebrow: "MCP security",
+    readTime: "9 min read",
+    summary: "A paid MCP tool needs replay protection at the agreement, payment, tool-call and receipt layers, not only at the transport layer.",
+    takeaways: [
+      "A paid tool call should be scoped to one agreement and one replay identifier.",
+      "Payment proof reuse must be rejected across providers, sessions, chains and rails.",
+      "Receipts should preserve the exact agreement and output references that were verified."
+    ],
+    sections: [
+      {
+        heading: "Paid tools create replay surfaces",
+        body: [
+          "An MCP tool call can be cheap to repeat but expensive to authorize incorrectly. If a payment proof or receipt can be replayed, a provider may perform extra work without payment or a buyer may be charged for the wrong execution.",
+          "Replay protection should be designed before adding real rails. It is much harder to retrofit after a tool has public clients."
+        ]
+      },
+      {
+        heading: "Bind the payment to the agreement",
+        body: [
+          "The payment or authority reference should include the agreement hash, provider identity, expected tool, amount, asset, deadline, rail and chain domain where applicable.",
+          "A proof for one provider or task should not authorize another provider or task, even if the amount is identical."
+        ]
+      },
+      {
+        heading: "Use one-time identifiers",
+        body: [
+          "Each paid invocation should have a nonce, payment_id or execution id that is stored atomically before work starts. The replay store should reject duplicate use across retries unless the agreement explicitly defines retry semantics.",
+          "If the provider supports idempotent retries, the idempotency key should return the same result for the same agreement, not a new paid execution."
+        ]
+      },
+      {
+        heading: "Protect the receipt path too",
+        body: [
+          "A Verification Receipt should not be accepted if it references a different agreement, output, provider, verifier or execution id. A Settlement Receipt should not be accepted if its rail proof belongs to another chain, asset or task.",
+          "Receipt validation is where many subtle replay bugs show up because the payment path and verification path are often implemented by different services."
+        ]
+      },
+      {
+        heading: "Test the bad paths",
+        body: [
+          "A production checklist should include duplicate payment_id, reused agreement hash with different output, cross-provider replay, cross-rail replay, expired proof, wrong asset, wrong chain and verifier mismatch.",
+          "The mock rail demo is the safest place to build those tests before connecting a facilitator, wallet or testnet contract."
+        ]
+      }
+    ],
+    faq: [
+      ["Is HTTPS enough replay protection?", "No. HTTPS protects the transport, but the protocol still needs one-time identifiers and agreement-scoped payment proofs."],
+      ["Should retries reuse the same payment?", "Only if the agreement explicitly allows idempotent retry behavior and the provider returns the same execution result."],
+      ["Where should replay state live?", "In provider-side durable storage or a rail-backed state mechanism strong enough for the payment risk."]
+    ],
+    references: [
+      {
+        label: "Accord/MCP guide",
+        url: "https://accordprotocol.ai/learn/accord-mcp-paid-tools/",
+        note: "How Accord wraps MCP tool calls with agreement and receipt semantics."
+      },
+      {
+        label: "Paid MCP production checklist",
+        url: "https://accordprotocol.ai/learn/paid-mcp-tools-production-checklist/",
+        note: "Checklist for taking a paid MCP tool beyond a local demo."
+      },
+      {
+        label: "Paid MCP repository audit demo",
+        url: "https://github.com/accord-protocol/accord-protocol/tree/main/examples/15-paid-mcp-repo-audit",
+        note: "Reference demo for the local mock-rail lifecycle."
+      }
+    ]
+  },
+  {
+    slug: "verifier-design-patterns",
+    title: "Verifier Design Patterns for Agent Receipts",
+    description: "Patterns for deterministic verifiers, model graders, human review, committees and hybrid verification in Accord workflows.",
+    eyebrow: "Verifier design",
+    readTime: "10 min read",
+    summary: "Verifier design should match the task: deterministic tests for deterministic work, human or committee review for judgment-heavy work and hybrid checks for high-value flows.",
+    takeaways: [
+      "The verifier is a trust boundary, not a decorative field in a receipt.",
+      "Different task types need different verifier patterns.",
+      "Receipts should disclose verifier assumptions so downstream policy can react."
+    ],
+    sections: [
+      {
+        heading: "Pattern one: deterministic checks",
+        body: [
+          "Use deterministic checks when the task has objective acceptance criteria: schema validation, unit tests, static analysis, reproducible scoring, hash comparison or snapshot testing.",
+          "This is the strongest pattern when it fits because the same evidence should produce the same verdict."
+        ]
+      },
+      {
+        heading: "Pattern two: model-assisted grading",
+        body: [
+          "Model graders can be useful for summarization, writing quality, research completeness and other judgment-heavy outputs. They should use a fixed rubric and preserve enough evidence for later review.",
+          "A model verifier should not be presented as objective truth. The receipt should make clear which model or service judged the work and what rubric it used."
+        ]
+      },
+      {
+        heading: "Pattern three: human review",
+        body: [
+          "Human review is appropriate for subjective, high-value or legally sensitive outputs. It is slower, but it can catch ambiguity that deterministic tests and model graders miss.",
+          "The receipt should identify the reviewer role, verdict vocabulary, review time and evidence references without leaking private review notes unnecessarily."
+        ]
+      },
+      {
+        heading: "Pattern four: committees and thresholds",
+        body: [
+          "Committees can reduce single-verifier risk. They can be human committees, model ensembles, service committees or hybrid thresholds where deterministic checks must pass before a reviewer can accept.",
+          "The key is to define the threshold before work starts. A receipt that changes the acceptance rule after the result is known is not a reliable receipt."
+        ]
+      },
+      {
+        heading: "Pattern five: escalation paths",
+        body: [
+          "Rejected or partial results should have a defined path: retry, refund, manual review, dispute, partial settlement or reputation update. Without this path, a verifier only creates a dead end.",
+          "Accord receipts make the decision inspectable; product policy decides what to do with that decision."
+        ]
+      }
+    ],
+    faq: [
+      ["What is the safest verifier?", "The safest verifier is the one that matches objective acceptance criteria. Deterministic checks beat model judgment when the task allows them."],
+      ["Can multiple verifiers sign one workflow?", "Yes. A receipt bundle can preserve multiple verdicts or a final verdict derived from a threshold policy."],
+      ["Does Accord decide which verifier is trustworthy?", "No. Accord records verifier identity and verdicts; buyers and registries decide which verifiers they trust."]
+    ],
+    references: [
+      {
+        label: "How to Design Verifiers for Paid Agent Work",
+        url: "https://accordprotocol.ai/learn/verifier-design-paid-agent-work/",
+        note: "Longer verifier design guide for paid agent workflows."
+      },
+      {
+        label: "Verification Receipt schema",
+        url: "https://accordprotocol.ai/schemas/verification-receipt.v0.schema.json",
+        note: "Public schema for accepted, rejected and partially accepted verdicts."
+      },
+      {
+        label: "What Accord Conformance Does Not Prove",
+        url: "https://accordprotocol.ai/learn/what-conformance-does-not-prove/",
+        note: "Explains why compatibility checks cannot prove verifier honesty."
+      }
+    ]
+  },
+  {
+    slug: "audit-manifests-explained",
+    title: "Audit Manifests Explained",
+    description: "How Accord uses signed manifests, exact artifact identity and default-deny mainnet gates instead of broad audit badges.",
+    eyebrow: "Audit manifests",
+    readTime: "8 min read",
+    summary: "An audit manifest turns external review into software-checkable evidence: exact artifact identity, auditor signature and explicit mainnet permission.",
+    takeaways: [
+      "A passing demo is not an audit and a broad badge is not enough for a rail.",
+      "Manifests should name exact artifacts: package versions, script hashes, bytecode or deployments.",
+      "Accord mainnet gates stay default-deny until signed manifests explicitly allow them."
+    ],
+    sections: [
+      {
+        heading: "Why broad audit claims fail",
+        body: [
+          "Agent payment rails need exactness. Saying that a repository was reviewed is weaker than saying which script hash, bytecode hash, package version, deployment address and verifier assumptions were reviewed.",
+          "A broad badge can become misleading when code changes, deployments differ or a demo artifact is promoted beyond its reviewed scope."
+        ]
+      },
+      {
+        heading: "What a manifest should identify",
+        body: [
+          "A useful audit manifest names the reviewed component, version, source hash, compiled artifact hash, deployment address where relevant, network domain, auditor identity, report reference and mainnetAllowed value.",
+          "Runtime bytecode or compiled script identity matters because source code alone does not prove what was deployed."
+        ]
+      },
+      {
+        heading: "Default-deny is the safer gate",
+        body: [
+          "If a manifest is missing, expired, unsigned, mismatched or says mainnetAllowed: false, the safer production behavior is denial. That prevents old demos and testnet artifacts from quietly becoming production rails.",
+          "This is especially important for autonomous agents because they can repeat a bad action quickly and at scale."
+        ]
+      },
+      {
+        heading: "What manifests do not prove",
+        body: [
+          "A manifest does not prove the auditor is infallible, the operator keeps keys safe, the verifier is honest, a bridge will remain solvent or every future integration is safe.",
+          "It proves a narrower but valuable claim: a named reviewer signed a claim about exact artifacts and the allowed deployment posture."
+        ]
+      },
+      {
+        heading: "The Accord posture",
+        body: [
+          "Accord v0 keeps production mainnet use blocked until signed audit manifests allow exact scripts or contracts. That posture should appear in docs, site metadata, AI-facing files and launch copy.",
+          "Conformance, testnet evidence and live receipts make the protocol credible. External audits and signed manifests are what can move a rail toward controlled mainnet use."
+        ]
+      }
+    ],
+    faq: [
+      ["Is conformance the same as an audit manifest?", "No. Conformance checks compatibility. A manifest records external audit evidence for exact artifacts."],
+      ["Why include runtime bytecode or compiled script hashes?", "Because deployed artifacts can differ from source, and software gates need exact identities."],
+      ["Who should sign the manifest?", "An external auditor or authorized audit process, not only the maintainer who built the artifact."]
+    ],
+    references: [
+      {
+        label: "Audit-gated mainnet policy",
+        url: "https://accordprotocol.ai/learn/audit-gated-mainnet/",
+        note: "Public explanation of the current default-deny mainnet posture."
+      },
+      {
+        label: "Conformance, audits and mainnet gates",
+        url: "https://accordprotocol.ai/learn/conformance-audit-mainnet-checklist/",
+        note: "Checklist separating compatibility, audit evidence and production readiness."
+      },
+      {
+        label: "Accord audit docs",
+        url: "https://github.com/accord-protocol/accord-protocol/tree/main/docs/audit",
+        note: "Repository audit-gate materials and manifest documentation."
+      }
+    ]
   }
 );
 
@@ -1432,22 +1792,22 @@ const learnGroups = [
   {
     label: "Start here",
     description: "The fastest path from the agent payments stack to a runnable Accord lifecycle.",
-    slugs: ["agent-payments-stack", "payment-verification-vs-work-verification", "agent-work-agreements", "paid-mcp-repo-audit-demo"]
+    slugs: ["agent-payments-stack", "agent-receipt-layer", "payment-verification-vs-work-verification", "agent-work-agreements", "paid-mcp-repo-audit-demo"]
   },
   {
     label: "Build",
     description: "Implementation guides for paid tools, HTTP flows, verifiers and rail adapters.",
-    slugs: ["paid-mcp-tools-production-checklist", "accord-mcp-paid-tools", "accord-402-flow", "rail-adapters", "provider-onboarding"]
+    slugs: ["paid-mcp-tools-production-checklist", "accord-mcp-paid-tools", "mcp-paid-tools-replay-protection", "accord-402-flow", "rail-adapters", "provider-onboarding"]
   },
   {
     label: "Compare",
     description: "How Accord relates to adjacent payment, authorization and tool layers.",
-    slugs: ["accord-vs-x402", "accord-vs-mcp", "accord-vs-ap2"]
+    slugs: ["accord-vs-x402", "x402-accord-receipt-stack", "accord-vs-mcp", "accord-vs-ap2"]
   },
   {
     label: "Trust and safety",
     description: "Verifier design, wallet policy, conformance and audit gates for safer agent payments.",
-    slugs: ["launch-readiness-gates", "verifier-design-paid-agent-work", "agent-wallet-policy", "conformance-audit-mainnet-checklist", "conformance-levels", "audit-gated-mainnet", "what-conformance-does-not-prove", "buyer-policy-agent-wallets"]
+    slugs: ["launch-readiness-gates", "verifier-design-paid-agent-work", "verifier-design-patterns", "agent-wallet-policy", "conformance-audit-mainnet-checklist", "conformance-levels", "audit-gated-mainnet", "audit-manifests-explained", "what-conformance-does-not-prove", "buyer-policy-agent-wallets"]
   },
   {
     label: "Reference rails",
@@ -1458,23 +1818,28 @@ const learnGroups = [
 
 const relatedBySlug = {
   "base-sepolia-contract-rail-live-evidence": ["rail-adapters", "conformance-levels", "audit-gated-mainnet"],
-  "agent-payments-stack": ["payment-verification-vs-work-verification", "accord-vs-x402", "accord-vs-ap2"],
-  "payment-verification-vs-work-verification": ["verification-receipts", "settlement-receipts", "agent-work-agreements"],
-  "paid-mcp-tools-production-checklist": ["accord-mcp-paid-tools", "agent-wallet-policy", "verifier-design-paid-agent-work"],
-  "verifier-design-paid-agent-work": ["verification-receipts", "what-conformance-does-not-prove", "paid-mcp-tools-production-checklist"],
+  "agent-payments-stack": ["agent-receipt-layer", "payment-verification-vs-work-verification", "accord-vs-x402"],
+  "agent-receipt-layer": ["agent-work-agreements", "verification-receipts", "settlement-receipts"],
+  "payment-verification-vs-work-verification": ["agent-receipt-layer", "verification-receipts", "settlement-receipts"],
+  "paid-mcp-tools-production-checklist": ["accord-mcp-paid-tools", "mcp-paid-tools-replay-protection", "agent-wallet-policy"],
+  "mcp-paid-tools-replay-protection": ["accord-mcp-paid-tools", "paid-mcp-tools-production-checklist", "agent-wallet-policy"],
+  "verifier-design-paid-agent-work": ["verifier-design-patterns", "verification-receipts", "what-conformance-does-not-prove"],
+  "verifier-design-patterns": ["verifier-design-paid-agent-work", "verification-receipts", "what-conformance-does-not-prove"],
   "agent-wallet-policy": ["buyer-policy-agent-wallets", "accord-vs-ap2", "payment-verification-vs-work-verification"],
-  "conformance-audit-mainnet-checklist": ["conformance-levels", "audit-gated-mainnet", "what-conformance-does-not-prove"],
-  "agent-work-agreements": ["agreement-object-explained", "verification-receipts", "settlement-receipts"],
-  "accord-vs-x402": ["accord-402-flow", "verification-receipts", "settlement-receipts"],
+  "conformance-audit-mainnet-checklist": ["conformance-levels", "audit-manifests-explained", "audit-gated-mainnet"],
+  "agent-work-agreements": ["agent-receipt-layer", "agreement-object-explained", "verification-receipts"],
+  "accord-vs-x402": ["x402-accord-receipt-stack", "accord-402-flow", "verification-receipts"],
+  "x402-accord-receipt-stack": ["accord-vs-x402", "accord-402-flow", "settlement-receipts"],
   "verification-receipts": ["agreement-object-explained", "settlement-receipts", "what-conformance-does-not-prove"],
   "settlement-receipts": ["rail-adapters", "accord-402-flow", "audit-gated-mainnet"],
-  "accord-mcp-paid-tools": ["paid-mcp-repo-audit-demo", "agent-work-agreements", "buyer-policy-agent-wallets"],
+  "accord-mcp-paid-tools": ["mcp-paid-tools-replay-protection", "paid-mcp-repo-audit-demo", "agent-work-agreements"],
   "rail-adapters": ["provider-onboarding", "base-sepolia-contract-rail-live-evidence", "settlement-receipts"],
   "provider-onboarding": ["paid-mcp-tools-production-checklist", "rail-adapters", "launch-readiness-gates"],
   "launch-readiness-gates": ["provider-onboarding", "base-sepolia-contract-rail-live-evidence", "audit-gated-mainnet"],
   "why-ergo-reference-rail": ["rail-adapters", "audit-gated-mainnet", "settlement-receipts"],
-  "conformance-levels": ["what-conformance-does-not-prove", "audit-gated-mainnet", "rail-adapters"],
-  "audit-gated-mainnet": ["conformance-levels", "what-conformance-does-not-prove", "why-ergo-reference-rail"],
+  "conformance-levels": ["what-conformance-does-not-prove", "audit-manifests-explained", "rail-adapters"],
+  "audit-gated-mainnet": ["audit-manifests-explained", "conformance-levels", "what-conformance-does-not-prove"],
+  "audit-manifests-explained": ["audit-gated-mainnet", "conformance-audit-mainnet-checklist", "what-conformance-does-not-prove"],
   "accord-vs-ap2": ["agent-work-agreements", "buyer-policy-agent-wallets", "verification-receipts"],
   "accord-vs-mcp": ["accord-mcp-paid-tools", "paid-mcp-repo-audit-demo", "agent-work-agreements"],
   "accord-402-flow": ["accord-vs-x402", "agreement-object-explained", "settlement-receipts"],
@@ -1487,9 +1852,12 @@ const relatedBySlug = {
 const articleActions = {
   "base-sepolia-contract-rail-live-evidence": ["Open live pilot evidence", "Inspect the dated Base Sepolia result with receipts, explorer links and conformance output.", "https://github.com/accord-protocol/accord-protocol/blob/main/docs/pilots/results/2026-05-23-base-sepolia-contract-rail.md"],
   "agent-payments-stack": ["Start with the stack map", "Use the stack model before choosing a payment, authority or tool layer.", "/learn/agent-payments-stack/"],
+  "agent-receipt-layer": ["Inspect the receipt schemas", "Follow the Agreement, Verification Receipt and Settlement Receipt trail.", "/schemas/verification-receipt.v0.schema.json"],
   "payment-verification-vs-work-verification": ["Inspect the receipt schemas", "Separate payment proof, verification verdict and settlement evidence in your implementation.", "/schemas/verification-receipt.v0.schema.json"],
   "paid-mcp-tools-production-checklist": ["Run the paid MCP demo", "Exercise the lifecycle locally before adding a facilitator, testnet or real rail.", "https://github.com/accord-protocol/accord-protocol/tree/main/examples/15-paid-mcp-repo-audit"],
+  "mcp-paid-tools-replay-protection": ["Run the paid MCP demo", "Test duplicate payment_id, verifier mismatch and agreement replay before real rails.", "https://github.com/accord-protocol/accord-protocol/tree/main/examples/15-paid-mcp-repo-audit"],
   "verifier-design-paid-agent-work": ["Open the Verification Receipt schema", "Design verifier output around a structured, signed verdict.", "/schemas/verification-receipt.v0.schema.json"],
+  "verifier-design-patterns": ["Open the verifier guide", "Pick deterministic, model, human or committee review based on task risk.", "/learn/verifier-design-paid-agent-work/"],
   "agent-wallet-policy": ["Open the buyer policy package", "Review spend caps, allow-lists and signer wrapping before payment authority is granted.", "https://github.com/accord-protocol/accord-protocol/tree/main/packages/accord-buyer-policy"],
   "conformance-audit-mainnet-checklist": ["Check public status", "Keep production claims audit-gated and deny-by-default until signed evidence exists.", "/status/"],
   "agent-work-agreements": ["Read the Agreement spec", "Inspect the canonical Agreement Object fields.", "https://github.com/accord-protocol/accord-protocol/blob/main/specs/ACCORD-001-agreement-object.md"],
@@ -1500,6 +1868,7 @@ const articleActions = {
   "paid-mcp-repo-audit-demo": ["Open the demo source", "Run the full lifecycle locally with mock settlement.", "https://github.com/accord-protocol/accord-protocol/tree/main/examples/15-paid-mcp-repo-audit"],
   "accord-402-flow": ["Read the Accord/402 spec", "Map payment proof to agreement and receipt records.", "https://github.com/accord-protocol/accord-protocol/blob/main/specs/ACCORD-004-accord-402.md"],
   "accord-vs-x402": ["Read the Accord/402 flow", "See how x402 payment proof composes with Accord completion records.", "/learn/accord-402-flow/"],
+  "x402-accord-receipt-stack": ["Read Accord vs x402", "Use x402 for payment unlock and Accord for work receipts.", "/learn/accord-vs-x402/"],
   "accord-vs-mcp": ["Build a paid MCP tool", "Wrap a tool call with agreement, payment and verification semantics.", "/learn/accord-mcp-paid-tools/"],
   "accord-vs-ap2": ["Review buyer policy", "Connect payment authority to bounded work agreements and receipts.", "/learn/buyer-policy-agent-wallets/"],
   "rail-adapters": ["Open rail matrix", "Compare mock, Sage Ergo, Base Sepolia, x402 and Rosen by evidence, receipts, conformance and mainnet gate.", "https://github.com/accord-protocol/accord-protocol/blob/main/docs/RAIL_MATURITY_MATRIX.md"],
@@ -1508,6 +1877,7 @@ const articleActions = {
   "why-ergo-reference-rail": ["Read the Ergo rail docs", "Review the first reference rail and its current limits.", "https://github.com/accord-protocol/accord-protocol/blob/main/docs/why-ergo.md"],
   "conformance-levels": ["Open the conformance package", "Use L0-L4 checks as compatibility evidence, not audit evidence.", "https://github.com/accord-protocol/accord-protocol/tree/main/packages/accord-conformance"],
   "audit-gated-mainnet": ["Check public status", "Confirm the current production gate before any real-fund workflow.", "/status/"],
+  "audit-manifests-explained": ["Open audit-gate docs", "Review exact artifact identity, signed evidence and default-deny mainnet gates.", "https://github.com/accord-protocol/accord-protocol/tree/main/docs/audit"],
   "buyer-policy-agent-wallets": ["Open buyer policy package", "Review spending caps and authority checks for agent wallets.", "https://github.com/accord-protocol/accord-protocol/tree/main/packages/accord-buyer-policy"],
   "what-conformance-does-not-prove": ["Read security posture", "Separate compatibility checks from production safety claims.", "/security/"]
 };
@@ -1549,10 +1919,15 @@ function pageShell({ title, description, canonical, body, jsonLd, extraHead = ""
     <meta property="og:description" content="${escapeHtml(description)}">
     <meta property="og:url" content="${canonical}">
     <meta property="og:image" content="${SITE_URL}/assets/og-card.png">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Accord Protocol social preview">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="${escapeHtml(title)}">
     <meta name="twitter:description" content="${escapeHtml(description)}">
     <meta name="twitter:image" content="${SITE_URL}/assets/og-card.png">
+    <meta name="twitter:image:alt" content="Accord Protocol social preview">
 ${extraHead ? `    ${extraHead}\n` : ""}    <link rel="stylesheet" href="/styles.css">
     <script type="application/ld+json">${JSON.stringify(jsonLd, null, 6)}</script>
   </head>

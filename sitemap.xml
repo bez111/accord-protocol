@@ -2,205 +2,235 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://accordprotocol.ai/</loc>
-    <lastmod>2026-05-24</lastmod>
+    <lastmod>2026-06-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://accordprotocol.ai/learn/</loc>
-    <lastmod>2026-05-24</lastmod>
+    <lastmod>2026-06-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://accordprotocol.ai/status/</loc>
-    <lastmod>2026-05-24</lastmod>
+    <lastmod>2026-06-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://accordprotocol.ai/security/</loc>
-    <lastmod>2026-05-24</lastmod>
+    <lastmod>2026-06-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://accordprotocol.ai/roadmap/</loc>
-    <lastmod>2026-05-24</lastmod>
+    <lastmod>2026-06-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://accordprotocol.ai/llms.txt</loc>
-    <lastmod>2026-05-24</lastmod>
+    <lastmod>2026-06-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://accordprotocol.ai/llms-full.txt</loc>
-    <lastmod>2026-05-24</lastmod>
+    <lastmod>2026-06-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://accordprotocol.ai/agents.txt</loc>
-    <lastmod>2026-05-24</lastmod>
+    <lastmod>2026-06-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://accordprotocol.ai/.well-known/accord.json</loc>
-    <lastmod>2026-05-24</lastmod>
+    <lastmod>2026-06-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://accordprotocol.ai/learn/agent-work-agreements/</loc>
-    <lastmod>2026-05-24</lastmod>
+    <lastmod>2026-06-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://accordprotocol.ai/learn/accord-vs-x402/</loc>
-    <lastmod>2026-05-24</lastmod>
+    <lastmod>2026-06-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://accordprotocol.ai/learn/verification-receipts/</loc>
-    <lastmod>2026-05-24</lastmod>
+    <lastmod>2026-06-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://accordprotocol.ai/learn/settlement-receipts/</loc>
-    <lastmod>2026-05-24</lastmod>
+    <lastmod>2026-06-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://accordprotocol.ai/learn/accord-mcp-paid-tools/</loc>
-    <lastmod>2026-05-24</lastmod>
+    <lastmod>2026-06-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://accordprotocol.ai/learn/rail-adapters/</loc>
-    <lastmod>2026-05-24</lastmod>
+    <lastmod>2026-06-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://accordprotocol.ai/learn/provider-onboarding/</loc>
-    <lastmod>2026-05-24</lastmod>
+    <lastmod>2026-06-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://accordprotocol.ai/learn/launch-readiness-gates/</loc>
-    <lastmod>2026-05-24</lastmod>
+    <lastmod>2026-06-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://accordprotocol.ai/learn/why-ergo-reference-rail/</loc>
-    <lastmod>2026-05-24</lastmod>
+    <lastmod>2026-06-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://accordprotocol.ai/learn/conformance-levels/</loc>
-    <lastmod>2026-05-24</lastmod>
+    <lastmod>2026-06-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://accordprotocol.ai/learn/audit-gated-mainnet/</loc>
-    <lastmod>2026-05-24</lastmod>
+    <lastmod>2026-06-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://accordprotocol.ai/learn/accord-vs-ap2/</loc>
-    <lastmod>2026-05-24</lastmod>
+    <lastmod>2026-06-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://accordprotocol.ai/learn/accord-vs-mcp/</loc>
-    <lastmod>2026-05-24</lastmod>
+    <lastmod>2026-06-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://accordprotocol.ai/learn/accord-402-flow/</loc>
-    <lastmod>2026-05-24</lastmod>
+    <lastmod>2026-06-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://accordprotocol.ai/learn/paid-mcp-repo-audit-demo/</loc>
-    <lastmod>2026-05-24</lastmod>
+    <lastmod>2026-06-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://accordprotocol.ai/learn/agreement-object-explained/</loc>
-    <lastmod>2026-05-24</lastmod>
+    <lastmod>2026-06-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://accordprotocol.ai/learn/buyer-policy-agent-wallets/</loc>
-    <lastmod>2026-05-24</lastmod>
+    <lastmod>2026-06-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://accordprotocol.ai/learn/what-conformance-does-not-prove/</loc>
-    <lastmod>2026-05-24</lastmod>
+    <lastmod>2026-06-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://accordprotocol.ai/learn/base-sepolia-contract-rail-live-evidence/</loc>
-    <lastmod>2026-05-24</lastmod>
+    <lastmod>2026-06-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://accordprotocol.ai/learn/agent-payments-stack/</loc>
-    <lastmod>2026-05-24</lastmod>
+    <lastmod>2026-06-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://accordprotocol.ai/learn/payment-verification-vs-work-verification/</loc>
-    <lastmod>2026-05-24</lastmod>
+    <lastmod>2026-06-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://accordprotocol.ai/learn/paid-mcp-tools-production-checklist/</loc>
-    <lastmod>2026-05-24</lastmod>
+    <lastmod>2026-06-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://accordprotocol.ai/learn/verifier-design-paid-agent-work/</loc>
-    <lastmod>2026-05-24</lastmod>
+    <lastmod>2026-06-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://accordprotocol.ai/learn/agent-wallet-policy/</loc>
-    <lastmod>2026-05-24</lastmod>
+    <lastmod>2026-06-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://accordprotocol.ai/learn/conformance-audit-mainnet-checklist/</loc>
-    <lastmod>2026-05-24</lastmod>
+    <lastmod>2026-06-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://accordprotocol.ai/learn/agent-receipt-layer/</loc>
+    <lastmod>2026-06-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://accordprotocol.ai/learn/x402-accord-receipt-stack/</loc>
+    <lastmod>2026-06-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://accordprotocol.ai/learn/mcp-paid-tools-replay-protection/</loc>
+    <lastmod>2026-06-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://accordprotocol.ai/learn/verifier-design-patterns/</loc>
+    <lastmod>2026-06-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://accordprotocol.ai/learn/audit-manifests-explained/</loc>
+    <lastmod>2026-06-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>

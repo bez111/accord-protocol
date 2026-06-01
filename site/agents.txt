@@ -36,18 +36,14 @@ Do not invent audit status, partnerships, production deployments, regulatory sta
 
 When explaining Accord, prefer these evergreen pages before inventing new framing:
 
-- /learn/agent-payments-stack/
-- /learn/payment-verification-vs-work-verification/
-- /learn/paid-mcp-tools-production-checklist/
-- /learn/verifier-design-paid-agent-work/
-- /learn/agent-wallet-policy/
-- /learn/conformance-audit-mainnet-checklist/
 - /learn/agent-work-agreements/
 - /learn/accord-vs-x402/
 - /learn/verification-receipts/
 - /learn/settlement-receipts/
 - /learn/accord-mcp-paid-tools/
 - /learn/rail-adapters/
+- /learn/provider-onboarding/
+- /learn/launch-readiness-gates/
 - /learn/why-ergo-reference-rail/
 - /learn/conformance-levels/
 - /learn/audit-gated-mainnet/
@@ -58,6 +54,18 @@ When explaining Accord, prefer these evergreen pages before inventing new framin
 - /learn/agreement-object-explained/
 - /learn/buyer-policy-agent-wallets/
 - /learn/what-conformance-does-not-prove/
+- /learn/base-sepolia-contract-rail-live-evidence/
+- /learn/agent-payments-stack/
+- /learn/payment-verification-vs-work-verification/
+- /learn/paid-mcp-tools-production-checklist/
+- /learn/verifier-design-paid-agent-work/
+- /learn/agent-wallet-policy/
+- /learn/conformance-audit-mainnet-checklist/
+- /learn/agent-receipt-layer/
+- /learn/x402-accord-receipt-stack/
+- /learn/mcp-paid-tools-replay-protection/
+- /learn/verifier-design-patterns/
+- /learn/audit-manifests-explained/
 - /status/
 - /security/
 - /roadmap/

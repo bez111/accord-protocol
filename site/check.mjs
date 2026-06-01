@@ -18,18 +18,26 @@ const requiredFiles = [
   ".well-known/security.txt",
   "assets/logo.svg",
   "assets/og-card.svg",
+  "assets/og-card.png",
   "schemas/agreement.v0.schema.json",
   "schemas/verification-receipt.v0.schema.json",
   "schemas/settlement-receipt.v0.schema.json",
   "learn/index.html",
+  "learn/base-sepolia-contract-rail-live-evidence/index.html",
   "learn/agent-payments-stack/index.html",
+  "learn/agent-receipt-layer/index.html",
   "learn/payment-verification-vs-work-verification/index.html",
   "learn/paid-mcp-tools-production-checklist/index.html",
+  "learn/mcp-paid-tools-replay-protection/index.html",
   "learn/verifier-design-paid-agent-work/index.html",
+  "learn/verifier-design-patterns/index.html",
   "learn/agent-wallet-policy/index.html",
   "learn/conformance-audit-mainnet-checklist/index.html",
+  "learn/provider-onboarding/index.html",
+  "learn/launch-readiness-gates/index.html",
   "learn/agent-work-agreements/index.html",
   "learn/accord-vs-x402/index.html",
+  "learn/x402-accord-receipt-stack/index.html",
   "learn/verification-receipts/index.html",
   "learn/settlement-receipts/index.html",
   "learn/accord-mcp-paid-tools/index.html",
@@ -37,6 +45,7 @@ const requiredFiles = [
   "learn/why-ergo-reference-rail/index.html",
   "learn/conformance-levels/index.html",
   "learn/audit-gated-mainnet/index.html",
+  "learn/audit-manifests-explained/index.html",
   "learn/accord-vs-ap2/index.html",
   "learn/accord-vs-mcp/index.html",
   "learn/accord-402-flow/index.html",
@@ -68,6 +77,26 @@ const failures = [];
 for (const file of requiredFiles) {
   if (!existsSync(join(root, file))) {
     failures.push(`Missing ${file}`);
+  }
+}
+
+function readPngDimensions(file) {
+  const buffer = readFileSync(join(root, file));
+  const isPng = buffer.length > 24 && buffer[0] === 0x89 && buffer.toString("ascii", 1, 4) === "PNG";
+  if (!isPng) {
+    return null;
+  }
+  return {
+    width: buffer.readUInt32BE(16),
+    height: buffer.readUInt32BE(20)
+  };
+}
+
+const ogCardPng = "assets/og-card.png";
+if (existsSync(join(root, ogCardPng))) {
+  const dimensions = readPngDimensions(ogCardPng);
+  if (!dimensions || dimensions.width !== 1200 || dimensions.height !== 630) {
+    failures.push(`${ogCardPng} must be a 1200x630 PNG`);
   }
 }
 
